@@ -484,6 +484,7 @@ def test_reais_arredonda_como_gente_fala():
     assert motivo.reais(1_234_567) == "R$ 1,2 milhão"
     assert motivo.reais(950) == "R$ 950"
     assert motivo.reais(4_480) == "R$ 4,5 mil"
+    assert motivo.reais(999_800) == "R$ 1 milhão" and motivo.reais(999.7) == "R$ 1 mil" and motivo.reais(9_980) == "R$ 10 mil"
 
 
 def test_nenhum_motivo_generico(todas):

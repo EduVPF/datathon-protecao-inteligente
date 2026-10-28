@@ -40,6 +40,8 @@ GRUPOS_COBRADE = {13214: "agua", 12300: "agua", 12200: "agua",     # chuvas inte
 
 def atualizar_ipca(timeout=20):
     dados = _baixar_json(IPCA_API, timeout)
+    if len(dados) < 12 or any("data" not in d or "valor" not in d for d in dados):   # valida antes de gravar
+        raise ValueError(f"IPCA: resposta incompleta ({len(dados)} meses)")
     with open(PASTA / "ipca_mensal.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["data", "variacao_mensal_pct"])
@@ -57,14 +59,16 @@ def atualizar_sinapi(ufs=UFS, timeout=20):
         for linha in _baixar_json(url, timeout)[1:]:   # a primeira linha é o cabeçalho
             valores.setdefault(int(linha["D1C"]), {})[tipo] = float(linha["V"])
             mes = linha["D3C"]
+    faltam = [uf for uf, cod in ufs.items() if set(valores.get(cod, {})) != {"sem", "com"}]
+    if faltam or not mes:   # valida tudo antes de abrir o arquivo: falha parcial não apaga o salvo
+        raise ValueError(f"SINAPI: resposta incompleta (faltam {faltam or 'mês'})")
     hoje = datetime.date.today().isoformat()
+    linhas = [[uf, f"{valores[cod]['sem']:.2f}", f"{valores[cod]['com']:.2f}", f"{mes[:4]}-{mes[4:]}",
+               "IBGE SINAPI via API SIDRA (tabelas 6586 e 2296)", hoje] for uf, cod in ufs.items()]
     with open(PASTA / "sinapi_uf.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["uf", "sinapi_m2_sem_desoneracao", "sinapi_m2_com_desoneracao", "mes_referencia", "fonte", "data_acesso"])
-        for uf, cod in ufs.items():
-            v = valores[cod]
-            w.writerow([uf, f"{v['sem']:.2f}", f"{v['com']:.2f}", f"{mes[:4]}-{mes[4:]}",
-                        "IBGE SINAPI via API SIDRA (tabelas 6586 e 2296)", hoje])
+        w.writerows(linhas)
     print(f"SINAPI: {len(ufs)} UFs gravadas ({mes[:4]}-{mes[4:]})")
 
 

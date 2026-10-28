@@ -57,7 +57,7 @@ def fontes():
     return {"sinapi": P.referencia("sinapi_uf.csv", "mes_referencia"),
             "ipca_ultimo_mes": P.referencia("ipca_mensal.csv", "data"),
             "cub": P.referencia("cub_uf.csv", "mes_referencia"),
-            "fipezap": P.referencia("fipezap_aluguel.csv", "mes_referencia") or "set/2026",
+            "fipezap": P.referencia("fipezap_aluguel.csv", "mes_referencia"),
             "desastres_s2id": "1991-2025 (base de 06/08/2026)", "aneel_continuidade": "2025"}
 
 

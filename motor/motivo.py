@@ -24,12 +24,12 @@ def _decimal(x):
 def reais(v):
     """R$ 950 · R$ 4,5 mil · R$ 49 mil · R$ 1,2 milhão (sem precisão falsa)."""
     v = float(v)
-    if v >= 1_000_000:
+    if v >= 999_500:   # limites pelo valor já arredondado: nada de "R$ 1000 mil"
         x = round(v / 1_000_000, 1)
         return f"R$ {_decimal(x)} {'milhão' if x < 2 else 'milhões'}"
-    if v >= 10_000:
+    if v >= 9_950:
         return f"R$ {round(v / 1000):.0f} mil"
-    if v >= 1_000:
+    if v >= 999.5:
         return f"R$ {_decimal(round(v / 1000, 1))} mil"
     return f"R$ {round(v):.0f}"
 

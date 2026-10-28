@@ -1,5 +1,4 @@
 """F4: fontes ao vivo com reserva. Nenhum teste usa a internet: as APIs são simuladas."""
-import json
 import sys
 from pathlib import Path
 
@@ -42,5 +41,15 @@ def test_ipca_ao_vivo(tmp_path, monkeypatch):
     meses = [{"data": f"01/{m:02d}/2026", "valor": "0.3"} for m in range(1, 13)]
     monkeypatch.setattr(coletar, "_baixar_json", lambda url, timeout: meses)
     coletar.atualizar_ipca()
-    assert len((tmp_path / "ipca_mensal.csv").read_text(encoding="utf-8").splitlines()) == 13
-    assert json.loads(json.dumps(meses))[0]["valor"] == "0.3"
+    linhas = (tmp_path / "ipca_mensal.csv").read_text(encoding="utf-8").splitlines()
+    assert len(linhas) == 13 and linhas[1].split(",") == ["01/01/2026", "0.3"]
+
+
+def test_resposta_incompleta_nao_apaga_o_salvo(tmp_path, monkeypatch):
+    monkeypatch.setattr(coletar, "PASTA", tmp_path)
+    for nome in ("sinapi_uf.csv", "ipca_mensal.csv"):
+        (tmp_path / nome).write_text("salvo\n", encoding="utf-8")
+    monkeypatch.setattr(coletar, "_baixar_json", lambda url, timeout: [] if "bcb" in url else _sidra({41: 1.0}))
+    resultado = coletar.atualizar_tudo(timeout=1)
+    assert all(v.startswith("mantido") for v in resultado.values())
+    assert all((tmp_path / n).read_text(encoding="utf-8") == "salvo\n" for n in ("sinapi_uf.csv", "ipca_mensal.csv"))
