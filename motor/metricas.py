@@ -104,9 +104,10 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         if xs:
             largura[nivel] = round(statistics.median(xs), 2)
     fixas_ok = sum(set(catalogo[f["plano"]]) <= {c["cobertura"] for c in f["coberturas"]} for f in fichas)
+    esperados = set(dados["template"].imovel_id)
     return {
         "casos_processados": n,
-        "processados_pct": 100.0,
+        "processados_pct": round(100 * len(esperados & set(por_id)) / len(esperados), 1),
         "com_justificativa_pct": round(100 * (resultado.justificativa_recomendacao.str.len() > 0).mean(), 1),
         "completude_coberturas_fixas_pct": round(100 * fixas_ok / n, 1),
         "linhas_de_cobertura": len(coberturas),
@@ -134,6 +135,52 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "sensibilidade_area_10pct_incendio_media_pct": round(sum(variacoes) / n, 2),
         "sensibilidade_area_casos_com_queda": int(quedas),
         "tempo_segundos": round(segundos, 2),
+        "backtest_fora_da_amostra": cal.get("backtest", {}),
+        "mercado": metricas_de_mercado(fichas),
+    }
+
+
+# Campos que uma cotação tradicional pede ao cliente: os 5 dados críticos do imóvel (tipo, uso,
+# vínculo, área, valor dos bens), as 6 declarações de elegibilidade do guia §9.1 (comunidade,
+# rural, tombado/condenado, obra, material combustível, seguro BB no endereço) e 1 valor por
+# cobertura do plano (o app atual pede para digitar cada valor).
+CAMPOS_DO_IMOVEL, DECLARACOES_ELEGIBILIDADE = 5, 6
+
+
+def metricas_de_mercado(fichas):
+    """Métricas que bancos e seguradoras acompanham, calculadas na base de teste:
+    - STP (straight-through processing): % que pode ir direto ao One Click, sem pessoa no meio;
+    - esforço: campos de uma cotação tradicional × perguntas da nossa jornada;
+    - ITV (insurance-to-value): importância segurada de incêndio ÷ valor em risco estimado (meio da
+      estimativa), no máximo e no mínimo da faixa. O mercado usa 80% como piso (cláusula de
+      ITV/rateio); abaixo disso, há subseguro. Mostra o risco de o cliente escolher o mínimo;
+    - faixas limitadas pelo produto: a estimativa passa do limite da cobertura;
+    - aderência aos sinistros reais: % das recomendações com as coberturas que mais
+      geram acionamentos na carteira residencial da BB Seguros."""
+    n = len(fichas)
+    tradicional = [CAMPOS_DO_IMOVEL + DECLARACOES_ELEGIBILIDADE + len(f["coberturas"]) for f in fichas]
+    nossas = [len(f["perguntas"]) for f in fichas]
+    itv_max, itv_min = [], []
+    for f in fichas:
+        c = next(c for c in f["coberturas"] if c["cobertura"] == "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+        if c.get("valor_em_risco"):
+            itv_max.append(c["max"] / c["valor_em_risco"])
+            itv_min.append(c["min"] / c["valor_em_risco"])
+    limitadas = Counter(c["cobertura"] for f in fichas for c in f["coberturas"] if c.get("limitada_pelo_produto"))
+    mais_acionadas = [c for c in ("DANOS_ELETRICOS", "DANOS_POR_AGUA", "VENDAVAL_GRANIZO") if P.sinistros_pct(c) is not None]
+    return {
+        "stp_one_click_pct": round(100 * sum(f["canal"] == "ONE_CLICK" for f in fichas) / n, 1),
+        "esforco_campos_cotacao_tradicional_media": round(statistics.mean(tradicional), 2),
+        "esforco_perguntas_nossa_jornada_media": round(statistics.mean(nossas), 2),
+        "esforco_reducao_pct": round(100 * (1 - sum(nossas) / sum(tradicional)), 1),
+        "itv_incendio_no_maximo_mediana": round(statistics.median(itv_max), 2) if itv_max else None,
+        "itv_incendio_no_maximo_abaixo_de_80pct_casos": sum(v < 0.8 for v in itv_max),
+        "itv_incendio_no_minimo_mediana": round(statistics.median(itv_min), 2) if itv_min else None,
+        "itv_incendio_no_minimo_abaixo_de_80pct_casos": sum(v < 0.8 for v in itv_min),
+        "faixas_limitadas_pelo_produto": dict(limitadas),
+        "recomendacoes_com_coberturas_mais_acionadas_pct": round(100 * sum(
+            set(mais_acionadas) <= {c["cobertura"] for c in f["coberturas"]} for f in fichas) / n, 1),
+        "acionamentos_bb_cobertos_por_elas_pct": round(sum(P.sinistros_pct(c) for c in mais_acionadas), 1),
     }
 
 

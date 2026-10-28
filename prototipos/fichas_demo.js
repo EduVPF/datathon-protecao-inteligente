@@ -104,14 +104,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1944.31,
+     2287.42,
      3253.18
     ],
     "fator_padrao": [
-     0.85,
+     1.0,
      1.3
     ],
-    "reconstrucao_min": 214000,
+    "origem_padrao": "estimado pelo IPTU/m²",
+    "reconstrucao_min": 252000,
     "reconstrucao_max": 358000,
     "segundo_risco": true
    },
@@ -165,34 +166,38 @@ window.FICHAS_DEMO = {
      "max": 203000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 110–110 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 110–110 m² × R$ 2.287–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
+     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
+     "limitada_pelo_produto": false,
+     "valor_em_risco": 144000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 17500,
+     "min": 18500,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 89.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 4500,
+     "min": 5000,
      "max": 18000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -204,7 +209,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -216,7 +222,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -226,9 +233,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 34.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
@@ -238,9 +246,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
+     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição. Na BB Seguros, 2,1% dos acionamentos do residencial são de roubo ou furto com arrombamento (jan/2023 a mai/2026).",
      "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1).",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEBRA_DE_VIDROS",
@@ -252,33 +261,35 @@ window.FICHAS_DEMO = {
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "ADICIONAL",
-     "min": 41000,
+     "min": 48000,
      "max": 137000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 2.287–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros."
+     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros.",
+     "limitada_pelo_produto": false
     }
    ],
    "perguntas": [
     {
      "prioridade": 58,
-     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
-     "codigo": "PADRAO",
-     "reduz_faixa_ate": 50000
-    },
-    {
-     "prioridade": 56,
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 22.000 e R$ 60.000?",
      "codigo": "BENS",
      "reduz_faixa_ate": 38000
+    },
+    {
+     "prioridade": 56,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 33000
     }
    ],
    "perguntas_candidatas": 2,
@@ -297,7 +308,8 @@ window.FICHAS_DEMO = {
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
-    "Condições Gerais BB Seguro Residencial v1.4"
+    "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
    ],
    "sinais": {
     "parcela": 950.0,
@@ -407,6 +419,7 @@ window.FICHAS_DEMO = {
      0.85,
      1.3
     ],
+    "origem_padrao": "não cadastrado",
     "reconstrucao_min": 223000,
     "reconstrucao_max": 668000,
     "segundo_risco": true
@@ -477,7 +490,9 @@ window.FICHAS_DEMO = {
      "regra": "área 122–212 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
+     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
+     "limitada_pelo_produto": false,
+     "valor_em_risco": 305000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
@@ -487,9 +502,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 262.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
@@ -499,9 +515,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "10%–20% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 134.000) passa do limite do produto (R$ 60.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -513,7 +530,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -525,7 +543,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -535,9 +554,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "Toda a estimativa (R$ 150.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
@@ -547,9 +567,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
+     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição. Na BB Seguros, 2,1% dos acionamentos do residencial são de roubo ou furto com arrombamento (jan/2023 a mai/2026).",
      "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1).",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEBRA_DE_VIDROS",
@@ -561,7 +582,8 @@ window.FICHAS_DEMO = {
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
@@ -573,7 +595,8 @@ window.FICHAS_DEMO = {
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "PERDA_PAGAMENTO_ALUGUEL",
@@ -585,7 +608,8 @@ window.FICHAS_DEMO = {
      "regra": "aluguel mensal × 6 a 12 meses",
      "justificativa": "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
      "confirmar": "Valor de aluguel de um imóvel equivalente",
-     "observacao": ""
+     "observacao": "Toda a estimativa (R$ 137.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
@@ -597,7 +621,8 @@ window.FICHAS_DEMO = {
      "regra": "2%–5% da faixa de incêndio",
      "justificativa": "Medidas urgentes para evitar que o dano aumente.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 24.000) passa do limite do produto (R$ 15.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     }
    ],
    "perguntas": [
@@ -638,6 +663,7 @@ window.FICHAS_DEMO = {
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "FipeZAP Locação set/2026 (Fipe)"
    ],
    "sinais": {
@@ -748,6 +774,7 @@ window.FICHAS_DEMO = {
      0.85,
      1.3
     ],
+    "origem_padrao": "não cadastrado",
     "reconstrucao_min": 128000,
     "reconstrucao_max": 390000,
     "segundo_risco": true
@@ -799,7 +826,9 @@ window.FICHAS_DEMO = {
      "regra": "área 77–134 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
+     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
+     "limitada_pelo_produto": false,
+     "valor_em_risco": 130000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
@@ -809,9 +838,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 84.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
@@ -821,9 +851,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -835,7 +866,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -847,7 +879,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -857,9 +890,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 40.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
@@ -871,7 +905,8 @@ window.FICHAS_DEMO = {
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros."
+     "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros.",
+     "limitada_pelo_produto": false
     }
    ],
    "perguntas": [
@@ -910,7 +945,8 @@ window.FICHAS_DEMO = {
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
-    "Condições Gerais BB Seguro Residencial v1.4"
+    "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
    ],
    "sinais": {
     "parcela": 0.0,
@@ -1014,14 +1050,15 @@ window.FICHAS_DEMO = {
    "valor_imovel": {
     "custo_m2": [
      1878.44,
-     2910.15
+     2238.58
     ],
     "fator_padrao": [
      0.85,
-     1.3
+     1.0
     ],
+    "origem_padrao": "estimado pelo IPTU/m²",
     "reconstrucao_min": 169000,
-    "reconstrucao_max": 262000,
+    "reconstrucao_max": 201000,
     "segundo_risco": true
    },
    "elegibilidade": "NAO",
@@ -1085,13 +1122,15 @@ window.FICHAS_DEMO = {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
      "min": 100000,
-     "max": 191000,
+     "max": 167000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 90–90 m² × R$ 1.878–R$ 2.910/m² (SINAPI SP até CUB SP oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 90–90 m² × R$ 1.878–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
+     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
+     "limitada_pelo_produto": false,
+     "valor_em_risco": 121000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
@@ -1101,21 +1140,23 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 102.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
      "min": 3500,
-     "max": 13000,
+     "max": 10000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -1127,7 +1168,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -1139,7 +1181,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -1149,9 +1192,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 56.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
@@ -1161,9 +1205,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
+     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição. Na BB Seguros, 2,1% dos acionamentos do residencial são de roubo ou furto com arrombamento (jan/2023 a mai/2026).",
      "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1).",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEBRA_DE_VIDROS",
@@ -1175,19 +1220,21 @@ window.FICHAS_DEMO = {
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
      "min": 39000,
-     "max": 122000,
+     "max": 94000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.878–R$ 2.910/m² (SINAPI SP até CUB SP oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.878–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "PERDA_PAGAMENTO_ALUGUEL",
@@ -1199,19 +1246,21 @@ window.FICHAS_DEMO = {
      "regra": "aluguel mensal × 6 a 12 meses",
      "justificativa": "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
      "confirmar": "Valor de aluguel de um imóvel equivalente",
-     "observacao": ""
+     "observacao": "Toda a estimativa (R$ 71.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
      "tipo": "FIXA",
      "min": 2000,
-     "max": 9500,
+     "max": 8500,
      "confianca": "MEDIA",
      "dados_utilizados": "faixa de incêndio",
      "regra": "2%–5% da faixa de incêndio",
      "justificativa": "Medidas urgentes para evitar que o dano aumente.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     }
    ],
    "perguntas": [
@@ -1225,7 +1274,7 @@ window.FICHAS_DEMO = {
      "prioridade": 56,
      "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
      "codigo": "PADRAO",
-     "reduz_faixa_ate": 36000
+     "reduz_faixa_ate": 12000
     },
     {
      "prioridade": 30,
@@ -1249,6 +1298,7 @@ window.FICHAS_DEMO = {
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "FipeZAP Locação set/2026 (Fipe)"
    ],
    "sinais": {
@@ -1352,14 +1402,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1678.25,
+     1974.41,
      2808.03
     ],
     "fator_padrao": [
-     0.85,
+     1.0,
      1.3
     ],
-    "reconstrucao_min": 210000,
+    "origem_padrao": "estimado pelo IPTU/m²",
+    "reconstrucao_min": 247000,
     "reconstrucao_max": 351000,
     "segundo_risco": true
    },
@@ -1420,34 +1471,38 @@ window.FICHAS_DEMO = {
      "max": 194000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 125–125 m² × R$ 1.678–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 125–125 m² × R$ 1.974–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento. Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo)."
+     "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento. Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo).",
+     "limitada_pelo_produto": false,
+     "valor_em_risco": 138000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 16000,
+     "min": 17500,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 82.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 4000,
+     "min": 5000,
      "max": 17500,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -1459,7 +1514,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -1471,7 +1527,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -1481,9 +1538,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 35.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
@@ -1493,9 +1551,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
+     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição. Na BB Seguros, 2,1% dos acionamentos do residencial são de roubo ou furto com arrombamento (jan/2023 a mai/2026).",
      "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1).",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEBRA_DE_VIDROS",
@@ -1507,19 +1566,21 @@ window.FICHAS_DEMO = {
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
-     "min": 35000,
+     "min": 41000,
      "max": 118000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.678–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.974–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "PERDA_PAGAMENTO_ALUGUEL",
@@ -1531,7 +1592,8 @@ window.FICHAS_DEMO = {
      "regra": "aluguel mensal × 6 a 12 meses",
      "justificativa": "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
@@ -1543,21 +1605,22 @@ window.FICHAS_DEMO = {
      "regra": "2%–5% da faixa de incêndio",
      "justificativa": "Medidas urgentes para evitar que o dano aumente.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     }
    ],
    "perguntas": [
     {
      "prioridade": 58,
-     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
-     "codigo": "PADRAO",
-     "reduz_faixa_ate": 49000
-    },
-    {
-     "prioridade": 56,
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 20.000 e R$ 54.000?",
      "codigo": "BENS",
      "reduz_faixa_ate": 34000
+    },
+    {
+     "prioridade": 56,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 32000
     }
    ],
    "perguntas_candidatas": 2,
@@ -1575,7 +1638,8 @@ window.FICHAS_DEMO = {
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
-    "Condições Gerais BB Seguro Residencial v1.4"
+    "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
    ],
    "sinais": {
     "parcela": 0.0,
@@ -1685,6 +1749,7 @@ window.FICHAS_DEMO = {
      0.85,
      1.3
     ],
+    "origem_padrao": "não cadastrado",
     "reconstrucao_min": 237000,
     "reconstrucao_max": 691000,
     "segundo_risco": false
@@ -1756,7 +1821,9 @@ window.FICHAS_DEMO = {
      "regra": "área 122–213 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) + bens",
      "justificativa": "Reconstruir o imóvel e repor os bens; com limite único, o prédio é pago primeiro.",
      "confirmar": "Área do imóvel e valor dos bens",
-     "observacao": "Limite único prédio + conteúdo, com prioridade do prédio (CG cl. 5.5–5.6)."
+     "observacao": "Limite único prédio + conteúdo, com prioridade do prédio (CG cl. 5.5–5.6). Imóvel alugado a terceiros: os bens do inquilino são dele (locatário); confirme se o imóvel é alugado mobiliado com bens seus. O máximo estimado (R$ 804.000) passa do limite do produto (R$ 600.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true,
+     "valor_em_risco": 541000
     },
     {
      "cobertura": "DANOS_POR_AGUA",
@@ -1766,9 +1833,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
      "regra": "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
-     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.",
+     "justificativa": "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido. Na BB Seguros, 14,6% dos acionamentos do residencial são de danos por água (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 168.000) passa do limite do produto (R$ 50.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "VENDAVAL_GRANIZO",
@@ -1778,9 +1846,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "10%–20% da reconstrução",
-     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
+     "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas. Na BB Seguros, 11,5% dos acionamentos do residencial são de vendaval e granizo (jan/2023 a mai/2026).",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 138.000) passa do limite do produto (R$ 60.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
@@ -1792,7 +1861,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto (casa até R$ 20 mil)",
      "justificativa": "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEDA_AERONAVE",
@@ -1804,7 +1874,8 @@ window.FICHAS_DEMO = {
      "regra": "padrão do produto",
      "justificativa": "Evento raro; valor padrão do produto.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "DANOS_ELETRICOS",
@@ -1814,9 +1885,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
-     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.",
+     "justificativa": "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto. Na BB Seguros, 53,3% dos acionamentos do residencial são de danos elétricos (jan/2023 a mai/2026).",
      "confirmar": "Principais aparelhos da casa",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 60.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
@@ -1826,9 +1898,10 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
+     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição. Na BB Seguros, 2,1% dos acionamentos do residencial são de roubo ou furto com arrombamento (jan/2023 a mai/2026).",
      "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1).",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "QUEBRA_DE_VIDROS",
@@ -1840,7 +1913,8 @@ window.FICHAS_DEMO = {
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
@@ -1852,7 +1926,8 @@ window.FICHAS_DEMO = {
      "regra": "casa: faixa de referência de danos a terceiros",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "",
+     "limitada_pelo_produto": false
     },
     {
      "cobertura": "PERDA_PAGAMENTO_ALUGUEL",
@@ -1864,7 +1939,8 @@ window.FICHAS_DEMO = {
      "regra": "aluguel mensal × 6 a 12 meses",
      "justificativa": "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
      "confirmar": "Valor de aluguel de um imóvel equivalente",
-     "observacao": ""
+     "observacao": "Toda a estimativa (R$ 100.000) passa do limite do produto (R$ 30.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     },
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
@@ -1876,7 +1952,8 @@ window.FICHAS_DEMO = {
      "regra": "2%–5% da faixa de incêndio",
      "justificativa": "Medidas urgentes para evitar que o dano aumente.",
      "confirmar": "",
-     "observacao": ""
+     "observacao": "O máximo estimado (R$ 30.000) passa do limite do produto (R$ 15.000): o valor acima do limite fica descoberto.",
+     "limitada_pelo_produto": true
     }
    ],
    "perguntas": [
@@ -1915,7 +1992,8 @@ window.FICHAS_DEMO = {
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
-    "Condições Gerais BB Seguro Residencial v1.4"
+    "Condições Gerais BB Seguro Residencial v1.4",
+    "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
    ],
    "sinais": {
     "parcela": 0.0,

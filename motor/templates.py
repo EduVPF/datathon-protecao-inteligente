@@ -41,10 +41,21 @@ def validar_templates(resultado, coberturas, template, template_coberturas, cata
             erros.append(f"coberturas: {col} vazio")
     if (coberturas.faixa_valor_min > coberturas.faixa_valor_max).any():
         erros.append("coberturas: faixa com mínimo maior que o máximo")
+    if (coberturas.faixa_valor_min < 0).any():
+        erros.append("coberturas: faixa negativa")
+    niveis = {"ALTA", "MEDIA", "BAIXA"}
+    if not resultado.confianca_geral.isin(niveis).all() or not coberturas.confianca_estimativa.isin(niveis).all():
+        erros.append("confiança fora de ALTA/MEDIA/BAIXA")
+    if coberturas.duplicated(["cliente_id", "imovel_id", "cobertura"]).any():
+        erros.append("coberturas: a mesma cobertura repetida no mesmo caso")
     por_caso = coberturas.groupby(["cliente_id", "imovel_id"]).cobertura.apply(set).to_dict()
     for row in resultado.itertuples(index=False):
         tem = por_caso.get((row.cliente_id, row.imovel_id), set())
         faltam = fixas.get(row.plano_recomendado, set()) - tem
         if faltam:
             erros.append(f"coberturas: {row.imovel_id} sem as fixas {sorted(faltam)}")
+        # RN-33: a lista da planilha 1 e as linhas da planilha 2 têm de ser as mesmas coberturas
+        listadas = {c.strip() for c in str(row.coberturas_recomendadas).split(";") if c.strip()}
+        if listadas != tem:
+            erros.append(f"{row.imovel_id}: coberturas_recomendadas diferente das linhas da planilha de coberturas")
     return erros

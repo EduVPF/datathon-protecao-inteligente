@@ -31,6 +31,8 @@ def test_sem_parametro_de_renda():
 
 
 # --- T2: tipo, área e bens -------------------------------------------------------
+import pandas as pd  # noqa: E402
+
 import motor  # noqa: E402
 
 
@@ -200,11 +202,70 @@ def test_seguro_existente_dois_imoveis_pergunta_qual(caso, cal, teste):
 
 
 def test_padrao_desconhecido_abre_a_faixa(ficha):
-    normal = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL")
-    nao_sei = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL")
+    # sem área cadastrada, o IPTU não serve para o padrão (seria circular): a faixa abre inteira
+    normal = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL", area_cadastrada_m2=0)
+    nao_sei = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL", area_cadastrada_m2=0)
     a, b = _cob(normal, "INCENDIO_RAIO_EXPLOSAO_FUMACA"), _cob(nao_sei, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
     assert b["min"] <= a["min"] and b["max"] >= a["max"] and nao_sei["valor_imovel"]["fator_padrao"] == [0.85, 1.3]
     assert any(p["codigo"] == "PADRAO" for p in nao_sei["perguntas"]) or nao_sei["perguntas_candidatas"] > 3
+
+
+def test_padrao_pelo_iptu_estreita_a_faixa(ficha, caso, cal):
+    # área cadastrada + IPTU/m² acima de 1,15 × a mediana do município: descarta o econômico
+    r, _ = caso(APTO_CURITIBA)
+    rel = motor.iptu_relativo(r, cal)
+    alto = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL",
+                 pagamento_iptu_anual=r.pagamento_iptu_anual * 1.3 / rel)
+    baixo = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL",
+                  pagamento_iptu_anual=r.pagamento_iptu_anual * 0.7 / rel)
+    assert alto["valor_imovel"]["fator_padrao"] == [1.0, 1.3] and alto["valor_imovel"]["origem_padrao"] == "estimado pelo IPTU/m²"
+    assert baixo["valor_imovel"]["fator_padrao"] == [0.85, 1.0]
+    assert "estimado pelo IPTU" in _cob(alto, "INCENDIO_RAIO_EXPLOSAO_FUMACA")["regra"]
+
+
+def test_padrao_cadastrado_nao_e_trocado_pelo_iptu(ficha):
+    f = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="ECONOMICO", pagamento_iptu_anual=999999)
+    assert f["valor_imovel"]["fator_padrao"] == [0.85, 0.85]
+
+
+def test_backtest_fora_da_amostra(cal):
+    b = cal["backtest"]
+    assert 70 <= b["area_dentro_da_faixa_pct"] <= 90          # faixa q10–q90 calibrada (~80%)
+    assert b["padrao_intervalo_correto_pct"] >= 95 and b["padrao_estreitados"] > 100
+
+
+def test_area_com_iptu_zerado_usa_so_a_energia(linha, cal):
+    com = motor.inferir_area(linha(area_cadastrada_m2=0), cal)
+    sem_iptu = motor.inferir_area(linha(area_cadastrada_m2=0, pagamento_iptu_anual=0), cal)
+    # antes: 0,4 × área pela energia (encolhia 60%); agora a energia sozinha, com peso inteiro
+    assert sem_iptu["valor"] > 0.6 * com["valor"] and "IPTU" not in sem_iptu["fonte"]
+
+
+def test_estimativa_acima_do_limite_avisa_subseguro(ficha):
+    f = ficha(APTO_CURITIBA, compras_eletronicos_36m=400000, compras_eletrodomesticos_36m=200000)
+    c = _cob(f, "DANOS_ELETRICOS")
+    assert c["max"] == 30000 and c["limitada_pelo_produto"] and "fica descoberto" in c["observacao"]
+
+
+def test_despesas_emergenciais_sobre_a_faixa_de_incendio(ficha):
+    f = ficha("IMO_CASO_00008_01")
+    inc, desp = _cob(f, "INCENDIO_RAIO_EXPLOSAO_FUMACA"), _cob(f, "DESPESAS_EMERGENCIAIS")
+    assert desp["max"] <= max(motor.arred(inc["max"] * 0.05), 2000)
+
+
+def test_locador_avisa_que_conteudo_e_do_inquilino(ficha):
+    f = ficha("IMO_CASO_00003_01")
+    assert f["campos"]["vinculo"]["valor"] == "PROPRIETARIO_LOCADOR"
+    assert "locatário" in _cob(f, "INCENDIO_RAIO_EXPLOSAO_FUMACA")["observacao"]
+
+
+def test_motivo_cita_sinistros_reais_sem_mudar_valor(ficha, monkeypatch):
+    com = ficha(APTO_CURITIBA)
+    assert "53,3%" in _cob(com, "DANOS_ELETRICOS")["justificativa"]
+    monkeypatch.setattr(motor.P, "sinistros_pct", lambda cob: None)   # sem o arquivo externo
+    sem = ficha(APTO_CURITIBA)
+    assert [(c["min"], c["max"]) for c in com["coberturas"]] == [(c["min"], c["max"]) for c in sem["coberturas"]]
+    assert "acionamentos" not in _cob(sem, "DANOS_ELETRICOS")["justificativa"]
 
 
 def test_perguntas_de_valor_seguem_o_valor_da_informacao(ficha):
@@ -284,6 +345,17 @@ def test_validador_pega_erros(planilhas, teste):
     cob = cob[cob.cobertura != "QUEDA_AERONAVE"]                          # cobertura fixa faltando
     erros = validar_templates(res, cob, teste["template"], teste["template_coberturas"], teste["catalogo"])
     assert any("mínimo maior" in e for e in erros) and any("sem as fixas" in e for e in erros)
+
+
+def test_validador_pega_plano_e_coberturas_inconsistentes(planilhas, teste):
+    res, cob = planilhas
+    res = res.copy()
+    res.loc[0, "coberturas_recomendadas"] += "; QUEBRA_DE_VIDROS_EXTRA"      # RN-33: lista ≠ linhas
+    cob = pd.concat([cob, cob.iloc[[0]]])                                        # linha duplicada
+    cob.loc[cob.index[1], "confianca_estimativa"] = "ALTISSIMA"
+    erros = validar_templates(res, cob, teste["template"], teste["template_coberturas"], teste["catalogo"])
+    assert any("coberturas_recomendadas diferente" in e for e in erros)
+    assert any("repetida" in e for e in erros) and any("fora de ALTA/MEDIA/BAIXA" in e for e in erros)
 
 
 # --- T5: confiança, perguntas, justiça e coerência ------------------------------

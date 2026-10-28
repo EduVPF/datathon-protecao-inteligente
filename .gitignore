@@ -20,3 +20,6 @@ desktop.ini
 
 # Instaladores e executáveis (ex.: o instalador do Obsidian)
 *.exe
+
+# Estado local do Obsidian (abas abertas, por pessoa)
+obsidian/**/.obsidian/workspace*.json

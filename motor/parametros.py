@@ -75,6 +75,26 @@ def fator_padrao(padrao):
     f = FATOR_PADRAO.get(str(padrao).upper())
     return (f, f) if f else FATOR_PADRAO_DESCONHECIDO
 
+
+# Padrão vazio, mas área cadastrada: o IPTU por m² comparado à mediana do município indica o padrão,
+# porque a planta genérica de valores do IPTU considera o padrão de acabamento. Na base de
+# desenvolvimento (273 imóveis com área e padrão), a mediana dessa razão é 0,82 no econômico,
+# 0,98 no normal e 1,32 no superior. Abaixo de 0,90 o superior é descartado; acima de 1,15, o
+# econômico. Estreita 178 dos 273 e o padrão real fica dentro do intervalo em 98,5% (metricas.py).
+IPTU_REL_SEM_SUPERIOR = 0.90
+IPTU_REL_SEM_ECONOMICO = 1.15
+
+
+def fator_padrao_pelo_iptu(iptu_rel):
+    """(fator mínimo, fator máximo) pelo IPTU/m² relativo ao município; None se não estreitar."""
+    if iptu_rel is None or not iptu_rel > 0:
+        return None
+    if iptu_rel < IPTU_REL_SEM_SUPERIOR:
+        return (FATOR_PADRAO["ECONOMICO"], FATOR_PADRAO["NORMAL"])
+    if iptu_rel > IPTU_REL_SEM_ECONOMICO:
+        return (FATOR_PADRAO["NORMAL"], FATOR_PADRAO["SUPERIOR"])
+    return None
+
 # Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado.
 # A estrutura é paga primeiro pelo seguro do condomínio/financiamento; o residencial
 # cobre acabamentos e benfeitorias. Para desligar a regra, use (1.0, 1.0).
@@ -106,6 +126,23 @@ def _tabela_aluguel():
 def aluguel_m2(uf):
     """R$/m² de aluguel na capital da UF (as 10 cidades da base são capitais); None se faltar."""
     return _tabela_aluguel().get(uf)
+
+
+# --- Acionamentos reais do Seguro Residencial BB (jan/2023 a mai/2026) ---------
+# Só entra no TEXTO do motivo (por que a cobertura importa), nunca no valor. Sem o arquivo,
+# o motor roda igual e o texto sai sem a frase.
+@lru_cache(maxsize=None)
+def _tabela_sinistros():
+    return {l["cobertura"]: l for l in _ler_csv("sinistros_residencial_bb.csv")}
+
+
+def sinistros_pct(cobertura):
+    """% dos acionamentos do Seguro Residencial BB nessa cobertura, ou None."""
+    l = _tabela_sinistros().get(cobertura)
+    return float(l["pct_acionamentos"]) if l else None
+
+
+FONTE_SINISTROS = "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
 
 
 # --- Bens (três âncoras) -------------------------------------------------------
@@ -150,6 +187,9 @@ PENALIDADE_COMPLETUDE = {"area_cadastrada_m2": 0.15, "padrao_construtivo_cadastr
                          "material_parede_externa_cadastrado": 0.01}
 CAMPOS_COMPLETUDE = tuple(PENALIDADE_COMPLETUDE)
 MAX_PERGUNTAS = 3
+# Pergunta de valor que aperta a faixa em menos que isto não vale o esforço do cliente (premissa do time;
+# RN-36 "poucas e priorizadas" e RN-51 "equilíbrio"). Cerca de 1% de um incêndio típico.
+VALOR_MINIMO_PERGUNTA = 5000
 
 # faixa() usa este nome
 LIMITES_COBERTURA = LIMITES_PRODUTO

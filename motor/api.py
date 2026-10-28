@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from typing import Literal, Optional
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import motor
 from gerar import DADOS
@@ -32,7 +32,7 @@ FATOR_BENS = {"menos": 0.75, "isso": 1.0, "mais": 1.3}
 class Confirmacoes(BaseModel):
     imovel_id: str
     bens: Optional[Literal["menos", "isso", "mais"]] = None   # resposta à pergunta dos bens
-    area_m2: Optional[float] = None                           # área informada pelo cliente
+    area_m2: Optional[float] = Field(None, gt=0, le=10000)    # área informada pelo cliente (m²); 0 ou negativa é recusada
 
 
 def _ficha(imovel_id, campos_extra=None, confirmados=()):
@@ -65,7 +65,7 @@ def recomendar(c: Confirmacoes):
         for col in ["compras_moveis_36m", "compras_eletrodomesticos_36m", "compras_eletronicos_36m"]:
             extra[col] = float(base[col]) * f
         confirmados.append("bens")
-    if c.area_m2:
+    if c.area_m2 is not None:
         extra["area_cadastrada_m2"] = c.area_m2
         confirmados.append("area")
     return _ficha(c.imovel_id, extra, tuple(confirmados))

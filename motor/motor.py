@@ -41,11 +41,21 @@ def carregar(origem):
 
 def calibrar(dados):
     """Aprende R$ de IPTU e de energia por m² por município, nos imóveis com área
-    cadastrada, e o erro típico da estimativa para montar a faixa."""
+    cadastrada, e o erro típico da estimativa para montar a faixa. Também guarda o
+    backtest fora da amostra da área e do padrão pelo IPTU (ver backtest())."""
     m = dados["enderecos_imoveis"].merge(dados["sinais_imobiliarios"], on=["imovel_id", "cliente_id"])
     a = m[m.area_cadastrada_m2 > 0].copy()
-    a["iptu_m2"] = a.pagamento_iptu_anual / a.area_cadastrada_m2
-    a["energia_m2"] = a.energia_media_mensal_6m / a.area_cadastrada_m2
+    cal = _calibrar_area(a)
+    cal["backtest"] = backtest(a)
+    return cal
+
+
+def _calibrar_area(a):
+    """A parte da calibração que aprende com imóveis de área conhecida (`a`)."""
+    a = a.copy()
+    # IPTU ou energia zerados (isenção, imóvel vazio) não entram na mediana do R$/m²
+    a["iptu_m2"] = a.pagamento_iptu_anual.where(a.pagamento_iptu_anual > 0) / a.area_cadastrada_m2
+    a["energia_m2"] = a.energia_media_mensal_6m.where(a.energia_media_mensal_6m > 0) / a.area_cadastrada_m2
     por_mun = a.groupby("codigo_ibge_municipio")[["iptu_m2", "energia_m2"]].median()
     geral = a[["iptu_m2", "energia_m2"]].median()
     cal = {
@@ -67,11 +77,67 @@ def calibrar(dados):
     return cal
 
 
+def backtest(a):
+    """Validação fora da amostra, como os bancos fazem com modelos de estimativa: divide os
+    imóveis de área conhecida em 2 metades, calibra numa e mede na outra (e vice-versa).
+    Área: erro percentual (MAPE e mediana) e % da área real dentro da faixa q10–q90 (meta: ~80%).
+    Padrão: nos imóveis com padrão cadastrado, % em que o intervalo pelo IPTU contém o padrão real."""
+    a = a.reset_index(drop=True)
+    erros, dentro = [], []
+    estreitou = acertou = com_padrao = 0
+    for metade in (0, 1):
+        treino, prova = a[a.index % 2 != metade], a[a.index % 2 == metade]
+        c = _calibrar_area(treino)
+        for r in prova.itertuples(index=False):
+            est = _area_estimada(r, c)
+            if math.isfinite(est) and est > 0:
+                erros.append(abs(est - r.area_cadastrada_m2) / r.area_cadastrada_m2)
+                dentro.append(est * c["razao_q10"] <= r.area_cadastrada_m2 <= est * c["razao_q90"])
+            fator = P.FATOR_PADRAO.get(str(r.padrao_construtivo_cadastrado).upper())
+            if fator:
+                com_padrao += 1
+                intervalo = P.fator_padrao_pelo_iptu(iptu_relativo(r, c))
+                if intervalo:
+                    estreitou += 1
+                    acertou += intervalo[0] <= fator <= intervalo[1]
+    return {
+        "metodo": "2 metades da base de desenvolvimento (calibra numa, mede na outra)",
+        "area_casos": len(erros),
+        "area_mape_pct": round(100 * float(np.mean(erros)), 1),
+        "area_erro_mediano_pct": round(100 * float(np.median(erros)), 1),
+        "area_dentro_da_faixa_pct": round(100 * float(np.mean(dentro)), 1),
+        "padrao_casos": com_padrao,
+        "padrao_estreitados": estreitou,
+        "padrao_intervalo_correto_pct": round(100 * acertou / estreitou, 1) if estreitou else None,
+    }
+
+
+def _positivo(v):
+    return v is not None and math.isfinite(float(v)) and float(v) > 0
+
+
 def _area_estimada(r, cal):
+    """Área pelo IPTU (peso 0,6) e pela energia (0,4). Se um dos dois vier zerado ou vazio,
+    usa só o outro com o peso inteiro: um IPTU isento não pode encolher a área em 60%.
+    Sem nenhum dos dois, devolve NaN (inferir_area usa a mediana de imóveis parecidos)."""
     k = str(r.codigo_ibge_municipio)
-    por_iptu = r.pagamento_iptu_anual / cal["iptu_m2"].get(k, cal["iptu_m2_geral"])
-    por_energia = r.energia_media_mensal_6m / cal["energia_m2"].get(k, cal["energia_m2_geral"])
-    return 0.6 * por_iptu + 0.4 * por_energia
+    partes = []
+    if _positivo(r.pagamento_iptu_anual):
+        partes.append((0.6, r.pagamento_iptu_anual / cal["iptu_m2"].get(k, cal["iptu_m2_geral"])))
+    if _positivo(r.energia_media_mensal_6m):
+        partes.append((0.4, r.energia_media_mensal_6m / cal["energia_m2"].get(k, cal["energia_m2_geral"])))
+    if not partes:
+        return float("nan")
+    return sum(p * v for p, v in partes) / sum(p for p, _ in partes)
+
+
+def iptu_relativo(r, cal):
+    """IPTU por m² do imóvel ÷ mediana do município. Só com área cadastrada: quando a área
+    é estimada pelo próprio IPTU, a razão seria circular. None se não der para calcular."""
+    if not (_positivo(r.area_cadastrada_m2) and _positivo(r.pagamento_iptu_anual)):
+        return None
+    ref = cal["iptu_m2"].get(str(r.codigo_ibge_municipio), cal["iptu_m2_geral"])
+    return (r.pagamento_iptu_anual / r.area_cadastrada_m2) / ref if ref else None
 
 
 # --- Utilidades ----------------------------------------------------------------
@@ -174,9 +240,10 @@ def inferir_area(r, cal):
         d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de imóveis parecidos em {r.municipio_real}", "PRESUMIDO", 0)
         d["min"], d["max"] = a * 0.7, a * 1.3
         return d
+    sinais = [f"IPTU ({brl(r.pagamento_iptu_anual)}/ano)" if _positivo(r.pagamento_iptu_anual) else "",
+              f"energia ({brl(r.energia_media_mensal_6m)}/mês)" if _positivo(r.energia_media_mensal_6m) else ""]
     d = dado(round(a), "ESTIMADO", "MEDIA",
-             f"estimada pelo IPTU ({brl(r.pagamento_iptu_anual)}/ano) e energia ({brl(r.energia_media_mensal_6m)}/mês) "
-             f"comparados a imóveis de {r.municipio_real}", "DERIVADO", 3)
+             f"estimada pelo {' e '.join(s for s in sinais if s)} comparados a imóveis de {r.municipio_real}", "DERIVADO", 3)
     d["min"], d["max"] = a * cal["razao_q10"], a * cal["razao_q90"]
     return d
 
@@ -225,15 +292,23 @@ def estimar_bens(r, bens):
     return d
 
 
-def valor_imovel(r, tipo, vinculo, area):
+def valor_imovel(r, tipo, vinculo, area, cal=None):
     """Custo de reconstruir o imóvel: área × [SINAPI, CUB] da UF × padrão construtivo.
+    Padrão vazio com área cadastrada: o IPTU/m² do município estreita o fator (parametros.py).
     Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado."""
     lo_m2, hi_m2 = P.custo_m2(r.uf_real)
     f_lo, f_hi = P.fator_padrao(r.padrao_construtivo_cadastrado)
+    origem_padrao = "cadastrado" if f_lo == f_hi else "não cadastrado"
+    if f_lo != f_hi and cal is not None:
+        pelo_iptu = P.fator_padrao_pelo_iptu(iptu_relativo(r, cal))
+        if pelo_iptu:
+            f_lo, f_hi = pelo_iptu
+            origem_padrao = "estimado pelo IPTU/m²"
     return {
         "custo_m2": (lo_m2 * f_lo, hi_m2 * f_hi),
         "custo_m2_base": (lo_m2, hi_m2),
         "fator_padrao": (f_lo, f_hi),
+        "origem_padrao": origem_padrao,
         "reconstrucao": (area["min"] * lo_m2 * f_lo, area["max"] * hi_m2 * f_hi),
         "segundo_risco": tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO") or vinculo["valor"] == "FINANCIADO",
         "fonte_disponivel": P.fonte_disponivel(r.uf_real),
@@ -366,6 +441,10 @@ def escolher_plano(r, tipo, vinculo, uso, bens):
 
 # --- Coberturas: maior perda provável (CG cl. 15.1, primeiro risco absoluto) ---
 
+NOME_SINISTRO = {"DANOS_ELETRICOS": "danos elétricos", "DANOS_POR_AGUA": "danos por água",
+                 "VENDAVAL_GRANIZO": "vendaval e granizo", "ROUBO_FURTO_ARROMBAMENTO": "roubo ou furto com arrombamento"}
+
+
 def faixa_bruta_incendio(ctx):
     rec, bens, im = ctx["imovel"]["reconstrucao"], ctx["bens"], ctx["imovel"]
     if im["segundo_risco"]:
@@ -380,16 +459,34 @@ def dimensionar(cob, ctx):
     casa = tipo["valor"] in ("CASA", "CASA_EM_CONDOMINIO")
     rec = im["reconstrucao"]
     conf_base = pior(area["confianca"], bens["confianca"], "ALTA" if im["fonte_disponivel"] else "BAIXA")
-    obs_aluguel = ("Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo)."
-                   if vinculo["valor"] == "INQUILINO" else "")
+    # RN-27: em imóvel alugado, o imóvel é do locador e o conteúdo é do locatário
+    obs_aluguel = {"INQUILINO": "Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo).",
+                   "PROPRIETARIO_LOCADOR": "Imóvel alugado a terceiros: os bens do inquilino são dele (locatário); "
+                                           "confirme se o imóvel é alugado mobiliado com bens seus."}.get(vinculo["valor"], "")
 
     def saida(lo, hi, conf, dados_u, regra, just, confirmar="", obs=""):
+        teto = P.LIMITES_COBERTURA.get(cob, (0, float("inf")))[1]
+        bruto_lo, bruto_hi = min(lo, hi), max(lo, hi)
         lo, hi = faixa(lo, hi, cob)
+        # Transparência sobre subseguro (Código Civil art. 778; D-07): a estimativa passa do limite do produto
+        acima = "Toda a estimativa" if bruto_lo > teto else "O máximo estimado" if bruto_hi > teto else ""
+        if acima:
+            obs = (f"{obs} {acima} ({brl(arred(bruto_hi))}) passa do limite do produto "
+                   f"({brl(teto)}): o valor acima do limite fica descoberto.").strip()
+        pct = P.sinistros_pct(cob)
+        if pct is not None:   # frequência real na carteira BB: só reforça o motivo, não muda o valor
+            just = (f"{just} Na BB Seguros, {str(pct).replace('.', ',')}% dos acionamentos do residencial "
+                    f"são de {NOME_SINISTRO[cob]} (jan/2023 a mai/2026).")
+            ctx["fontes"].add(P.FONTE_SINISTROS)
         return {"min": lo, "max": hi, "confianca": conf, "dados_utilizados": dados_u, "regra": regra,
-                "justificativa": just, "confirmar": confirmar, "observacao": obs}
+                "justificativa": just, "confirmar": confirmar, "observacao": obs,
+                "limitada_pelo_produto": bool(acima)}
 
     custo = f"{brl(im['custo_m2'][0])}–{brl(im['custo_m2'][1])}/m² (SINAPI {r.uf_real} até {P.fonte_custo(r.uf_real)}"
-    custo += (", padrão não cadastrado: fator 0,85 a 1,30)" if im["fator_padrao"][0] != im["fator_padrao"][1] else ")")
+    f_lo, f_hi = im["fator_padrao"]
+    if f_lo != f_hi:
+        custo += f", padrão {im['origem_padrao']}: fator {f_lo:.2f} a {f_hi:.2f}".replace(".", ",")
+    custo += ")"
     if cob == "INCENDIO_RAIO_EXPLOSAO_FUMACA":
         lo, hi = faixa_bruta_incendio(ctx)
         if im["segundo_risco"]:
@@ -400,8 +497,10 @@ def dimensionar(cob, ctx):
             regra = f"área {area['min']:.0f}–{area['max']:.0f} m² × {custo} + bens"
             obs = "Limite único prédio + conteúdo, com prioridade do prédio (CG cl. 5.5–5.6). " + obs_aluguel
             just = "Reconstruir o imóvel e repor os bens; com limite único, o prédio é pago primeiro."
-        return saida(lo, hi, conf_base, "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA", regra, just,
-                     "Área do imóvel e valor dos bens", obs.strip())
+        c = saida(lo, hi, conf_base, "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA", regra, just,
+                  "Área do imóvel e valor dos bens", obs.strip())
+        c["valor_em_risco"] = arred((lo + hi) / 2)   # meio da estimativa, antes dos limites (para o ITV)
+        return c
     if cob == "DANOS_POR_AGUA":
         m = bens["molhaveis"]
         return saida(0.5 * m["min"] + 0.03 * rec[0], m["max"] + 0.08 * rec[1], conf_base, "bens molháveis, reconstrução",
@@ -460,7 +559,8 @@ def dimensionar(cob, ctx):
                      "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
                      "" if conf == "ALTA" else "Valor de aluguel de um imóvel equivalente")
     if cob == "DESPESAS_EMERGENCIAIS":
-        lo, hi = faixa_bruta_incendio(ctx)
+        # sobre a faixa de incêndio já ajustada aos limites do produto, como diz a regra
+        lo, hi = faixa(*faixa_bruta_incendio(ctx), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
         return saida(lo * 0.02, hi * 0.05, conf_base, "faixa de incêndio", "2%–5% da faixa de incêndio",
                      "Medidas urgentes para evitar que o dano aumente.")
     raise ValueError(cob)
@@ -468,9 +568,12 @@ def dimensionar(cob, ctx):
 
 # --- Perguntas e confiança -----------------------------------------------------
 
-def valor_da_informacao(area, bens, imovel):
+def valor_da_informacao(area, bens, imovel, largura_incendio=None):
     """Quanto da faixa de incêndio (R$ entre mínimo e máximo) cada resposta pode eliminar.
-    É a mesma ideia das seguradoras digitais: perguntar primeiro o que mais aperta a faixa."""
+    É a mesma ideia das seguradoras digitais: perguntar primeiro o que mais aperta a faixa.
+    `largura_incendio`: largura da faixa entregue, já nos limites do produto. Área e padrão só
+    mexem no incêndio, então não podem prometer apertar mais do que essa largura. Os bens
+    mexem também em danos elétricos, água e roubo, e ficam sem esse teto."""
     frac = P.FRACAO_ACABAMENTOS[1] if imovel["segundo_risco"] else 1.0
     lo_m2, hi_m2 = imovel["custo_m2_base"]
     f_lo, f_hi = imovel["fator_padrao"]
@@ -479,6 +582,10 @@ def valor_da_informacao(area, bens, imovel):
         valor["AREA"] = (area["max"] - area["min"]) * hi_m2 * f_hi * frac
     if f_hi > f_lo:
         valor["PADRAO"] = area["max"] * hi_m2 * (f_hi - f_lo) * frac
+    if largura_incendio is not None:
+        for k in ("AREA", "PADRAO"):
+            if k in valor:
+                valor[k] = min(valor[k], largura_incendio)
     return valor
 
 
@@ -493,10 +600,11 @@ def coberturas_adicionais(r, tipo, plano):
     return adicionais
 
 
-def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, imovel=None):
+def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, imovel=None, largura_incendio=None):
     """Até 3 perguntas, das que mais mudam o resultado (PLANO_UNIFICADO §7).
     Ordem: elegibilidade (95-100), as que mudam o plano (60-70) e depois as que mudam o
-    valor, ordenadas pelo valor da informação (58, 56, 54: quem mais aperta a faixa vem antes)."""
+    valor, ordenadas pelo valor da informação (58, 56, 54: quem mais aperta a faixa vem antes).
+    Pergunta de valor que aperta a faixa em menos de P.VALOR_MINIMO_PERGUNTA não é feita."""
     cand = [(p["prioridade"], p["pergunta"], p["codigo"]) for p in pendencias if p.get("pergunta")]
     if uso["confianca"] == "BAIXA":
         cand.append((70, "Este imóvel é onde você mora, uma casa de veraneio ou está alugado para outra pessoa?", "USO"))
@@ -507,7 +615,11 @@ def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, 
         "AREA": f"Estimamos que o imóvel tem cerca de {area['valor']} m². Confere?",
         "PADRAO": "O acabamento do imóvel é simples, normal ou de alto padrão?",
     }
-    vdi = valor_da_informacao(area, bens, imovel) if imovel else {"BENS": 1, **({"AREA": 0} if area["natureza"] == "ESTIMADO" else {})}
+    if imovel:
+        vdi = valor_da_informacao(area, bens, imovel, largura_incendio)
+        vdi = {k: v for k, v in vdi.items() if v >= P.VALOR_MINIMO_PERGUNTA}
+    else:
+        vdi = {"BENS": 1, **({"AREA": 0} if area["natureza"] == "ESTIMADO" else {})}
     for i, cod in enumerate(sorted(vdi, key=lambda c: -vdi[c])):
         cand.append((58 - 2 * i, textos[cod], cod))
     if tipo.get("diverge"):
@@ -620,7 +732,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
     tipo, vinculo = inferir_tipo(r), inferir_vinculo(r)
     uso, area = inferir_uso(r, outro_principal), inferir_area(r, cal)
     bens = estimar_bens(r, bens_imovel)
-    imovel = valor_imovel(r, tipo, vinculo, area)
+    imovel = valor_imovel(r, tipo, vinculo, area, cal)
     eleg, pendencias, avisos = avaliar_elegibilidade(r, uso, n_imoveis)
     rec = escolher_plano(r, tipo, vinculo, uso, bens)
     ctx = {"r": r, "tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens,
@@ -638,7 +750,9 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
             "a perda de aluguel e as despesas emergenciais (a RC familiar já entra como adicional)")
     if rec["plano"] == "ESSENCIAL":   # sem roubo no plano, o aviso sobre roubo não se aplica
         avisos = [a for a in avisos if "roubo" not in a]
-    perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, rec["plano"], imovel)
+    inc = next(c for c in coberturas if c["cobertura"] == "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, rec["plano"], imovel,
+                                         inc["max"] - inc["min"])
     campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens}
     for k in confirmados:
         campos[k]["natureza"] = "CONFIRMADO"
@@ -653,6 +767,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
         "campos": campos,
         "valor_imovel": {"custo_m2": [round(x, 2) for x in imovel["custo_m2"]],
                          "fator_padrao": list(imovel["fator_padrao"]),
+                         "origem_padrao": imovel["origem_padrao"],
                          "reconstrucao_min": arred(imovel["reconstrucao"][0]), "reconstrucao_max": arred(imovel["reconstrucao"][1]),
                          "segundo_risco": imovel["segundo_risco"]},
         "elegibilidade": eleg, "pendencias": pendencias, "avisos": avisos,

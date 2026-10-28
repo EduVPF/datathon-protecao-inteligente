@@ -31,3 +31,9 @@ def test_confirmar_mais_bens_aumenta_o_roubo():
     isso = cliente.post("/recomendar", json={"imovel_id": "IMO_CASO_00005_01", "bens": "isso"}).json()
     mais = cliente.post("/recomendar", json={"imovel_id": "IMO_CASO_00005_01", "bens": "mais"}).json()
     assert roubo(mais) > roubo(isso)
+
+
+def test_area_zero_ou_negativa_e_recusada():
+    for area in (0, -50):
+        r = cliente.post("/recomendar", json={"imovel_id": "IMO_CASO_00005_01", "area_m2": area})
+        assert r.status_code == 422
