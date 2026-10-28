@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 
+import motivo
 import motor
 import parametros as P
 
@@ -137,6 +138,34 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "tempo_segundos": round(segundos, 2),
         "backtest_fora_da_amostra": cal.get("backtest", {}),
         "mercado": metricas_de_mercado(fichas),
+        "qualidade_do_motivo": qualidade_do_motivo(fichas),
+    }
+
+
+def qualidade_do_motivo(fichas):
+    """O porquê é o que a banca mais olha (mentoria de 28/10). Mede o texto que o cliente lê:
+    nenhum motivo genérico, fato do próprio cliente, valor em risco, alternativas, sem
+    jargão interno, tamanho de leitura e coberturas com texto personalizado."""
+    import re
+    textos = {f["imovel_id"]: motor.justificativa(f) for f in fichas}
+    n, eleg = len(fichas), [f for f in fichas if f["elegibilidade"] == "SIM"]
+    palavras = [len(t.split()) for t in textos.values()]
+    por_cob = {}
+    for f in fichas:
+        for c in f["coberturas"]:
+            por_cob.setdefault(c["cobertura"], []).append(c["justificativa"])
+    pct = lambda k, tot: round(100 * k / tot, 1) if tot else 0.0
+    return {
+        "motivos_genericos": sum(any(m["codigo"] == "BASE" for m in f["motivos_plano"]) for f in fichas),
+        "motivo_com_fato_do_cliente_pct": pct(sum(any("R$" in m["texto"] for m in f["motivos_plano"]) for f in fichas), n),
+        "justificativa_com_valor_em_risco_pct": pct(sum(len(re.findall(r"R\$ \d", t)) >= 2 for t in textos.values()), n),
+        "alternativas_mostradas_pct": pct(sum("acrescenta" in textos[f["imovel_id"]] or "Se você escolher menos" in textos[f["imovel_id"]]
+                                              for f in eleg), len(eleg)),
+        "justificativas_com_termo_interno": sum(any(x in t for x in motivo.TERMOS_INTERNOS) for t in textos.values()),
+        "palavras_mediana": statistics.median(palavras),
+        "palavras_max": max(palavras),
+        "palavras_entre_60_e_120_pct": pct(sum(60 <= w <= 120 for w in palavras), n),
+        "coberturas_texto_distinto_pct": {k: pct(len(set(v)), len(v)) for k, v in sorted(por_cob.items())},
     }
 
 

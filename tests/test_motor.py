@@ -175,7 +175,7 @@ def test_seguro_existente_um_imovel_nao_elegivel(caso, cal, teste):
     catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
     f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=1)
     assert f["elegibilidade"] == "NAO" and f["pendencias"][0]["codigo"] == "SEGURO_EXISTENTE"
-    assert motor.justificativa(f).startswith("Não elegível para nova proposta")
+    assert motor.justificativa(f).startswith("Não podemos fazer uma nova proposta")
 
 
 def test_seguro_existente_sem_produto_bb_vira_pergunta(caso, cal, teste):
@@ -314,7 +314,7 @@ def test_confianca_dado_estimado_nao_e_alta(ficha):
 def test_confianca_motivo_na_justificativa(ficha):
     import motor
     f = ficha(APTO_CURITIBA)
-    assert f"Confiança {motor.NIVEL_TEXTO[f['confianca']]} (" in motor.justificativa(f)
+    assert f"Confiança {motor.NIVEL_TEXTO[f['confianca']]}:" in motor.justificativa(f)
 
 
 def test_campo_vazio_baixa_a_confianca(ficha):
@@ -338,10 +338,10 @@ def test_justificativa_tem_alternativas(ficha):
     f = ficha(APTO_CURITIBA)
     texto = motor.justificativa(f)
     assert texto.startswith("Recomendamos o plano")
-    if f["plano"] != "ESSENCIAL":
-        assert "Se você escolher menos" in texto and "ficarão descobertas" in texto
-    if f["plano"] != "TOTAL":
-        assert "Por que não um plano mais caro" in texto
+    if f["plano"] != "ESSENCIAL":   # frase do slide 23 da Brasilseg
+        assert "Se você escolher menos" in texto and "descobert" in texto
+    if f["plano"] != "TOTAL":       # alternativa mais completa (RN-37)
+        assert "acrescenta" in texto
 
 
 # --- T4: validação e planilhas ----------------------------------------------------
@@ -463,3 +463,51 @@ def test_metricas_e_casos(tmp_path):
     assert larg["ALTA"] <= larg["MEDIA"] <= larg["BAIXA"]
     assert met["completude_coberturas_fixas_pct"] == 100.0 and met["sensibilidade_area_casos_com_queda"] == 0
     assert all(info["casos_contrastantes"].values())
+
+
+# --- Motivo 2.0 (mentoria 28/10: o porquê é o que diferencia) -------------------
+import re  # noqa: E402
+
+import motivo  # noqa: E402
+
+TERMOS_INTERNOS = ("presumido", "estimado:", "sinais ainda são fracos", "não há sinais", "o cliente ",
+                   "segundo risco", "elegibilidade a confirmar", "PRESUMIDO", "INFERIDO")
+
+
+@pytest.fixture(scope="session")
+def todas(teste, cal):
+    return motor.processar(teste, cal)
+
+
+def test_reais_arredonda_como_gente_fala():
+    assert motivo.reais(48552) == "R$ 49 mil"
+    assert motivo.reais(1_234_567) == "R$ 1,2 milhão"
+    assert motivo.reais(950) == "R$ 950"
+    assert motivo.reais(4_480) == "R$ 4,5 mil"
+
+
+def test_nenhum_motivo_generico(todas):
+    for f in todas:
+        assert all(m["codigo"] != "BASE" for m in f["motivos_plano"]), f["imovel_id"]
+        assert any("R$" in m["texto"] for m in f["motivos_plano"]), f["imovel_id"]
+
+
+def test_justificativa_sem_jargao_e_no_tamanho(todas):
+    for f in todas:
+        t = motor.justificativa(f)
+        assert not any(x in t for x in TERMOS_INTERNOS), (f["imovel_id"], t)
+        assert len(t.split()) <= (150 if f["elegibilidade"] == "NAO" else 130), (f["imovel_id"], len(t.split()))
+
+
+def test_justificativa_diz_quanto_esta_em_jogo(todas):
+    for f in todas:
+        t = motor.justificativa(f)
+        assert len(re.findall(r"R\$ \d", t)) >= 2, (f["imovel_id"], t)
+        assert "Se você escolher" in t or f["plano"] == "ESSENCIAL" or f["elegibilidade"] == "NAO"
+
+
+def test_coberturas_com_texto_personalizado(todas):
+    for cob in ("INCENDIO_RAIO_EXPLOSAO_FUMACA", "DANOS_ELETRICOS", "DANOS_POR_AGUA", "VENDAVAL_GRANIZO"):
+        textos = [c["justificativa"] for f in todas for c in f["coberturas"] if c["cobertura"] == cob]
+        assert len(set(textos)) > len(textos) * 0.5, cob
+        assert all("R$" in t for t in textos), cob
