@@ -12,7 +12,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | 02 | Pesquisa de mercado e fontes oficiais | [02-pesquisa-e-fontes.md](02-pesquisa-e-fontes.md) | ✅ |
 | 03 | Protótipos das jornadas | [03-prototipos.md](03-prototipos.md) | ✅ |
 | 10 | T1 · Parâmetros e fontes no motor | [10-t1-parametros.md](10-t1-parametros.md) | ✅ |
-| 11 | T2 · Imóvel e bens | [11-t2-imovel-e-bens.md](11-t2-imovel-e-bens.md) | ⏳ |
+| 11 | T2 · Imóvel e bens | [11-t2-imovel-e-bens.md](11-t2-imovel-e-bens.md) | ✅ |
 | 12 | T3 · Elegibilidade, plano e coberturas | [12-t3-plano-e-coberturas.md](12-t3-plano-e-coberturas.md) | ⏳ |
 | 13 | T4 · Validação e planilhas v1 | [13-t4-planilhas-v1.md](13-t4-planilhas-v1.md) | ⏳ |
 | 14 | T5 e T6 · Confiança, testes, métricas e casos | [14-t5-t6-provas.md](14-t5-t6-provas.md) | ⏳ |
@@ -32,7 +32,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | `referencias/fontes/` | Os PDFs originais das fontes |
 
 ## Como trabalhamos no GitHub
-- **Uma tarefa = um branch = um pull request**, com o documento de contexto da etapa junto.
+- **Commits organizados direto na `main`**, um por etapa, sempre junto com o documento de contexto da etapa.
 - **`main` sempre funciona.** Os testes rodam sozinhos a cada envio (GitHub Actions).
 - **Commits:** `feat:` novidade · `fix:` correção · `docs:` documento · `data:` fonte de dados · `test:` teste.
 - **Marcos:** tag `v1-planilhas` (as 2 planilhas completas) e `entrega` (versão final).

@@ -1,11 +1,14 @@
-"""Motor de recomendação do Seguro Residencial — RASCUNHO (spike).
+"""Motor de recomendação do Seguro Residencial.
 
 Regras explicáveis, sem ML. Para cada cliente-imóvel gera uma "ficha" com:
 dados inferidos (com natureza e confiança), elegibilidade, plano, motivos,
 alternativa, coberturas com faixa mín/máx, perguntas e canal sugerido.
 A mesma ficha alimenta os CSVs da entrega, a tela do cliente e a do gerente.
+Plano de implementação: documentos/PLANO_UNIFICADO.md.
 """
 import json
+import math
+import re
 import zipfile
 from pathlib import Path
 
@@ -54,6 +57,11 @@ def calibrar(dados):
     cal["razao_q10"], cal["razao_q90"] = float(razao.quantile(0.10)), float(razao.quantile(0.90))
     cal["erro_mediano_m2"] = float((a.area_cadastrada_m2 - est).abs().median())
     cal["n_calibracao"] = int(len(a))
+    # reserva para imóvel sem área, IPTU e energia: mediana por município e tipo
+    a["tipo_simples"] = a.possui_termo_apartamento.map({"SIM": "APTO"}).fillna("CASA")
+    med = a.groupby(["codigo_ibge_municipio", "tipo_simples"]).area_cadastrada_m2.median()
+    cal["area_mediana"] = {f"{k[0]}|{k[1]}": float(v) for k, v in med.items()}
+    cal["area_mediana_geral"] = float(a.area_cadastrada_m2.median())
     return cal
 
 
@@ -66,8 +74,11 @@ def _area_estimada(r, cal):
 
 # --- Utilidades ----------------------------------------------------------------
 
-def dado(valor, natureza, confianca, fonte):
-    return {"valor": valor, "natureza": natureza, "confianca": confianca, "fonte": fonte}
+def dado(valor, natureza, confianca, fonte, fonte_tipo="INFERIDO", idade_meses=0):
+    """Um dado inferido: valor + natureza (observado/estimado/inferido/confirmado),
+    confiança, fonte legível e, para a T5, o tipo de fonte e a idade do sinal."""
+    return {"valor": valor, "natureza": natureza, "confianca": confianca, "fonte": fonte,
+            "fonte_tipo": fonte_tipo, "idade_meses": idade_meses}
 
 
 def arred(v):
@@ -93,68 +104,128 @@ def brl(v):
 
 # --- Inferências sobre o imóvel ------------------------------------------------
 
+_APTO_COMPLEMENTO = re.compile(r"\b(AP|APTO|APARTAMENTO|BLOCO|BL|TORRE)\b")
+_CASA_COMPLEMENTO = re.compile(r"\b(CASA|LOTE|QUADRA|SOBRADO|FUNDOS)\b")
+
+
+def tipo_pelo_complemento(complemento):
+    c = str(complemento or "").upper()
+    if _APTO_COMPLEMENTO.search(c):
+        return "APARTAMENTO"
+    if _CASA_COMPLEMENTO.search(c):
+        return "CASA"
+    return None
+
+
 def inferir_tipo(r):
     if r.possui_termo_apartamento == "SIM":
-        return dado("APARTAMENTO", "INFERIDO", "ALTA", "termo 'apartamento' no endereço")
-    if r.possui_termo_condominio == "SIM":
+        d = dado("APARTAMENTO", "INFERIDO", "ALTA", "termo 'apartamento' no endereço")
+    elif r.possui_termo_condominio == "SIM":
         conf = "ALTA" if r.pagamento_condominio_mensal > 0 else "MEDIA"
-        return dado("CASA_EM_CONDOMINIO", "INFERIDO", conf, "termos 'casa' + 'condomínio' no endereço e pagamento de condomínio")
-    return dado("CASA", "INFERIDO", "ALTA", "termo 'casa' no endereço, sem condomínio")
+        d = dado("CASA_EM_CONDOMINIO", "INFERIDO", conf, "termos 'casa' + 'condomínio' no endereço e pagamento de condomínio")
+    else:
+        d = dado("CASA", "INFERIDO", "ALTA", "termo 'casa' no endereço, sem condomínio")
+    # conferência com o complemento (AP/APTO/BLOCO/TORRE × CASA/LOTE/QUADRA)
+    pelo_compl = tipo_pelo_complemento(r.complemento)
+    d["diverge"] = pelo_compl is not None and (pelo_compl == "APARTAMENTO") != (d["valor"] == "APARTAMENTO")
+    if d["diverge"]:
+        d["confianca"] = "MEDIA"
+        d["fonte"] += f"; o complemento sugere {pelo_compl.lower()}"
+    elif pelo_compl:
+        d["fonte"] += "; confirmado pelo complemento"
+    return d
 
 
 def inferir_vinculo(r):
     if r.pagamento_aluguel_recorrente == "SIM":
-        return dado("INQUILINO", "OBSERVADO", "ALTA", f"aluguel recorrente de {brl(r.valor_aluguel_recorrente)}/mês")
+        return dado("INQUILINO", "OBSERVADO", "ALTA", f"aluguel recorrente de {brl(r.valor_aluguel_recorrente)}/mês", "TRANSACAO", 6)
     if r.parcela_financiamento_imobiliario > 0:
-        return dado("FINANCIADO", "OBSERVADO", "ALTA", f"parcela de financiamento de {brl(r.parcela_financiamento_imobiliario)}/mês")
+        return dado("FINANCIADO", "OBSERVADO", "ALTA", f"parcela de financiamento de {brl(r.parcela_financiamento_imobiliario)}/mês", "TRANSACAO", 6)
     if r.credito_recorrente_compativel_aluguel == "SIM" and r.endereco_principal_compativel == "NAO":
-        return dado("PROPRIETARIO_LOCADOR", "INFERIDO", "MEDIA", f"recebe crédito recorrente compatível com aluguel ({brl(r.valor_medio_credito_recorrente)}/mês)")
-    return dado("PROPRIETARIO", "INFERIDO", "MEDIA", "sem aluguel pago nem financiamento: provável imóvel quitado")
+        return dado("PROPRIETARIO_LOCADOR", "INFERIDO", "MEDIA",
+                    f"recebe crédito recorrente compatível com aluguel ({brl(r.valor_medio_credito_recorrente)}/mês)", "TRANSACAO", 6)
+    return dado("PROPRIETARIO", "INFERIDO", "MEDIA", "sem aluguel pago nem financiamento: provável imóvel quitado", "INFERIDO", 6)
 
 
 def inferir_uso(r, outro_principal):
     if r.endereco_principal_compativel == "SIM":
-        return dado("RESIDENCIAL_HABITUAL", "OBSERVADO", "ALTA", "endereço compatível com o endereço principal do cliente")
+        return dado("RESIDENCIAL_HABITUAL", "OBSERVADO", "ALTA", "endereço compatível com o endereço principal do cliente", "DOCUMENTO", 0)
     if r.credito_recorrente_compativel_aluguel == "SIM":
-        return dado("RESIDENCIAL_LOCADO_A_TERCEIROS", "INFERIDO", "MEDIA", "não é o endereço principal e há crédito de aluguel")
+        return dado("RESIDENCIAL_LOCADO_A_TERCEIROS", "INFERIDO", "MEDIA", "não é o endereço principal e há crédito de aluguel", "TRANSACAO", 6)
     if outro_principal:
-        return dado("LAZER_VERANEIO", "INFERIDO", "BAIXA", "cliente mora em outro imóvel cadastrado")
-    return dado("RESIDENCIAL_HABITUAL", "INFERIDO", "BAIXA", "único imóvel, mas endereço não bate com o principal (cadastro desatualizado?)")
+        return dado("LAZER_VERANEIO", "INFERIDO", "BAIXA", "cliente mora em outro imóvel cadastrado", "INFERIDO", 0)
+    return dado("RESIDENCIAL_HABITUAL", "INFERIDO", "BAIXA",
+                "único imóvel, mas o endereço não bate com o principal (cadastro desatualizado?)", "INFERIDO", 0)
 
 
 def inferir_area(r, cal):
     if r.area_cadastrada_m2 > 0:
         a = float(r.area_cadastrada_m2)
-        d = dado(round(a), "OBSERVADO", "ALTA", f"área cadastrada ({r.origem_area})")
+        d = dado(round(a), "OBSERVADO", "ALTA", f"área cadastrada ({r.origem_area})", "DOCUMENTO", 0)
         d["min"], d["max"] = a, a
         return d
     a = _area_estimada(r, cal)
+    if not math.isfinite(a) or a <= 0:  # sem área, IPTU nem energia: mediana de imóveis parecidos
+        chave = f"{r.codigo_ibge_municipio}|{'APTO' if r.possui_termo_apartamento == 'SIM' else 'CASA'}"
+        a = cal["area_mediana"].get(chave, cal["area_mediana_geral"])
+        d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de imóveis parecidos em {r.municipio_real}", "INFERIDO", 0)
+        d["min"], d["max"] = a * 0.7, a * 1.3
+        return d
     d = dado(round(a), "ESTIMADO", "MEDIA",
              f"estimada pelo IPTU ({brl(r.pagamento_iptu_anual)}/ano) e energia ({brl(r.energia_media_mensal_6m)}/mês) "
-             f"comparados a imóveis de {r.municipio_real}")
+             f"comparados a imóveis de {r.municipio_real}", "TRANSACAO", 3)
     d["min"], d["max"] = a * cal["razao_q10"], a * cal["razao_q90"]
     return d
 
 
-def inferir_conteudo(r, bens):
-    """Conteúdo pelo cruzamento de duas fontes: bens vinculados (ponderados pela
-    probabilidade de estarem no imóvel) e compras de 36 meses."""
-    pond = bens.valor_bem_ponderado_referencia.sum()
-    total_bens = bens.valor_cadastrado.sum()
-    compras = r.compras_moveis_36m + r.compras_eletrodomesticos_36m + r.compras_eletronicos_36m
-    c_lo, c_hi = compras * P.FATOR_COMPRAS_NO_IMOVEL[0], compras * P.FATOR_COMPRAS_NO_IMOVEL[1]
-    lo = max(P.CONTEUDO_MINIMO, min(pond, c_lo))
-    hi = max(lo, max(total_bens, c_hi))
-    alta = bens.loc[bens.nivel_confianca_vinculo == "ALTA", "valor_cadastrado"].sum()
-    conf = "MEDIA" if total_bens and alta / total_bens >= 0.6 else "BAIXA"
-    d = dado(arred((lo + hi) / 2), "ESTIMADO", conf,
-             f"{len(bens)} bens vinculados ({brl(pond)} ponderado pela chance de estarem no imóvel) "
-             f"e {brl(compras)} em compras de móveis/eletro nos últimos 36 meses")
+def _ancoras(compras, bens_ponderados):
+    """Três âncoras: mínimo comprovado (o maior entre compras e bens, a preço de hoje)
+    e máximo de estoque (2,7 × compras de 36 meses, a preço de hoje)."""
+    lo = max(compras, bens_ponderados) * P.FATOR_IPCA
+    hi = max(lo, P.FATOR_ESTOQUE * compras * P.FATOR_IPCA)
+    return lo, hi
+
+
+def estimar_bens(r, bens):
+    """Faixa de valor dos bens do imóvel, por categoria. Sem arredondar: quem
+    arredonda é faixa(). Nunca lê renda, idade, dependentes ou pet."""
+    soma = lambda tipos: float(bens.loc[bens.tipo_bem.isin(tipos), "valor_bem_ponderado_referencia"].sum())
+    ele, dom, mov = float(r.compras_eletronicos_36m), float(r.compras_eletrodomesticos_36m), float(r.compras_moveis_36m)
+    compras = ele + dom + mov
+    pond = float(bens.valor_bem_ponderado_referencia.sum())
+
+    if compras <= 0 and pond <= 0:
+        d = dado(int(P.BENS_PISO * 1.5), "ESTIMADO", "BAIXA", "sem compras nem bens vinculados: piso de uma casa mobiliada", "PRESUMIDO", 0)
+        d["min"], d["max"] = float(P.BENS_PISO), float(2 * P.BENS_PISO)
+        piso = {"min": P.BENS_PISO * 0.3, "max": P.BENS_PISO * 0.6}
+        d.update(portateis=piso, eletricos=piso, molhaveis={"min": d["min"], "max": d["max"]}, categorias={})
+        return d
+
+    lo, hi = _ancoras(compras, pond)
+    lo, hi = max(lo, P.BENS_PISO), max(hi, P.BENS_PISO)
+    total_cad = float(bens.valor_cadastrado.sum())
+    alta = float(bens.loc[bens.nivel_confianca_vinculo == "ALTA", "valor_cadastrado"].sum())
+    conf = "MEDIA" if compras > 0 or (total_cad and alta / total_cad >= 0.6) else "BAIXA"
+    d = dado(int(round((lo + hi) / 2)), "ESTIMADO", conf,
+             f"compras de {brl(compras)} nos últimos 36 meses (corrigidas pelo IPCA) e {len(bens)} bens vinculados "
+             f"({brl(pond)} ponderado pela chance de estarem no imóvel)", "TRANSACAO", 18)
     d["min"], d["max"] = lo, hi
-    eletro_bens = bens.loc[bens.tipo_bem.isin(["ELETRONICO", "ELETRODOMESTICO"]), "valor_bem_ponderado_referencia"].sum()
-    eletro_compras = r.compras_eletrodomesticos_36m + r.compras_eletronicos_36m
-    d["eletro_min"] = min(eletro_bens, eletro_compras * P.FATOR_COMPRAS_NO_IMOVEL[0])
-    d["eletro_max"] = max(eletro_bens, eletro_compras * P.FATOR_COMPRAS_NO_IMOVEL[1])
+    faixa_de = lambda c, b: dict(zip(("min", "max"), _ancoras(c, b)))
+    d["categorias"] = {
+        "eletronicos": faixa_de(ele, soma(["ELETRONICO"])),
+        "eletrodomesticos": faixa_de(dom, soma(["ELETRODOMESTICO"])),
+        "moveis": faixa_de(mov, soma(["MOVEL"])),
+    }
+    d["portateis"] = faixa_de(ele, soma(["ELETRONICO"]))                                   # base do roubo
+    d["eletricos"] = faixa_de(ele + dom, soma(["ELETRONICO", "ELETRODOMESTICO"]))          # base de danos elétricos
+    d["molhaveis"] = faixa_de(compras, soma(["MOVEL", "ELETRODOMESTICO", "ELETRONICO"]))   # base de danos por água
+    return d
+
+
+def inferir_conteudo(r, bens):
+    """Compatibilidade com o rascunho: mesma saída de estimar_bens, com as chaves antigas."""
+    d = estimar_bens(r, bens)
+    d["eletro_min"], d["eletro_max"] = d["eletricos"]["min"], d["eletricos"]["max"]
     return d
 
 
