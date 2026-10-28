@@ -43,6 +43,18 @@ flowchart TD
 
 Mais detalhes: [[Mapa do código]] (cada função) · [[Plano - motivo, dados faltantes e gerente]].
 
+### Quem vai direto e quem tem confiança baixa (28/10)
+| Grupo | Casos | Perguntas | Para onde vai |
+|---|---|---|---|
+| Confiança **alta** | 17 | 1 ou 2 (sempre a dos bens; às vezes o acabamento) | 1 toque (15) · gerente (2, sem app) |
+| **1 toque** | 67 | 1 a 3, todas de **ajuste de valor** (bens, acabamento, área) | Contrata no app |
+| App com perguntas | 20 | Inclui uma de elegibilidade ("seu seguro atual é da BB?") | App |
+| Confiança **baixa** | 20 | Sempre a de uso ("é onde você mora, veraneio ou alugado?") + área ou bens | Gerente (18) · sem proposta (2) |
+
+- **Nenhum caso sai com 0 perguntas:** a dos bens aparece para todos, porque a faixa dos bens é sempre maior que R$ 5 mil.
+- **Por que a confiança fica baixa:** nos 20 casos, o motor não sabe se a pessoa **mora** no imóvel (o endereço não bate com o principal, ou ela mora em outro imóvel cadastrado). Eles ainda recebem plano, faixas e motivo, mas a faixa de incêndio é mais larga (máximo ÷ mínimo 2,56, contra 1,89 na confiança alta) e a primeira pergunta é a do uso.
+- **Em discussão:** separar pergunta que **trava** a contratação (elegibilidade, uso) de pergunta **opcional de ajuste** (bens, acabamento, área), e na confiança baixa perguntar o uso no app antes de chamar o gerente.
+
 ## 2. As métricas (o que provamos e onde)
 Todas saem em `entrega/metricas.json` a cada execução.
 
