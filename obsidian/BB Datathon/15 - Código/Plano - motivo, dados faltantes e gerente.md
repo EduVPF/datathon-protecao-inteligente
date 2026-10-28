@@ -1,12 +1,12 @@
 ---
 tags: [plano, motivo, codigo, mentoria]
 data: 2026-10-28
-status: aguardando aprovação do time
+status: aprovado e executado em 28/10
 ---
 # 🎯 Plano: motivo e porquê, dados faltantes, APIs e gerente
 
-> [!warning] Nada foi implementado ainda
-> Este é o plano proposto depois da mentoria de 28/10. Só vira código depois que o time aprovar. Os arquivos do app não serão tocados.
+> [!success] Aprovado e executado (28/10, noite)
+> F1 a F4 foram feitas, com 82 testes passando e planos iguais. O resultado está em [[Log de alterações do código]] e em `documentos/contexto/21-motivo-e-jornada.md`. Os arquivos do app não foram tocados.
 
 ## O que a mentoria pediu (Fernando)
 - O que diferencia um trabalho é o **motivo e o porquê**: argumento com fatos do cliente ("gastou com vidro", "recebe aluguel desse imóvel"), defensável e que **conscientize** o cliente de por que precisa do seguro. É o que a banca lê na `justificativa_recomendacao`.

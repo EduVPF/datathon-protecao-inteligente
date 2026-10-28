@@ -28,12 +28,13 @@ flowchart LR
 |---|---|
 | `motor/motor.py` | O motor: lê os dados, infere o imóvel, decide elegibilidade, plano, faixas, perguntas e confiança, e monta a ficha |
 | `motor/parametros.py` | Todas as premissas e tabelas externas, cada uma com a origem escrita ao lado |
+| `motor/motivo.py` | **O texto que o cliente lê**: o porquê da recomendação e o que fica descoberto. Só escreve; não decide nada |
 | `motor/gerar.py` | Roda tudo de ponta a ponta e grava as planilhas da entrega |
 | `motor/metricas.py` | Calcula as provas para a banca: justiça, estabilidade, backtest e métricas de mercado |
 | `motor/templates.py` | Confere se as 2 planilhas obedecem ao guia antes de gravar |
 | `motor/api.py` | API de demonstração (FastAPI): a mesma ficha para qualquer canal |
 | `motor/externos/` | Fontes externas salvas (CSV) + `FONTES.md` (licença, data, limitações) + `coletar.py` (atualiza o IPCA) |
-| `tests/` | 64 testes automáticos (`python -m pytest -q`) |
+| `tests/` | 82 testes automáticos (`python -m pytest -q`) |
 | `entrega/` | As 2 planilhas finais, `metricas.json` e `casos_contrastantes.json` |
 | `prototipos/` | O protótipo com gerente, que lê `fichas_demo.js` |
 
@@ -55,6 +56,8 @@ flowchart LR
 ### Ferramentas pequenas
 | Função | O que faz |
 |---|---|
+| `_degraus(df, coluna)` / `regional(cal, campo, r)` | **Média da região em degraus** para o que falta: município + tipo → município → estado → geral, só com 20 ou mais imóveis |
+| `teste_cep(a)` | Prova que o CEP da base é ruído (R² igual ao de um CEP sorteado), por isso o degrau de CEP fica desligado (RN-10) |
 | `dado(...)` | Cria um dado com valor, natureza (observado, estimado, confirmado), confiança, fonte e idade |
 | `arred(v)` | Arredonda reais: de 500 em 500 até R$ 20 mil e de 1.000 em 1.000 acima disso |
 | `faixa(lo, hi, cob)` | Põe a faixa dentro dos limites do produto e arredonda |
@@ -97,9 +100,10 @@ flowchart LR
 ### Montar a saída
 | Função | O que faz |
 |---|---|
+| `escolher_jornada(...)` | 1 toque, app com perguntas, gerente (só confiança baixa, obra ou sem app) ou sem nova proposta, com o motivo |
 | `processar_caso(...)` | Junta tudo e devolve a **ficha** de um cliente-imóvel |
 | `processar(dados, cal)` | Roda `processar_caso` para todos os imóveis da base |
-| `justificativa(f)` | O texto "Recomendamos... porque... Se você escolher menos..." (slide 23) |
+| `justificativa(f)` | Chama `motivo.justificativa`: fato do cliente, valor em risco, "Se você escolher menos..." (slide 23), opção acima, o que confirmar e confiança |
 | `para_templates(fichas, template)` | Transforma as fichas nas 2 planilhas, na ordem do template |
 | `_limpo(v)` | Converte números do numpy para gravar em JSON |
 
@@ -126,6 +130,8 @@ flowchart LR
 | Função | O que faz |
 |---|---|
 | `calcular_metricas(...)` | Todas as métricas do guia §8: processados, justificativa, completude, justiça, estabilidade, sensibilidade, tempo |
+| `qualidade_do_motivo(fichas)` | Motivos genéricos, fato do cliente, valor em risco, alternativas, jargão, tamanho e personalização das coberturas |
+| `dados_faltantes(fichas, cal)` | Como cada lacuna foi tratada (cadastro, IPTU e energia, região, pergunta) |
 | `metricas_de_mercado(fichas)` | STP, esforço economizado, ITV (subseguro), faixas limitadas pelo produto e aderência aos sinistros reais da BB |
 | `renda_por_quinto(m, por_id)` | Tabela de justiça por quinto de renda e regra dos 80% na elegibilidade |
 | `casos_contrastantes(fichas)` | Escolhe os casos da demo: os 3 perfis do slide 14, o não elegível, o 1 toque, o inquilino e o "a confirmar" |
@@ -149,7 +155,7 @@ flowchart LR
 | `POST /recomendar` | Recalcula com as respostas do cliente (bens "menos/isso/mais", área). Área 0 ou negativa é recusada (422) |
 
 ## 🔄 `externos/coletar.py`
-`atualizar_ipca()` baixa os últimos 12 meses do IPCA na API do Banco Central. `resumir_atlas(csv)` (`--atlas`) transforma a base do Atlas de Desastres na tabela das 10 capitais. **Só rodam quando alguém quer atualizar**; o motor nunca chama.
+`--ao-vivo` (`atualizar_tudo`) renova o SINAPI pela API SIDRA do IBGE e o IPCA pela API do Banco Central, validando antes de gravar; se uma falhar, o CSV salvo fica. `atualizar_ipca()` baixa os últimos 12 meses do IPCA. `resumir_atlas(csv)` (`--atlas`) transforma a base do Atlas de Desastres na tabela das 10 capitais. **Só rodam quando alguém quer atualizar**; o motor nunca chama.
 
 ---
 

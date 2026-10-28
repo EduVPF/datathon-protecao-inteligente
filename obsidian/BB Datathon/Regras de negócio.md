@@ -17,6 +17,10 @@ Tudo o que o [[Guia oficial do datathon]] e o LEIA-ME dos dados pedem, em forma 
 ## B. Dados
 - **RN-06** Usar só os dados fornecidos e fontes externas **públicas ou autorizadas**.
 - **RN-07** **Proibido usar dado sensível ou atributo pessoal como atalho para risco ou patrimônio.** Idade e renda não definem valor de bens, risco, plano ou faixa.
+> [!regra] Pedido "usar o salário" (28/10, noite): não aplicado
+> O guia oficial diz: "Não utilize dados sensíveis ou atributos pessoais como atalho para risco ou patrimônio." A renda não é dado sensível pela LGPD, mas **é atributo pessoal**, e usá-la para estimar bens ou plano é o atalho que o guia proíbe (na base, a renda tem correlação de 0,87 com os bens). O motor segue lendo a renda só no teste de justiça, para provar que ela não muda nada.
+> **Alternativa permitida:** compras, aluguel, financiamento, IPTU e energia, que já usamos; para quem não tem compras, a média da região.
+
 > [!decisao] RN-07 × código (28/10)
 > Desde o PR #13, dependentes **e** pet somam 1 ponto ao Total (slide 14 da Brasilseg, "casa familiar"), e isso muda o plano em **18 casos**. Valor, elegibilidade, canal e confiança não mudam. Isso conflita com a RN-07 do [[Regras de negócio - arquivo para as IAs do grupo|arquivo das IAs]]. Decidir na mentoria: ver [[Auditoria do código - 28-10]].
 - **RN-08** Combinar vários sinais. Nenhuma decisão depende de uma variável só.

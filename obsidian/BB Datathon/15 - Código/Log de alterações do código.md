@@ -9,6 +9,19 @@ Toda mudança no motor, do mais novo para o mais antigo. Repositório: [pedroiaa
 > [!info] Como registrar
 > A cada commit que mexe em `motor/`, `tests/` ou `entrega/`, acrescente uma linha aqui: **o que mudou, por quê e qual regra atende**. Os detalhes ficam no commit e na nota da etapa em `documentos/contexto/`.
 
+## 28/10 · noite: pós-mentoria ([[Plano - motivo, dados faltantes e gerente]])
+| Arquivo | O que mudou | Por quê |
+|---|---|---|
+| `motivo.py` (novo) | Todo texto ao cliente: fato dele → valor em risco → o que fica descoberto (frase do slide 23) → opção acima → o que confirmar → confiança em linguagem simples. `reais()` arredonda como gente fala | Mentoria: o porquê é o que diferencia; RN-09, RN-37, RN-53 |
+| `motor.py` · `escolher_plano` | Motivos com número do cliente; o Essencial genérico ("não há sinais") virou patrimônio + aparelhos (danos elétricos = 53% dos acionamentos da BB) | 29 casos tinham motivo vazio |
+| `motor.py` · `dimensionar` | Justificativa de cada cobertura com os valores do cliente (antes, o mesmo texto para os 138) | Personalização |
+| `motor.py` · `_degraus`, `regional`, `teste_cep` | Média da região em degraus (município + tipo → município → estado → geral, mínimo de 20 imóveis); CEP desligado porque é ruído (R² 0,215 contra 0,223 embaralhado) | Mentoria (média regional) + RN-10 |
+| `motor.py` · `escolher_jornada` | UM_TOQUE · APP_COM_PERGUNTAS · GERENTE (só confiança baixa, obra ou sem app) · SEM_NOVA_PROPOSTA. O `canal` continua 1 toque × gerente para o protótipo | Mentoria: gerente é o último recurso (71 → 35) |
+| `externos/coletar.py --ao-vivo` | SINAPI pela API SIDRA do IBGE (tabelas 6586 e 2296) e IPCA pela API do BC; valida antes de gravar; se falhar, mantém o salvo | Dado sempre atualizado sem depender da internet para rodar (RN-12) |
+| `metricas.py` | `qualidade_do_motivo`, `dados_faltantes`, `jornada` e `gerente_motivos` | Medir o que a banca vai olhar |
+| `api.py` | Rota `/fontes` com a data de cada fonte | Transparência |
+| `tests/` | +18 testes (82 no total) | Cada regra com prova |
+
 ## 28/10 · noite: fontes territoriais ([[Atlas Digital de Desastres]], [[ANEEL continuidade]])
 | Arquivo | O que mudou | Por quê |
 |---|---|---|

@@ -18,7 +18,7 @@ Python 3.11 (registrado em `.python-version`).
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 64 testes
+python -m pytest -q                 # 82 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -37,7 +37,8 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
    3. plano por pontos de sinais               → Essencial, Prático ou Total (+ adicionais)
    4. faixa mín/máx de cada cobertura          → SINAPI, CUB, IPCA, FipeZAP, condições gerais
    5. até 3 perguntas, pelo valor da informação
-   6. confiança por regra + canal (1 toque ou gerente)
+   6. confiança por regra + jornada (1 toque, app com perguntas, gerente só em último caso)
+   7. motivo para o cliente: fato dele, valor em risco, o que fica descoberto (motor/motivo.py)
                                 │
                      ficha (JSON) ──► 2 planilhas · métricas · demo · API
 ```
@@ -63,7 +64,7 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 - **Área sem cadastro (67% dos casos):** estimada pelo IPTU e pela energia, comparados aos imóveis do mesmo município com área conhecida. Nunca pela renda.
 - **Padrão construtivo vazio:** faixa do econômico ao superior (0,85 a 1,30) e pergunta do acabamento.
 - **Plano:** pontos por sinal (aluguel, vizinhos, bens, eletrônicos, vidros, dependentes e pet, só como necessidade de RC). Tabela completa em `documentos/contexto/17-revisao-qa.md`.
-- **Renda e idade não entram em nenhuma decisão.** Crianças e pets só como necessidade informada pelo cliente (RC familiar), nunca em valor, risco, canal ou confiança.
+- **Renda e idade não entram em nenhuma decisão** (guia: "não utilize dados sensíveis ou atributos pessoais como atalho para risco ou patrimônio"). Dependentes e pet só como necessidade de RC familiar, nunca em valor, risco, canal ou confiança.
 
 ## Elegibilidade (guia 9.1)
 | Regra | Como o motor trata |
@@ -92,6 +93,8 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 | Coberturas adicionais | 41 (RC familiar em prédio ou condomínio com dependentes ou pet) |
 | Elegibilidade | SIM 122 · NAO 16 (provável seguro BB no endereço: seguro residencial + produto de seguridade BB + um imóvel) · 21 com confirmação pendente |
 | Confiança | ALTA 17 · MÉDIA 101 · BAIXA 20 (14%) |
+| Jornada | 1 toque 67 · app com perguntas 20 · gerente 35 (29% dos elegíveis: confiança baixa, obra ou sem app) · sem nova proposta 16 |
+| Qualidade do motivo | 0 motivos genéricos · 100% com fato do próprio cliente e valor em risco · 0 termos internos · mediana de 100 palavras |
 | Perguntas por caso | 2,70 (de 3,43 possíveis); nenhuma pergunta de valor que mude menos de R$ 5 mil |
 | Teste de justiça (troca renda e idade) | 0 casos mudam |
 | Dependentes e pet mudando valor ou confiança | 0 casos (mudam o plano em 18, pela RC familiar) |
@@ -106,7 +109,7 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 ### Métricas de mercado e validação
 | Métrica | Resultado | Como |
 |---|---|---|
-| STP (vai direto ao 1 toque) | 48,6% | Elegível, sem pendência, confiança não baixa, usuário do app |
+| STP (sem pessoa no meio) | 63,0% | 1 toque + app com perguntas de sim/não |
 | Esforço | 2,7 perguntas × 19,9 campos de uma cotação tradicional (86,4% menos) | 5 dados do imóvel + 6 declarações de elegibilidade + 1 valor por cobertura |
 | Aderência aos sinistros reais | 100% das recomendações têm danos elétricos, água e vendaval, que somam 79,4% dos acionamentos do residencial BB | `motor/externos/sinistros_residencial_bb.csv` |
 | ITV do incêndio (segurado ÷ valor em risco) | máximo da faixa 1,46 · mínimo 0,60 | O app deve sugerir o meio da faixa, não o mínimo |
@@ -124,7 +127,7 @@ Tudo em `entrega/metricas.json`.
 | Não elegível | `IMO_CASO_00014_01` | — | Provável seguro BB no endereço (seguro residencial + produto de seguridade BB + um imóvel) |
 
 ## Fontes externas
-SINAPI (IBGE), CUB oficial (Sinduscons de SP, DF, GO, BA, MG, RS e PR), IPCA (Banco Central, API SGS 433), FipeZAP Locação (Fipe), acionamentos do Seguro Residencial BB jan/2023–mai/2026, Atlas Digital de Desastres / S2iD (Sedec/MIDR, 1991–2025) e Ranking de Continuidade 2025 da ANEEL (os três só no texto do motivo) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
+SINAPI (IBGE, pela API SIDRA, set/2026), CUB oficial (Sinduscons de SP, DF, GO, BA, MG, RS e PR), IPCA (Banco Central, API SGS 433; `coletar.py --ao-vivo` renova os dois), FipeZAP Locação (Fipe), acionamentos do Seguro Residencial BB jan/2023–mai/2026, Atlas Digital de Desastres / S2iD (Sedec/MIDR, 1991–2025) e Ranking de Continuidade 2025 da ANEEL (os três só no texto do motivo) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
 
 ## Privacidade e responsabilidade
 - Só dados do pacote e fontes públicas. Os dados do pacote são fictícios.
