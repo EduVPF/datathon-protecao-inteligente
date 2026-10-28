@@ -6,6 +6,9 @@ data: 2026-10-28
 
 O que bancos e seguradoras medem, se a gente mede, e com que dado. Regra desta nota: **só entra métrica com dado real e verificável**, e o motor continua funcionando **sem** nenhuma fonte externa (RN-12). Fonte externa só reforça o motivo ou aperta a faixa.
 
+> [!tip] Números mais recentes
+> A tabela atualizada de todas as métricas está em [[Visão geral do motor (comece aqui)]] (STP agora é 63%, com o app com perguntas).
+
 > [!metrica] Os números novos (base Teste Comum, `entrega/metricas.json`)
 > - **STP (vai direto ao 1 toque):** 48,6% dos casos
 > - **Esforço:** uma cotação tradicional pede em média **19,9 campos**; a nossa jornada faz **2,7 perguntas** → **86,4% menos esforço**
