@@ -1,0 +1,19 @@
+# Dados pessoais: um dos prints do app mostra agência, conta e parte do cartão
+referencias/prints-app-bb/
+referencias/Prints BB*.zip
+
+# Gerado pelo motor (a versão final vai para entrega/)
+motor/saida/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Ferramentas locais
+.claude/
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

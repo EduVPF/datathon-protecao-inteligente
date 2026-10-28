@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protótipo Seguro Residencial v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:ital,wght@0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarelo:#FCFC30; --azul:#465EFF; --azul-escuro:#2D37F5; --azul-claro:#E4ECFF;
+  --texto:#111214; --suave:#5E6269; --fundo:#F4F4F6; --borda:#DBDDE1; --branco:#fff;
+  --verde:#0E7A46; --verde-claro:#E3F6EC; --vermelho:#B42A25; --vermelho-claro:#FDECEA;
+  --estimado:#FFF6D6; --estimado-texto:#7A5900;
+  --sombra:0 6px 8px rgba(24,24,27,.06),0 1px 4px rgba(24,24,27,.08),0 0 1px rgba(24,24,27,.08);
+  --esc:1;
+}
+*{box-sizing:border-box}
+::selection{background:var(--amarelo);color:var(--azul-escuro)}
+:focus-visible{outline:3px solid var(--azul);outline-offset:2px;border-radius:8px}
+body{margin:0;background:#dfe3ec;font-family:Inter,sans-serif;color:var(--texto)}
+.palco{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start;padding:24px 16px;min-height:100vh}
+.celular{width:390px;height:820px;background:#111;border-radius:48px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,.22);flex-shrink:0}
+.tela{width:100%;height:100%;background:var(--fundo);border-radius:38px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:13px;font-weight:600;background:var(--azul);color:#fff}
+.topo{background:var(--azul);color:#fff;padding:8px 16px 14px}
+.topo .linha{display:flex;align-items:center;gap:10px}
+.topo h1{font-family:Nunito;font-size:18px;margin:0;font-weight:800;flex:1}
+.topo .voltar{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px}
+.progresso{display:flex;gap:4px;margin-top:10px}
+.progresso span{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.3)}
+.progresso span.on{background:var(--amarelo)}
+.passo{font-size:12px;opacity:.9;margin-top:6px}
+.ferramentas{position:absolute;top:44px;right:14px;display:flex;gap:6px;z-index:3}
+.ferramentas button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.ferramentas button svg{width:14px;height:14px}
+.ferramentas button.on{background:var(--amarelo);color:var(--azul-escuro);border-color:var(--amarelo)}
+.conteudo{flex:1;overflow-y:auto;padding:20px 16px 110px;font-size:calc(15px*var(--esc));line-height:1.5;scrollbar-width:thin;scrollbar-color:var(--borda) transparent}
+h2{font-family:Nunito;font-weight:900;font-size:calc(26px*var(--esc));line-height:1.12;margin:0 0 6px;text-wrap:balance}
+h2 em{color:var(--azul);font-style:italic}
+h3{font-family:Nunito;font-weight:800;font-size:calc(17px*var(--esc));margin:0 0 8px}
+p{margin:0 0 10px}
+.suave{color:var(--suave);font-size:calc(13.5px*var(--esc))}
+.link{background:none;border:none;padding:0;font:inherit;font-weight:600;color:var(--azul-escuro);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:calc(14px*var(--esc))}
+.bloco{background:var(--branco);border-radius:16px;padding:16px;box-shadow:var(--sombra);margin-top:16px}
+.btn{display:block;width:100%;border:none;border-radius:8px;min-height:calc(50px*var(--esc));font-family:Inter;font-weight:700;font-size:calc(15px*var(--esc));cursor:pointer;text-transform:uppercase;letter-spacing:.02em}
+.btn-amarelo{background:var(--amarelo);color:var(--azul-escuro)}
+.btn-amarelo:hover:not([disabled]){background:#f0f01c}
+.btn-claro{background:var(--azul-claro);color:var(--azul-escuro)}
+.btn[disabled]{background:#E7E8EB;color:#8A8E95;cursor:not-allowed}
+.rodape{position:absolute;left:0;right:0;bottom:0;background:var(--branco);padding:12px 16px 18px;box-shadow:0 -4px 14px rgba(0,0,0,.06);display:flex;gap:8px;align-items:center}
+.rodape .btn{flex:1}
+.ajuda{width:calc(52px*var(--esc));height:calc(50px*var(--esc));border-radius:12px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:11px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
+.ajuda svg{width:20px;height:20px}
+.ic{width:16px;height:16px;flex-shrink:0;vertical-align:-3px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.chip.obs{background:var(--verde-claro);color:var(--verde)}
+.chip.est{background:var(--estimado);color:var(--estimado-texto)}
+.chip.conf{background:var(--azul-claro);color:var(--azul-escuro)}
+/* tela A */
+.plano-rec{border:2px solid var(--azul);position:relative;padding-top:22px}
+.selo{position:absolute;top:-11px;left:14px;background:var(--amarelo);color:var(--azul-escuro);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+.cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.nome-plano{font-family:Nunito;font-weight:900;font-size:calc(24px*var(--esc));color:var(--azul-escuro)}
+.preco{font-weight:700;font-size:calc(17px*var(--esc));font-variant-numeric:tabular-nums}
+.porque{margin:10px 0 12px}
+.cenario-linha{display:flex;gap:10px;align-items:center;background:var(--fundo);border-radius:12px;padding:10px 12px;font-size:calc(14px*var(--esc))}
+.cenario-linha svg{width:34px;height:34px;flex-shrink:0}
+.cenario-linha s{color:var(--vermelho)}
+.cenario-linha b{color:var(--verde)}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.opcao{border:1.5px solid var(--borda);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;font-weight:600;font-size:calc(14.5px*var(--esc));color:var(--texto)}
+.opcao:hover{border-color:var(--azul)}
+.opcao.sel{border-color:var(--azul);background:var(--azul-claro);color:var(--azul-escuro)}
+.feito{display:flex;gap:6px;align-items:center;color:var(--verde);font-weight:600;font-size:calc(13.5px*var(--esc));margin-top:10px}
+/* tela B */
+.faixa{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--azul-claro);color:var(--azul-escuro);border-radius:12px;padding:10px 12px;font-size:calc(14px*var(--esc));font-weight:600;margin-bottom:14px}
+.cobre{list-style:none;padding:0;margin:12px 0 4px}
+.cobre li{display:flex;gap:8px;align-items:center;padding:3px 0}
+.cobre li.nao{color:var(--suave)}
+.linha-ed{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--borda);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;font:inherit;color:inherit;text-align:left}
+.linha-ed b{font-weight:600}
+.linha-ed span:last-child{color:var(--azul-escuro);font-weight:600;display:flex;align-items:center;gap:4px}
+.check{display:flex;gap:10px;align-items:center;padding:12px;border:1.5px solid var(--borda);border-radius:12px;margin-top:8px;cursor:pointer;background:#fff;font-size:calc(14px*var(--esc));width:100%;text-align:left;font-family:inherit;color:inherit}
+.check.sel{border-color:var(--verde);background:var(--verde-claro)}
+.check .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--borda);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
+.check.sel .box{background:var(--verde);border-color:var(--verde)}
+.check .box svg{width:14px;height:14px}
+/* painéis que sobem (sheet) */
+.sheet-fundo{position:absolute;inset:0;background:rgba(17,18,20,.45);display:flex;align-items:flex-end;z-index:10;animation:fundo .2s ease-out}
+.sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:10px 16px 24px;max-height:86%;overflow-y:auto;animation:sobe .28s cubic-bezier(.16,1,.3,1)}
+@keyframes sobe{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fundo{from{opacity:0}to{opacity:1}}
+.alca{width:40px;height:4px;border-radius:4px;background:var(--borda);margin:0 auto 12px}
+.sheet-cab{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+.fechar{background:var(--fundo);border:none;border-radius:999px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--texto);flex-shrink:0}
+.fechar svg{width:16px;height:16px}
+.item{display:flex;gap:12px;align-items:center;padding:12px;border:1.5px solid var(--borda);border-radius:14px;margin-bottom:8px;cursor:pointer;background:#fff;width:100%;text-align:left;font:inherit;color:inherit}
+.item:hover{border-color:var(--azul)}
+.item svg{width:26px;height:26px;color:var(--azul);flex-shrink:0}
+.item.sel{border-color:var(--azul);background:var(--azul-claro)}
+.dado{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--borda);gap:8px}
+.dado:last-of-type{border-bottom:none}
+.dado b{font-weight:600}
+.barra{height:8px;background:var(--borda);border-radius:8px;overflow:hidden;margin:6px 0 4px}
+.barra div{height:100%;background:var(--verde);transition:width .6s cubic-bezier(.16,1,.3,1)}
+.cenarios{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:8px 0}
+.cenario{flex:0 0 auto;border:1.5px solid var(--borda);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;white-space:nowrap;font-family:inherit}
+.cenario.sel{background:var(--azul);color:#fff;border-color:var(--azul)}
+.compara{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.caixa{border-radius:14px;padding:12px;font-size:13px}
+.caixa.sem{background:var(--vermelho-claro);color:var(--vermelho)}
+.caixa.com{background:var(--verde-claro);color:var(--verde)}
+.caixa .valor{font-family:Nunito;font-weight:900;font-size:calc(22px*var(--esc));display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+.ilu svg{width:100%;height:110px;display:block}
+.comodos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.comodo{border:1.5px solid var(--borda);border-radius:12px;padding:8px 4px;cursor:pointer;background:#fff;font-weight:600;font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;color:inherit}
+.comodo.sel{border-color:var(--azul);background:var(--azul-claro)}
+.comodo svg{width:28px;height:28px}
+.situacao{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--borda);align-items:flex-start}
+.situacao:last-child{border:none}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tag.s{background:var(--verde-claro);color:var(--verde)}.tag.n{background:#EEE;color:#5E6269}
+.cob{padding:10px 0;border-bottom:1px solid var(--borda)}
+.cob:last-child{border:none}
+.cob .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:14px}
+input[type=range]{width:100%;accent-color:var(--azul)}
+.sw{position:relative;width:46px;height:26px;flex-shrink:0}
+.sw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;background:#C9CCD3;border-radius:999px;transition:.2s;pointer-events:none}
+.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+span{background:var(--azul)}
+.sw input:checked+span:before{transform:translateX(20px)}
+.sw input:focus-visible+span{outline:3px solid var(--azul);outline-offset:2px}
+.aviso{background:var(--estimado);border-radius:12px;padding:10px 12px;font-size:13px;color:#5C4300;margin:8px 0}
+.precobar{display:flex;justify-content:space-between;align-items:baseline;background:var(--azul-claro);border-radius:12px;padding:10px 12px;margin:8px 0 4px;position:sticky;top:-10px;z-index:1}
+.precobar b{font-family:Nunito;font-size:20px;color:var(--azul-escuro);font-variant-numeric:tabular-nums}
+.vig{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+.vig button{border:1.5px solid var(--borda);border-radius:10px;padding:8px 2px;text-align:center;cursor:pointer;font-weight:700;font-size:13px;background:#fff;font-family:inherit;color:inherit}
+.vig button small{display:block;font-weight:600;font-size:10.5px;color:var(--verde)}
+.vig button.sel{border-color:var(--azul);background:var(--azul-claro)}
+.mudou{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--borda);font-size:14px}
+.mudou:last-of-type{border:none}
+.mudou s{color:var(--suave)}
+.chat{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.msg{max-width:84%;padding:9px 12px;border-radius:14px;font-size:14px}
+.msg.ela{background:var(--azul-claro);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.eu{background:var(--azul);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.mini{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.mini button{border:1.5px solid var(--borda);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:inherit}
+.mini button.sel{background:var(--azul);color:#fff;border-color:var(--azul)}
+.track{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+.bola{width:24px;height:24px;border-radius:50%;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bola svg{width:14px;height:14px}
+.bola.ag{background:var(--azul)}
+/* tela de bloqueio */
+.bloqueio{background:linear-gradient(160deg,#2a3a8f,#465EFF 55%,#7b8cff);color:#fff;height:100%;padding:56px 14px 14px;display:flex;flex-direction:column}
+.hora{font-family:Nunito;font-weight:800;font-size:64px;text-align:center;line-height:1}
+.data{text-align:center;opacity:.85;margin-bottom:26px}
+.notif{background:rgba(255,255,255,.94);color:var(--texto);border-radius:18px;padding:12px;margin-bottom:10px;cursor:pointer;font-size:13.5px;border:none;text-align:left;font-family:inherit;width:100%}
+.notif .app{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--suave);margin-bottom:4px}
+.notif .icapp{width:22px;height:22px;border-radius:6px;background:var(--amarelo);display:flex;align-items:center;justify-content:center;color:var(--azul-escuro);font-weight:900;font-size:10px}
+.notif .icapp.wa{background:#25D366;color:#fff}
+.notif .icapp svg{width:13px;height:13px}
+/* painel lateral */
+.notas{width:380px;max-width:100%;background:#fff;border-radius:18px;padding:18px 20px;box-shadow:var(--sombra);font-size:14px;line-height:1.55;position:sticky;top:24px}
+.notas h4{font-family:Nunito;font-size:18px;margin:0 0 4px;color:var(--azul-escuro)}
+.notas .prob{background:var(--vermelho-claro);color:#7a1f1b;border-radius:10px;padding:8px 10px;margin:8px 0}
+.notas .sol{background:var(--verde-claro);color:#0b5a35;border-radius:10px;padding:8px 10px;margin:8px 0}
+.metricas{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 4px}
+.metricas div{background:var(--fundo);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:var(--suave)}
+.metricas b{display:block;font-family:Nunito;font-size:17px;color:var(--texto);font-variant-numeric:tabular-nums}
+.notas nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.notas nav button{border:1px solid var(--borda);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.notas nav button.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+/* painel do gerente */
+.painel{display:none;width:940px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 30px 60px rgba(0,0,0,.14);overflow:hidden;font-size:14px;line-height:1.5}
+.painel.on{display:block}
+.ptopo{background:var(--azul-escuro);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ptopo b{font-family:Nunito;font-size:16px}
+.pcab{padding:16px 18px 0}
+.palerta{display:inline-flex;gap:6px;align-items:center;background:var(--amarelo);color:var(--azul-escuro);font-weight:700;font-size:12.5px;border-radius:999px;padding:4px 12px}
+.palerta svg{width:14px;height:14px}
+.pgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;padding:14px 18px 18px}
+@media (max-width:820px){.pgrid{grid-template-columns:1fr}.notas{position:static}}
+.psec{margin-bottom:16px}
+.psec h5{font-family:Nunito;font-size:15px;font-weight:900;margin:0 0 8px;color:var(--azul-escuro)}
+.pplanos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.pplanos button{border:1.5px solid var(--borda);border-radius:10px;padding:8px;text-align:center;cursor:pointer;font-weight:700;background:#fff;font-family:inherit}
+.pplanos button.sel{border-color:var(--azul);background:var(--azul-claro);color:var(--azul-escuro)}
+.sug{background:#FFFBEA;border:1px solid #F1DF9A;border-radius:12px;padding:12px 14px}
+.sug ol{margin:0;padding-left:18px}.sug li{margin-bottom:6px}
+details{border-top:1px solid var(--borda);padding:10px 0}
+details summary{cursor:pointer;font-weight:700;color:var(--azul-escuro);font-family:Nunito;font-size:15px}
+.pt{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.pt td{padding:6px 4px;border-bottom:1px solid var(--borda);vertical-align:top}
+.pt tr:last-child td{border:none}
+textarea{width:100%;font-family:Inter;font-size:13px;border:1.5px solid var(--borda);border-radius:10px;padding:8px;resize:vertical;min-height:60px}
+.pacoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pacoes .btn{width:auto;flex:1;min-width:180px}
+.fade{animation:fade .35s cubic-bezier(.16,1,.3,1)}
+@keyframes fade{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+body.simples{--esc:1.25}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="palco">
+  <div class="celular"><div class="tela" id="tela"></div></div>
+  <section class="painel" id="painel" aria-label="Painel do gerente"></section>
+  <aside class="notas" id="notas"></aside>
+</div>
+
+<script>
+// ---------- dados do caso (CASO_00005 / IMO_CASO_00005_01 da base de teste) ----------
+const CLIENTE = {
+  cidade:"Curitiba", complemento:"Bloco B, apto 305", area:110, origemArea:"cadastro do IPTU",
+  parcela:950, dependentes:1, bens:13000, vidracaria24m:11000
+};
+const GERENTE = {nome:"Ricardo", especialista:"Juliana", protocolo:"BB-8K2"};
+const DUVIDAS = ["O valor","O que cobre","Se meu imóvel pode","Outra coisa"];
+const SUGESTAO = {roubo:13000, vidros:11000};
+
+// ---------- produto (nomes e limites do app atual; preços ilustrativos do time) ----------
+const COB = {
+  incendio:{nome:"Incêndio, raio, explosão e fumaça", padrao:300000, min:100000, max:600000, passo:10000, taxa:0.03, franquia:"sem franquia"},
+  eletricos:{nome:"Danos elétricos", padrao:10000, min:5000, max:30000, passo:1000, taxa:0.4, franquia:"10% do prejuízo, mínimo R$ 450"},
+  agua:{nome:"Danos por água", padrao:5000, min:3000, max:50000, passo:1000, taxa:0.5, franquia:"10% do prejuízo, mínimo R$ 1.000"},
+  vendaval:{nome:"Vendaval e granizo", padrao:20000, min:1000, max:60000, passo:1000, taxa:0.05, franquia:"10% do prejuízo, mínimo R$ 500"},
+  impacto:{nome:"Impacto de veículos e queda de aeronave", padrao:10000, min:10000, max:10000, passo:1000, taxa:0.04, franquia:"10% do prejuízo, mínimo R$ 400"},
+  roubo:{nome:"Roubo com arrombamento", padrao:3000, min:1000, max:45000, passo:1000, taxa:3.5, franquia:"10% do prejuízo, mínimo R$ 400"},
+  vidros:{nome:"Quebra de vidros", padrao:1500, min:1000, max:25000, passo:500, taxa:3.58, franquia:"R$ 150"},
+  rc:{nome:"Responsabilidade civil familiar", padrao:40000, min:10000, max:200000, passo:5000, taxa:0.35, franquia:"sem franquia"},
+  aluguel:{nome:"Perda ou pagamento de aluguel", padrao:10000, min:5000, max:30000, passo:1000, taxa:1.0, franquia:"sem franquia"},
+  despesas:{nome:"Despesas emergenciais", padrao:5000, min:2000, max:15000, passo:1000, taxa:2.004, franquia:"sem franquia"}
+};
+const FIXAS = ["incendio","eletricos","agua","vendaval","impacto"];
+const PLANOS = {
+  ESSENCIAL:{nome:"Essencial", extras:[], pacotes:1, muda:"Estrutura e o básico. Sem roubo e sem o vizinho."},
+  PRATICO:{nome:"Prático", extras:["roubo","vidros"], pacotes:3, muda:"Soma roubo com arrombamento e vidros."},
+  TOTAL:{nome:"Total", extras:["roubo","vidros","rc","aluguel","despesas"], pacotes:6, muda:"Soma o conserto do vizinho, aluguel e emergências."}
+};
+const PACOTES = ["Casa em apuros","Casa funcionando","Casa limpa","Casa arrumada","Casa sem pragas","Casa segura"];
+const NAO_COBRE = {ESSENCIAL:"roubo nem o conserto do vizinho", PRATICO:"o conserto do vizinho", TOTAL:"desgaste natural nem obra"};
+const BASE = 18.34, PACOTE = 6;
+const DESCONTO = {1:0,2:.05,3:.096,4:.14,5:.18};
+
+const st = {
+  tela:0, plano:"TOTAL", recomendado:"TOTAL", cenario:"agua", vig:1, pagamento:"debito", mora:null,
+  valores:{}, ligadas:{}, entend:[false,false], comodo:"banheiro",
+  sheet:null, ajudaPasso:"menu", duvida:null, canal:"app",
+  ger:null, antes:null, motivo:"", ajustado:false
+};
+Object.keys(COB).forEach(k=>{st.valores[k]=COB[k].padrao; st.ligadas[k]=true});
+st.valores.incendio = 260000; // reconstrução de 110 m² no PR
+st.valores.agua = 18000;      // alagamento típico num apto de 110 m²
+
+const brl = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
+const brl2 = v => "R$ " + v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+function preco(planoKey, ligadas=st.ligadas, valores=st.valores){
+  const p = PLANOS[planoKey];
+  let v = BASE + p.pacotes*PACOTE;
+  FIXAS.forEach(k=> v += COB[k].taxa*valores[k]/1000);
+  p.extras.forEach(k=>{ if(ligadas[k]) v += COB[k].taxa*valores[k]/1000 });
+  return v;
+}
+const precoFinal = () => preco(st.plano)*(1-DESCONTO[st.vig]);
+const nCob = k => 5 + PLANOS[k].extras.filter(x=>st.ligadas[x]).length;
+
+// ---------- ícones (SVG, traço único) ----------
+const I_ = (d, extra="") => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+const ICO = {
+  ok:I_('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  nao:I_('<path d="M6 6l12 12M18 6L6 18"/>'),
+  seta:I_('<path d="M9 6l6 6-6 6"/>'),
+  fechar:I_('<path d="M6 6l12 12M18 6L6 18"/>'),
+  relogio:I_('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),
+  sino:I_('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
+  som:I_('<path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),
+  ajuda:I_('<path d="M4 12a8 8 0 1 1 3.5 6.6L4 20l1.4-3.5A8 8 0 0 1 4 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4"/><path d="M12 16.8h.01"/>'),
+  chat:I_('<path d="M4 5h16v11H8l-4 4z"/>'),
+  fone:I_('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),
+  gerente:I_('<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>'),
+  familia:I_('<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M13 20c0-2.5 2-4 4-4s4 1.5 4 4"/>')
+};
+const ILU = {
+  chuva:`<svg viewBox="0 0 220 120"><ellipse cx="80" cy="30" rx="34" ry="20" fill="#9AA6C8"/><ellipse cx="115" cy="24" rx="30" ry="20" fill="#B5BFDB"/><ellipse cx="140" cy="34" rx="26" ry="16" fill="#9AA6C8"/><g stroke="#465EFF" stroke-width="4" stroke-linecap="round"><line x1="70" y1="58" x2="64" y2="72"/><line x1="95" y1="56" x2="89" y2="70"/><line x1="120" y1="58" x2="114" y2="72"/><line x1="145" y1="56" x2="139" y2="70"/></g><rect x="60" y="78" width="100" height="36" rx="6" fill="#fff" stroke="#DBDDE1" stroke-width="2"/><rect x="60" y="100" width="100" height="14" rx="4" fill="#7FA8FF" opacity=".75"/><rect x="72" y="86" width="22" height="16" rx="3" fill="#FF6F68"/><rect x="104" y="84" width="26" height="18" rx="3" fill="#2D37F5"/><circle cx="148" cy="96" r="5" fill="#FCFC30"/></svg>`,
+  raio:`<svg viewBox="0 0 220 120"><ellipse cx="110" cy="26" rx="44" ry="20" fill="#6E7891"/><path d="M112 40 L96 72 L112 72 L100 104 L132 62 L116 62 L126 40Z" fill="#FCFC30"/><rect x="140" y="70" width="58" height="38" rx="5" fill="#111214"/><rect x="146" y="76" width="46" height="26" rx="2" fill="#3a3f4a"/><path d="M150 80 l8 8 m6 -10 l8 12 m4 -8 l6 8" stroke="#FF6F68" stroke-width="3" stroke-linecap="round"/></svg>`,
+  vizinho:`<svg viewBox="0 0 220 120"><rect x="50" y="6" width="120" height="50" rx="5" fill="#E4ECFF" stroke="#465EFF" stroke-width="3"/><text x="62" y="24" font-family="Nunito" font-weight="900" font-size="12" fill="#2D37F5">SEU APÊ</text><rect x="50" y="62" width="120" height="52" rx="5" fill="#fff" stroke="#DBDDE1" stroke-width="3"/><text x="62" y="80" font-family="Nunito" font-weight="900" font-size="12" fill="#5E6269">VIZINHO</text><path d="M120 46 q-6 10 0 16 q6 10 0 20" stroke="#465EFF" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="118" cy="92" r="5" fill="#465EFF"/><rect x="138" y="90" width="22" height="16" rx="3" fill="#FF6F68"/></svg>`,
+  ladrao:`<svg viewBox="0 0 220 120"><rect x="60" y="20" width="100" height="90" rx="6" fill="#465EFF"/><rect x="76" y="34" width="68" height="48" rx="4" fill="#E4ECFF"/><path d="M76 34 L144 82 M144 34 L76 82" stroke="#fff" stroke-width="4"/><circle cx="170" cy="70" r="16" fill="#111214"/><rect x="160" y="64" width="20" height="6" rx="3" fill="#FCFC30"/><rect x="158" y="86" width="24" height="26" rx="8" fill="#111214"/></svg>`,
+  gota:`<svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="17" fill="#E4ECFF"/><path d="M17 7c4 5 7 8.5 7 12a7 7 0 0 1-14 0c0-3.5 3-7 7-12z" fill="#465EFF"/></svg>`
+};
+const COMODO_ICO = {
+  banheiro:`<svg viewBox="0 0 32 32"><path d="M5 16h22v3a6 6 0 0 1-6 6H11a6 6 0 0 1-6-6z" fill="#465EFF"/><path d="M9 16V8a3 3 0 0 1 6 0" stroke="#2D37F5" stroke-width="2.5" fill="none"/></svg>`,
+  cozinha:`<svg viewBox="0 0 32 32"><rect x="5" y="8" width="22" height="18" rx="3" fill="#465EFF"/><circle cx="11" cy="14" r="2.5" fill="#FCFC30"/><circle cx="21" cy="14" r="2.5" fill="#FCFC30"/></svg>`,
+  sala:`<svg viewBox="0 0 32 32"><rect x="6" y="6" width="20" height="13" rx="2" fill="#111214"/><rect x="8" y="8" width="16" height="9" rx="1" fill="#465EFF"/><rect x="4" y="21" width="24" height="6" rx="3" fill="#FCFC30"/></svg>`,
+  quarto:`<svg viewBox="0 0 32 32"><rect x="4" y="15" width="24" height="9" rx="2" fill="#465EFF"/><rect x="6" y="11" width="8" height="5" rx="2" fill="#E4ECFF"/></svg>`,
+  telhado:`<svg viewBox="0 0 32 32"><path d="M3 17 16 6l13 11" stroke="#2D37F5" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="8" y="16" width="16" height="11" rx="2" fill="#465EFF"/></svg>`,
+  porta:`<svg viewBox="0 0 32 32"><rect x="9" y="4" width="14" height="24" rx="2" fill="#465EFF"/><circle cx="19" cy="17" r="1.6" fill="#FCFC30"/></svg>`
+};
+
+// ---------- cenários (valores de exemplo para um apto de 110 m²) ----------
+function cenarios(){
+  const agua = st.valores.agua, ele = st.valores.eletricos, temRoubo = st.plano!=="ESSENCIAL" && st.ligadas.roubo;
+  return {
+    agua:{rotulo:"Alagou o apê", curto:"Se o apê alagar", ilu:ILU.chuva, texto:"Chuva entra pela janela e um cano estoura.", prejuizo:17800,
+      com:17800 - Math.min(agua,17800) + Math.max(1000,.1*Math.min(agua,17800))},
+    raio:{rotulo:"Raio queimou a TV", curto:"Se um raio queimar a TV", ilu:ILU.raio, texto:"Um pico de energia queima TV e notebook.", prejuizo:8800,
+      com:Math.max(450,.1*Math.min(ele,8800)) + Math.max(0,8800-ele)},
+    vizinho:{rotulo:"Molhei o vizinho", curto:"Se molhar o vizinho", ilu:ILU.vizinho, texto:"A máquina vaza e a água desce para o apê de baixo.", prejuizo:14000,
+      com:st.plano==="TOTAL" && st.ligadas.rc ? 0 : 14000},
+    roubo:{rotulo:"Arrombaram a porta", curto:"Se arrombarem a porta", ilu:ILU.ladrao, texto:"Levam notebook e celular enquanto você viaja.", prejuizo:6000,
+      com:temRoubo ? Math.max(400,.1*Math.min(st.valores.roubo,6000)) + Math.max(0,6000-st.valores.roubo) : 6000}
+  };
+}
+
+// ---------- telas ----------
+const TELAS = [
+ {id:"gancho", titulo:"Aviso", passo:null,
+  prob:"O cliente só chega ao seguro se procurar dentro da Central de Seguros.",
+  sol:"Um aviso curto com um motivo da vida dele. Um toque leva direto para a proposta pronta."},
+ {id:"proposta", titulo:"Sua proteção", passo:1,
+  prob:"Três telas para chegar ao plano: 'E se acontecer?', 'Sua casa' e 'Seu plano', com 296 palavras no total.",
+  sol:"Uma tela: o plano recomendado com preço, um motivo, um exemplo em reais e uma confirmação. O resto (dados, outros planos, outras situações) abre só se o cliente tocar."},
+ {id:"conferir", titulo:"Confira e contrate", passo:2,
+  prob:"Mais três telas: 'O que cobre', 'Ajustar' (164 palavras e 14 controles) e 'Conferir'.",
+  sol:"Uma tela: o que cobre e não cobre em 3 linhas, vigência e pagamento já preenchidos, as 2 confirmações e o botão. Cômodos e ajuste de valores viram painéis opcionais."},
+ {id:"meu", titulo:"Pronto", passo:null,
+  prob:"Depois de contratar, o cliente não sabe onde pedir ajuda.",
+  sol:"O seguro vira um card no app, com assistência acompanhada como em app de entrega."},
+ {id:"gerente", titulo:"Painel do gerente", passo:null,
+  prob:"O gerente recomeça do zero: pergunta CEP, tipo do imóvel e valor dos bens.",
+  sol:"Resumo e dúvida no topo, proposta editável e sugestões do motor no centro. Dados, origem e objeções ficam recolhidos e abrem com um toque."},
+ {id:"retorno", titulo:"Aviso do gerente", passo:null,
+  prob:"Depois do atendimento, o cliente teria de refazer a simulação.",
+  sol:"Um aviso leva direto para 'Confira e contrate', com uma faixa dizendo o que o gerente mudou."}
+];
+const T = id => TELAS.findIndex(t=>t.id===id);
+
+function render(){
+  const t = TELAS[st.tela];
+  const painel = document.getElementById("painel");
+  document.querySelector(".celular").style.display = t.id==="gerente" ? "none" : "";
+  painel.classList.toggle("on", t.id==="gerente");
+  if(t.id==="gerente"){ painel.innerHTML = painelGerente(); renderNotas(); return; }
+  const el = document.getElementById("tela");
+  if(t.id==="gancho" || t.id==="retorno"){ el.innerHTML = t.id==="gancho" ? telaGancho() : telaRetorno(); renderNotas(); return; }
+  const corpo = {proposta:telaProposta, conferir:telaConferir, meu:telaMeu}[t.id]();
+  el.innerHTML = `
+    <div class="status"><span>9:41</span><span>5G</span></div>
+    <div class="topo"><div class="linha"><button class="voltar" onclick="voltar()" aria-label="Voltar">←</button><h1>${t.id==="meu"?"Meu seguro":"Seguro Residencial"}</h1></div>
+      ${t.passo?`<div class="progresso">${[1,2].map(i=>`<span class="${i<=t.passo?'on':''}"></span>`).join("")}</div><div class="passo">Passo ${t.passo} de 2 · ${t.titulo}</div>`:""}
+    </div>
+    <div class="ferramentas"><button onclick="toggleSimples()" class="${document.body.classList.contains('simples')?'on':''}" aria-label="Letras maiores">Aa</button><button onclick="ouvir()" aria-label="Ouvir a tela">${ICO.som}Ouvir</button></div>
+    <div class="conteudo ${st.sheet?'':'fade'}" id="conteudo">${corpo.html}</div>
+    <div class="rodape">${corpo.rodape}<button class="ajuda" onclick="abrir('ajuda')" aria-label="Ajuda">${ICO.ajuda.replace('class="ic"','')}Ajuda</button></div>
+    ${st.sheet?`<div class="sheet-fundo" onclick="if(event.target===this)fechar()"><div class="sheet" role="dialog" aria-modal="true"><div class="alca"></div>${SHEETS[st.sheet]()}</div></div>`:""}`;
+  renderNotas();
+}
+
+function telaGancho(){
+  return `<div class="bloqueio fade">
+    <div class="hora">9:41</div><div class="data">terça-feira, 28 de outubro</div>
+    <button class="notif" onclick="ir(T('proposta'))"><div class="app"><span class="icapp">BB</span>App BB · agora</div>
+      <b>Temporada de chuva em Curitiba</b><br>O seguro do condomínio não cobre o que tem dentro do seu apê. Veja em 1 minuto.</button>
+    <button class="notif" onclick="ir(T('proposta'))"><div class="app"><span class="icapp wa">${ICO.chat}</span>WhatsApp · BB (conta oficial) · 2 min</div>
+      Sua proteção está pronta no app do BB, em Seguros. <i>O BB nunca pede senha por aqui.</i></button>
+    <p style="text-align:center;opacity:.85;font-size:12px;margin-top:auto">Toque num aviso para abrir o app</p></div>`;
+}
+
+function telaProposta(){
+  const p = PLANOS[st.plano], c = cenarios().agua, rec = st.plano===st.recomendado;
+  return {html:`
+    <h2>Sua proteção está <em>pronta</em></h2>
+    <p class="suave">Apartamento em ${CLIENTE.cidade}, ${CLIENTE.area} m². <button class="link" onclick="abrir('dados')">O que usamos</button></p>
+    <div class="bloco ${rec?'plano-rec':''}">
+      ${rec?'<span class="selo">Recomendado para você</span>':''}
+      <div class="cab"><span class="nome-plano">${p.nome}</span><span class="preco">${brl2(preco(st.plano))}/mês</span></div>
+      <p class="porque" data-say>${rec?"Um vazamento no seu apê pode chegar ao vizinho de baixo. Só o Total paga esse conserto.":p.muda}</p>
+      <div class="cenario-linha">${ILU.gota}<span>${c.curto}: você paga <b>${brl(c.com)}</b> em vez de <s>${brl(c.prejuizo)}</s>.</span></div>
+      <p style="margin:12px 0 0;display:flex;gap:16px;flex-wrap:wrap"><button class="link" onclick="abrir('planos')">Outros planos</button><button class="link" onclick="abrir('cenarios')">Outras situações</button></p>
+    </div>
+    <div class="bloco">
+      <h3 data-say>Você mora neste apartamento?</h3>
+      <div class="chips">
+        <button class="opcao ${st.mora===true?'sel':''}" onclick="st.mora=true;render()">Sim, moro aqui</button>
+        <button class="opcao ${st.mora===false?'sel':''}" onclick="st.mora=false;render()">Não</button>
+      </div>
+      ${st.mora!==null?`<div class="feito">${ICO.ok}Proposta confirmada</div>`:""}
+    </div>`,
+   rodape:`<button class="btn btn-amarelo" ${st.mora===null?'disabled':''} onclick="ir(T('conferir'))">Continuar com o ${p.nome}</button>`};
+}
+
+function telaConferir(){
+  const p = PLANOS[st.plano], final = precoFinal(), pode = st.entend[0] && st.entend[1];
+  const cobre = {
+    ESSENCIAL:["Fogo, água e raio","Assistência 24h (encanador, chaveiro)"],
+    PRATICO:["Fogo, água e raio","Roubo com arrombamento e vidros"],
+    TOTAL:["Fogo, água, raio e roubo","O conserto do vizinho"]
+  }[st.plano];
+  const check = (i, txt) => `<button class="check ${st.entend[i]?'sel':''}" onclick="st.entend[${i}]=!st.entend[${i}];render()" aria-pressed="${st.entend[i]}"><span class="box">${st.entend[i]?ICO.ok.replace('class="ic"',''):''}</span><span>${txt}</span></button>`;
+  return {html:`
+    ${st.ajustado?`<div class="faixa"><span>${GERENTE.nome} mudou 2 coisas</span><button class="link" onclick="abrir('mudou')">Ver</button></div>`:""}
+    <h2>Confira e <em>contrate</em></h2>
+    <div class="bloco">
+      <div class="cab"><span class="nome-plano" style="font-size:calc(20px*var(--esc))">Plano ${p.nome}</span><span class="preco">${brl2(final)}/mês</span></div>
+      <ul class="cobre">
+        ${cobre.map(x=>`<li>${ICO.ok.replace('class="ic"','class="ic" style="color:var(--verde)"')}${x}</li>`).join("")}
+        <li class="nao">${ICO.nao}Não cobre ${NAO_COBRE[st.plano]}</li>
+      </ul>
+      <p style="margin:0 0 6px;display:flex;gap:16px;flex-wrap:wrap"><button class="link" onclick="abrir('cobre')">Ver por cômodo</button><button class="link" onclick="abrir('ajustar')">Ajustar valores</button></p>
+      <button class="linha-ed" onclick="abrir('vigencia')"><b>Vigência</b><span>${st.vig} ano${st.vig>1?'s':''}${ICO.seta}</span></button>
+      <button class="linha-ed" onclick="abrir('pagamento')"><b>Pagamento</b><span>${st.pagamento==='debito'?'Débito em conta':'Cartão de crédito'}${ICO.seta}</span></button>
+    </div>
+    <div style="margin-top:16px">
+      ${check(0, `Entendi que o ${p.nome} não cobre ${NAO_COBRE[st.plano]}.`)}
+      ${check(1, "O imóvel não está em obra e é de alvenaria.")}
+      <p class="suave" style="margin:10px 0 0">Você pode desistir em até 7 dias pelo app.</p>
+    </div>`,
+   rodape:`<button class="btn btn-amarelo" ${pode?'':'disabled'} onclick="ir(T('meu'))">Contratar por ${brl2(final)}/mês</button>`};
+}
+
+function telaMeu(){
+  const p = PLANOS[st.plano];
+  return {html:`
+    <h2>Sua casa está <em>protegida</em></h2>
+    <div class="bloco" style="background:var(--azul);color:#fff"><b style="font-family:Nunito;font-size:18px">Plano ${p.nome}</b><br><span style="opacity:.9">${CLIENTE.complemento} · ${brl2(precoFinal())}/mês</span></div>
+    <div class="bloco"><h3>Pedido em andamento</h3>
+      <div class="track"><span class="bola">${ICO.ok.replace('class="ic"','')}</span><div><b style="font-weight:600">Encanador a caminho</b><br><span class="suave">Carlos · chega em cerca de 40 min</span></div></div></div>
+    <p style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap"><button class="link" onclick="abrir('cobre')">O que cobre</button><button class="link" onclick="abrir('ajuda')">Avisar sinistro</button></p>`,
+   rodape:`<button class="btn btn-claro" onclick="reiniciar()">Recomeçar a demonstração</button>`};
+}
+
+function telaRetorno(){
+  return `<div class="bloqueio fade">
+    <div class="hora">9:58</div><div class="data">terça-feira, 28 de outubro</div>
+    <button class="notif" onclick="ir(T('conferir'))"><div class="app"><span class="icapp">BB</span>App BB · agora</div>
+      <b>${GERENTE.nome} atualizou sua proposta</b><br>Toque para conferir. Nada foi contratado.</button>
+    <p style="text-align:center;opacity:.85;font-size:12px;margin-top:auto">Toque no aviso para abrir o app</p></div>`;
+}
+
+// ---------- painéis opcionais (um assunto por painel) ----------
+const cab = (titulo, sub="") => `<div class="sheet-cab"><div><h3 style="margin:0">${titulo}</h3>${sub?`<p class="suave" style="margin:2px 0 0">${sub}</p>`:""}</div><button class="fechar" onclick="fechar()" aria-label="Fechar">${ICO.fechar.replace('class="ic"','')}</button></div>`;
+
+const SHEETS = {
+  dados(){
+    const conf = st.mora===null ? 72 : 94;
+    const d = (n,v,cls,orig) => `<div class="dado"><span>${n}<br><b>${v}</b></span><span class="chip ${cls}">${orig}</span></div>`;
+    return cab("O que usamos","Cada dado mostra de onde veio.") +
+      d("Tipo","Apartamento","obs","pelo endereço") +
+      d("Tamanho",CLIENTE.area+" m²","obs",CLIENTE.origemArea) +
+      d("Relação","Seu, financiado","obs","parcela no BB") +
+      d("Quem mora","Você + "+CLIENTE.dependentes+" dependente","obs","cadastro") +
+      d("Bens em casa","cerca de "+brl(CLIENTE.bens),"est","pelas compras") +
+      `<p class="suave" style="margin:12px 0 0">Confiança da proposta: ${conf}%</p><div class="barra"><div style="width:${conf}%"></div></div>`;
+  },
+  planos(){
+    return cab("Outros planos","Toque para trocar.") + ["TOTAL","PRATICO","ESSENCIAL"].map(k=>`
+      <button class="item ${st.plano===k?'sel':''}" onclick="st.plano='${k}';fechar()">
+        <div style="flex:1"><div class="cab"><b style="font-family:Nunito;font-size:17px;color:var(--azul-escuro)">${PLANOS[k].nome}${k===st.recomendado?' · recomendado':''}</b><b>${brl2(preco(k))}</b></div>
+        <span class="suave">${PLANOS[k].muda}</span></div></button>`).join("");
+  },
+  cenarios(){
+    const cs = cenarios(), c = cs[st.cenario];
+    return cab("E se acontecer?","Exemplos para um apê de "+CLIENTE.area+" m².") +
+      `<div class="cenarios">${Object.entries(cs).map(([k,v])=>`<button class="cenario ${k===st.cenario?'sel':''}" onclick="st.cenario='${k}';render()">${v.rotulo}</button>`).join("")}</div>
+      <div class="ilu">${c.ilu}</div><p style="margin:6px 0 0" data-say>${c.texto}</p>
+      <div class="compara"><div class="caixa sem">Sem seguro<span class="valor">${brl(c.prejuizo)}</span></div><div class="caixa com">Com o ${PLANOS[st.plano].nome}<span class="valor">${brl(c.com)}</span></div></div>`;
+  },
+  cobre(){
+    const p = PLANOS[st.plano];
+    const tem = k => FIXAS.includes(k) || (p.extras.includes(k) && st.ligadas[k]);
+    const S = {
+      banheiro:[["Cano estourou e molhou o piso","agua"],["A água desceu para o vizinho","rc"],["Encanamento velho",null]],
+      cozinha:[["Raio queimou a geladeira","eletricos"],["Fogo no fogão","incendio"],["Geladeira quebrou de velha",null]],
+      sala:[["Arrombaram e levaram a TV","roubo"],["Vidro da janela quebrou","vidros"],["TV caiu sozinha",null]],
+      quarto:[["Infiltração após chuva forte","agua"],["Chaveiro de madrugada","assist"]],
+      telhado:[["Granizo quebrou telhas","vendaval"],["Vendaval no telhado","vendaval"]],
+      porta:[["Sem poder morar após incêndio","aluguel"],["Fechadura arrombada","roubo"]]
+    };
+    const nomes = {banheiro:"Banheiro",cozinha:"Cozinha",sala:"Sala",quarto:"Quarto",telhado:"Telhado",porta:"Porta"};
+    return cab("O que o "+p.nome+" cobre","Toque num cômodo.") +
+      `<div class="comodos">${Object.keys(nomes).map(k=>`<button class="comodo ${k===st.comodo?'sel':''}" onclick="st.comodo='${k}';render()">${COMODO_ICO[k]}${nomes[k]}</button>`).join("")}</div>
+      ${S[st.comodo].map(([txt,k])=>{
+        const ok = k==="assist" || (k ? tem(k) : false);
+        const fr = k==="assist" ? "Assistência 24h, sem custo" : k ? "Franquia: "+COB[k].franquia : "Desgaste não entra em nenhum plano";
+        return `<div class="situacao"><span class="tag ${ok?'s':'n'}">${ok?'Coberto':'Não coberto'}</span><div>${txt}<br><span class="suave">${fr}</span></div></div>`}).join("")}
+      <p class="suave" style="margin:10px 0 0">Assistência 24h: ${PACOTES.slice(0,p.pacotes).join(", ")}.</p>`;
+  },
+  ajustar(){
+    const p = PLANOS[st.plano];
+    let dica = "";
+    if(st.plano==="PRATICO" && !st.ligadas.roubo && !st.ligadas.vidros) dica = `<div class="aviso">Sem roubo e vidros, ele ficou igual ao Essencial. <button class="link" onclick="st.plano='ESSENCIAL';render()">Trocar e pagar ${brl2(preco('ESSENCIAL'))}</button></div>`;
+    if(st.plano==="TOTAL" && !st.ligadas.rc && !st.ligadas.aluguel && !st.ligadas.despesas) dica = `<div class="aviso">Sem os 3 extras, ele ficou igual ao Prático. <button class="link" onclick="st.plano='PRATICO';render()">Ver o Prático por ${brl2(preco('PRATICO'))}</button></div>`;
+    const linha = k => {const c=COB[k], fixa=FIXAS.includes(k), lig=fixa||st.ligadas[k];
+      return `<div class="cob"><div class="l1"><span>${c.nome}</span>${fixa?'<span class="chip conf">fixa</span>':`<label class="sw"><input type="checkbox" aria-label="${c.nome}" ${lig?'checked':''} onchange="st.ligadas['${k}']=this.checked;render()"><span></span></label>`}</div>
+        ${lig && c.min!==c.max?`<div class="suave" style="display:flex;justify-content:space-between"><span>${brl(c.min)}</span><b style="color:var(--texto)" id="v_${k}">${brl(st.valores[k])}</b><span>${brl(c.max)}</span></div>
+        <input type="range" aria-label="${c.nome}" min="${c.min}" max="${c.max}" step="${c.passo}" value="${st.valores[k]}" oninput="st.valores['${k}']=+this.value;document.getElementById('v_${k}').textContent=brl(this.value);document.getElementById('pv').textContent=brl2(preco(st.plano))+'/mês'" onchange="render()">`:''}</div>`};
+    return cab("Ajustar valores","Coberturas fixas não saem; só o valor muda.") +
+      `<div class="precobar"><span>Plano ${p.nome}</span><b id="pv">${brl2(preco(st.plano))}/mês</b></div>${dica}
+      ${FIXAS.map(linha).join("")}${p.extras.map(linha).join("")}`;
+  },
+  vigencia(){
+    const econ = (preco(st.plano)-precoFinal())*12*st.vig;
+    return cab("Por quanto tempo?","Mais anos, mais desconto.") +
+      `<div class="vig">${[1,2,3,4,5].map(a=>`<button class="${a===st.vig?'sel':''}" onclick="st.vig=${a};render()">${a} ano${a>1?'s':''}${a>1?`<small>-${String(Math.round(DESCONTO[a]*1000)/10).replace('.',',')}%</small>`:''}</button>`).join("")}</div>
+      <p class="suave">${st.vig>1?`Você economiza ${brl(econ)} no total.`:"Sem desconto em 1 ano."}</p>
+      <button class="btn btn-amarelo" onclick="fechar()">Pronto</button>`;
+  },
+  pagamento(){
+    return cab("Como pagar?") + [["debito","Débito em conta"],["cartao","Cartão de crédito"]].map(([k,n])=>
+      `<button class="item ${st.pagamento===k?'sel':''}" onclick="st.pagamento='${k}';fechar()"><b>${n}</b></button>`).join("");
+  },
+  mudou(){
+    const a = st.antes; if(!a) return cab("Nada mudou");
+    const novo = preco(st.plano);
+    const l = (n,de,para) => de===para ? "" : `<div class="mudou"><span>${n}</span><span><s>${de}</s> → <b>${para}</b></span></div>`;
+    return cab(GERENTE.nome+" mudou sua proposta") +
+      `<p data-say>${st.motivo}</p>
+      ${l("Plano",PLANOS[a.plano].nome,PLANOS[st.plano].nome)}${l("Quebra de vidros",brl(a.vidros),brl(st.valores.vidros))}${l("Roubo",brl(a.roubo),brl(st.valores.roubo))}
+      <div class="mudou"><span>Preço</span><span><s>${brl2(a.preco)}</s> → <b>${brl2(novo)}</b></span></div>
+      <p class="suave" style="margin-top:8px">Nada foi contratado. Só você decide.</p>`;
+  },
+  ajuda(){
+    const P = st.ajudaPasso;
+    if(P==="menu") return cab("Como prefere tirar a dúvida?","A pessoa vê a mesma proposta que você.") +
+      `<button class="item" onclick="st.ajudaPasso='gerente';render()">${ICO.gerente}<div><b>Falar com meu gerente</b><br><span class="suave">${GERENTE.nome} recebe a proposta pronta</span></div></button>
+      <button class="item" onclick="st.ajudaPasso='chat';render()">${ICO.chat}<div><b>Conversar agora</b><br><span class="suave">Especialista responde em ~1 min</span></div></button>
+      <button class="item" onclick="st.ajudaPasso='ligar';render()">${ICO.fone}<div><b>Me liguem</b><br><span class="suave">A central liga em até 10 min</span></div></button>
+      <button class="item" onclick="st.ajudaPasso='confianca';render()">${ICO.familia}<div><b>Alguém de confiança</b><br><span class="suave">Filho ou amigo vê; só você contrata</span></div></button>`;
+    if(P==="gerente") return cab("Falar com o "+GERENTE.nome,"Você não precisa repetir nada.") +
+      `<p style="margin:8px 0 4px;font-weight:600">Sobre o que é a dúvida?</p>
+      <div class="mini">${DUVIDAS.map((d,i)=>`<button class="${st.duvida===i?'sel':''}" onclick="st.duvida=${i};render()">${d}</button>`).join("")}</div>
+      <p style="margin:0 0 4px;font-weight:600">Como prefere falar?</p>
+      <div class="mini">${[["app","Aqui no app"],["ligar","Ligação"],["wpp","WhatsApp"]].map(([k,n])=>`<button class="${st.canal===k?'sel':''}" onclick="st.canal='${k}';render()">${n}</button>`).join("")}</div>
+      <button class="btn btn-amarelo" ${st.duvida===null?'disabled':''} onclick="st.ajudaPasso='enviado';render()">Enviar para o ${GERENTE.nome}</button>
+      <p class="suave" style="margin:8px 0 0;text-align:center">Ele vê esta proposta. Seus extratos e sua renda, não.</p>`;
+    if(P==="enviado") return cab(GERENTE.nome+" recebeu") +
+      `<div class="track"><span class="bola">${ICO.ok.replace('class="ic"','')}</span><div><b style="font-weight:600">Proposta enviada</b><br><span class="suave">Protocolo ${GERENTE.protocolo}</span></div></div>
+      <div class="track"><span class="bola ag">${ICO.relogio.replace('class="ic"','')}</span><div><b style="font-weight:600">Resposta em até 15 min</b><br><span class="suave">Se ele estiver ocupado, a ${GERENTE.especialista} assume.</span></div></div>
+      ${st.canal==="wpp"?`<p class="suave">No WhatsApp chega só o protocolo, sem link e sem dados.</p>`:""}
+      <button class="btn btn-claro" onclick="ir(T('gerente'))">Ver o lado do gerente</button>`;
+    if(P==="chat") return cab(GERENTE.especialista+" · Especialista") +
+      `<div class="chat"><div class="msg ela">Oi! Vi que você está olhando o ${PLANOS[st.plano].nome}. Posso ajudar?</div>
+      <div class="msg eu">Se o cano do vizinho de cima molhar meu apê, o seguro paga?</div>
+      <div class="msg ela">Paga, por danos por água, com franquia de 10% (mínimo R$ 1.000).</div></div>`;
+    if(P==="ligar") return cab("Pedido registrado") + `<p>A central liga em até 10 minutos, com a sua proposta aberta. Protocolo ${GERENTE.protocolo}.</p>`;
+    return cab("Convidar alguém de confiança") + `<p>A pessoa vê a proposta no app dela, só para ler e comentar. Você tira o acesso quando quiser.</p>`;
+  }
+};
+
+// ---------- painel do gerente ----------
+const impacto = k => Math.max(0, SUGESTAO[k]-st.valores[k]) * COB[k].taxa / 1000;
+function gerPreco(){ return preco(st.ger.plano, {...st.ligadas, roubo:true, vidros:true}, {...st.valores, roubo:st.ger.roubo, vidros:st.ger.vidros}); }
+function painelGerente(){
+  if(!st.ger) st.ger = {plano:st.plano, roubo:st.valores.roubo, vidros:st.valores.vidros};
+  if(!st.motivo) st.motivo = "Você trocou vidros e comprou móveis e eletrônicos recentemente. Ajustei vidros e roubo para cobrir o que você tem.";
+  const g = st.ger, duvida = DUVIDAS[st.duvida ?? 0].toLowerCase();
+  const canal = {app:"no app", ligar:"pediu ligação", wpp:"WhatsApp"}[st.canal];
+  const barra = (k,label) => `<div class="cob" style="padding:6px 0"><div class="l1"><span>${label}</span><span class="chip ${g[k]===SUGESTAO[k]?'obs':'est'}">${g[k]===SUGESTAO[k]?'sugestão aplicada':'sugestão '+brl(SUGESTAO[k])}</span></div>
+    <div class="suave" style="display:flex;justify-content:space-between"><span>${brl(COB[k].min)}</span><b style="color:var(--texto)" id="gv_${k}">${brl(g[k])}</b><span>${brl(COB[k].max)}</span></div>
+    <input type="range" aria-label="${label}" min="${COB[k].min}" max="${COB[k].max}" step="${COB[k].passo}" value="${g[k]}" oninput="st.ger['${k}']=+this.value;document.getElementById('gv_${k}').textContent=brl(this.value);document.getElementById('gpv').textContent=brl2(gerPreco())+'/mês'" onchange="render()"></div>`;
+  const dado = (n,v,cls,o) => `<tr><td>${n}</td><td><b>${v}</b></td><td><span class="chip ${cls}">${o}</span></td></tr>`;
+  return `
+  <div class="ptopo"><b>Plataforma de Atendimento · Seguros</b><span>${GERENTE.nome} G. · gerente de relacionamento</span></div>
+  <div class="pcab">
+    <span class="palerta">${ICO.sino}Pedido de ajuda · há 2 min · ${GERENTE.protocolo} · ${canal}</span>
+    <h2 style="margin-top:10px">Dúvida sobre <em>${duvida}</em></h2>
+    <p>Apê financiado em ${CLIENTE.cidade}, ${CLIENTE.area} m². Viu o plano <b>${PLANOS[st.plano].nome}</b> e pediu ajuda na tela <b>${st.origem || "Sua proteção"}</b>.</p>
+  </div>
+  <div class="pgrid">
+    <div>
+      <div class="psec"><h5>Proposta: você ajusta, o cliente decide</h5>
+        <div class="pplanos">${["ESSENCIAL","PRATICO","TOTAL"].map(k=>`<button class="${g.plano===k?'sel':''}" onclick="st.ger.plano='${k}';render()">${PLANOS[k].nome}</button>`).join("")}</div>
+        ${g.plano!=="ESSENCIAL"?barra("vidros","Quebra de vidros")+barra("roubo","Roubo com arrombamento"):`<div class="aviso">O Essencial não tem roubo nem vidros.</div>`}
+        <div class="precobar" style="position:static"><span>Novo preço</span><b id="gpv">${brl2(gerPreco())}/mês</b></div>
+        <p class="suave" style="margin:8px 0 4px">Motivo que o cliente vai ler:</p>
+        <textarea aria-label="Motivo do ajuste" oninput="st.motivo=this.value">${st.motivo}</textarea>
+        <div class="pacoes"><button class="btn btn-claro" onclick="alert('Ligando para o número cadastrado (ilustrativo).')">Ligar para o cliente</button><button class="btn btn-amarelo" onclick="enviarAjuste()">Enviar ao app do cliente</button></div>
+      </div>
+      <details><summary>Dados e origem</summary><table class="pt">
+        ${dado("Tipo","Apartamento","obs","endereço")}${dado("Área",CLIENTE.area+" m²","obs","IPTU")}
+        ${dado("Relação","Financiado","obs","parcela "+brl(CLIENTE.parcela))}${dado("Mora no imóvel",st.mora===false?"Não":"Sim","conf","confirmado")}
+        ${dado("Bens","≈ "+brl(CLIENTE.bens),"est","compras 36 meses")}${dado("Vidraçaria",brl(CLIENTE.vidracaria24m)+" em 24 meses","obs","transações")}
+      </table></details>
+    </div>
+    <div>
+      <div class="psec sug"><h5>O motor sugere</h5><ol>
+        <li><b>Vidros</b>: ${brl(st.valores.vidros)} hoje; houve ${brl(CLIENTE.vidracaria24m)} em vidraçaria. Sugestão ${brl(SUGESTAO.vidros)} <span class="suave">(+${brl2(impacto("vidros"))}/mês)</span>.</li>
+        <li><b>Roubo</b>: ${brl(st.valores.roubo)} hoje; bens ≈ ${brl(SUGESTAO.roubo)}. Sugestão ${brl(SUGESTAO.roubo)} <span class="suave">(+${brl2(impacto("roubo"))}/mês)</span>.</li>
+        <li>Há <b>outro imóvel</b> cadastrado. Pergunte se quer proteger.</li></ol>
+        <button class="btn btn-claro" style="margin-top:8px;min-height:40px" onclick="st.ger.roubo=SUGESTAO.roubo;st.ger.vidros=SUGESTAO.vidros;if(st.ger.plano==='ESSENCIAL')st.ger.plano='PRATICO';render()">Aplicar sugestões</button></div>
+      <div class="psec"><h5>Roteiro</h5><ol style="margin:0;padding-left:18px">
+        <li>Confirme a dúvida: ${duvida}.</li><li>"Os vidros que você trocou ficam neste apê?"</li><li>"Seus bens somam uns ${brl(SUGESTAO.roubo)}?"</li></ol></div>
+      <details><summary>Objeções prováveis</summary>
+        <p style="margin:8px 0 6px"><b>"Está caro."</b> Prático ajustado: ${brl2(preco("PRATICO",{...st.ligadas,roubo:true,vidros:true},{...st.valores,...SUGESTAO}))}/mês.</p>
+        <p style="margin:0 0 6px"><b>"O condomínio já tem seguro."</b> Cobre o prédio, não os bens nem o vizinho.</p>
+        <p style="margin:0"><b>"Já pago seguro no financiamento."</b> Protege o imóvel e a dívida, não os bens.</p></details>
+      <p class="suave" style="margin-top:10px">Você vê um resumo, não o extrato. Renda e idade não aparecem nem decidem nada. Acesso registrado no protocolo ${GERENTE.protocolo}.</p>
+    </div>
+  </div>`;
+}
+function enviarAjuste(){
+  st.antes = {plano:st.plano, roubo:st.valores.roubo, vidros:st.valores.vidros, preco:preco(st.plano)};
+  st.plano = st.ger.plano; st.valores.roubo = st.ger.roubo; st.valores.vidros = st.ger.vidros;
+  st.ligadas.roubo = true; st.ligadas.vidros = true; st.entend = [false,false]; st.ajustado = true;
+  st.sheet = null; ir(T("retorno"));
+}
+
+// ---------- navegação, acessibilidade, notas ----------
+function abrir(nome){ if(nome==="ajuda"){ st.ajudaPasso="menu"; st.origem = TELAS[st.tela].titulo; } st.sheet = nome; render(); }
+function fechar(){ st.sheet = null; render(); }
+function ir(i){ if(window.speechSynthesis) speechSynthesis.cancel(); st.sheet = null; st.tela = i; render(); const c=document.getElementById("conteudo"); if(c) c.scrollTop=0; }
+function voltar(){ const id = TELAS[st.tela].id; ir(id==="conferir"?T("proposta"):id==="proposta"?T("gancho"):Math.max(0,st.tela-1)); }
+function reiniciar(){ location.reload(); }
+function toggleSimples(){ document.body.classList.toggle("simples"); render(); }
+function ouvir(){
+  const c = document.querySelector(".sheet") || document.getElementById("conteudo"); if(!c || !window.speechSynthesis) return;
+  const partes = [...c.querySelectorAll("h2,h3,[data-say],.aviso")].map(e=>e.innerText).join(". ");
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(partes); u.lang="pt-BR"; u.rate=.95; speechSynthesis.speak(u);
+}
+function renderNotas(){
+  const t = TELAS[st.tela];
+  document.getElementById("notas").innerHTML = `
+    <h4>${st.tela+1}. ${t.titulo}</h4>
+    <div class="metricas"><div><b>6 → 2</b>telas até contratar</div><div><b>9 → 6</b>toques mínimos</div><div><b>106 → 62</b>palavras por tela</div></div>
+    <div class="prob"><b>Antes:</b> ${t.prob}</div>
+    <div class="sol"><b>Agora:</b> ${t.sol}</div>
+    <p style="font-size:12px;color:var(--suave);margin:8px 0 0">Caso real da base de teste: CASO_00005 (apê financiado em Curitiba). Preços e prejuízos ilustrativos. Tudo que não é essencial abre num painel só quando o cliente toca.</p>
+    <nav>${TELAS.map((x,i)=>`<button class="${i===st.tela?'on':''}" onclick="ir(${i})">${i+1}. ${x.titulo}</button>`).join("")}</nav>`;
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿tabela,campo,descricao,natureza,origem_conceitual,regra_calculo,limitacao,disponivel_para_times
+CLIENTES,cliente_id,Cliente id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,idade,Idade,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,renda_mensal,Renda mensal,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,origem_renda,Origem renda,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,confianca_renda,Confianca renda,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,indice_maturidade_digital,Indice maturidade digital,DERIVADO_OU_ESTIMADO,"Cadastro, transações ou território fictício",DOCUMENTADA_NO_LEIA_ME_OU_RECALCULAVEL,Confirmar quando necessário,SIM
+CLIENTES,usuario_app,Usuario app,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,frequencia_acesso_app_90d,Frequencia acesso app 90d,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,quantidade_dependentes,Quantidade dependentes,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,possui_pet_informado,Possui pet informado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,qtd_produtos_seguridade,Qtd produtos seguridade,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+CLIENTES,possui_seguro_residencial,Possui seguro residencial,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,imovel_id,Imovel id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,cliente_id,Cliente id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,territorio_id,Territorio id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,logradouro,Logradouro,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,numero,Numero,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,complemento,Complemento,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,bairro,Bairro,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,municipio_real,Municipio real,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,uf_real,Uf real,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,codigo_ibge_municipio,Codigo ibge municipio,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,cep_agregado,Cep agregado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,endereco_principal_compativel,Endereco principal compativel,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,possui_termo_apartamento,Possui termo apartamento,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,possui_termo_casa,Possui termo casa,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,possui_termo_bloco,Possui termo bloco,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,possui_termo_condominio,Possui termo condominio,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,area_cadastrada_m2,Area cadastrada m2,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,origem_area,Origem area,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,confianca_area,Confianca area,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,padrao_construtivo_cadastrado,Padrao construtivo cadastrado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,material_parede_externa_cadastrado,Material parede externa cadastrado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+ENDERECOS_IMOVEIS,situacao_imovel_cadastral,Situacao imovel cadastral,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,cliente_id,Cliente id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,imovel_id,Imovel id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,pagamento_aluguel_recorrente,Pagamento aluguel recorrente,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,valor_aluguel_recorrente,Valor aluguel recorrente,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,credito_recorrente_compativel_aluguel,Credito recorrente compativel aluguel,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,valor_medio_credito_recorrente,Valor medio credito recorrente,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,quantidade_creditos_recorrentes_12m,Quantidade creditos recorrentes 12m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,parcela_financiamento_imobiliario,Parcela financiamento imobiliario,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,pagamento_condominio_mensal,Pagamento condominio mensal,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,pagamento_iptu_anual,Pagamento iptu anual,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,energia_media_mensal_6m,Energia media mensal 6m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,agua_media_mensal_6m,Agua media mensal 6m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,internet_mensal,Internet mensal,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,compras_moveis_36m,Compras moveis 36m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,compras_eletrodomesticos_36m,Compras eletrodomesticos 36m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,compras_eletronicos_36m,Compras eletronicos 36m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,gastos_material_construcao_24m,Gastos material construcao 24m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+SINAIS_IMOBILIARIOS,gastos_vidracaria_24m,Gastos vidracaria 24m,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,bem_id,Bem id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,cliente_id,Cliente id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,imovel_id_referencia,Imovel id referencia,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,tipo_bem,Tipo bem,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,valor_cadastrado,Valor cadastrado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,mesma_uf_imovel,Mesma uf imovel,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,mesmo_municipio_imovel,Mesmo municipio imovel,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,bem_financiado_pelo_banco,Bem financiado pelo banco,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,probabilidade_bem_no_imovel_referencia,Probabilidade bem no imovel referencia,DERIVADO_OU_ESTIMADO,"Cadastro, transações ou território fictício",DOCUMENTADA_NO_LEIA_ME_OU_RECALCULAVEL,Confirmar quando necessário,SIM
+BENS_COMPRAS,nivel_confianca_vinculo,Nivel confianca vinculo,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+BENS_COMPRAS,valor_bem_ponderado_referencia,Valor bem ponderado referencia,DERIVADO_OU_ESTIMADO,"Cadastro, transações ou território fictício",DOCUMENTADA_NO_LEIA_ME_OU_RECALCULAVEL,Confirmar quando necessário,SIM
+TERRITORIO,territorio_id,Territorio id,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,codigo_ibge_municipio,Codigo ibge municipio,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,municipio_real,Municipio real,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,uf_real,Uf real,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,cep_agregado,Cep agregado,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,latitude_aproximada,Latitude aproximada,DERIVADO_OU_ESTIMADO,"Cadastro, transações ou território fictício",DOCUMENTADA_NO_LEIA_ME_OU_RECALCULAVEL,Confirmar quando necessário,SIM
+TERRITORIO,longitude_aproximada,Longitude aproximada,DERIVADO_OU_ESTIMADO,"Cadastro, transações ou território fictício",DOCUMENTADA_NO_LEIA_ME_OU_RECALCULAVEL,Confirmar quando necessário,SIM
+TERRITORIO,chave_enriquecimento_publico,Chave enriquecimento publico,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,observacao_privacidade,Observacao privacidade,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TERRITORIO,orientacao_enriquecimento,Orientacao enriquecimento,CADASTRAL_OU_OBSERVADO,"Cadastro, transações ou território fictício",NAO_SE_APLICA,Confirmar quando necessário,SIM
+TEMPLATE_RESULTADO_TIMES,cliente_id,Cliente id,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,imovel_id,Imovel id,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,elegivel,Elegivel,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,motivo_inelegibilidade,Motivo inelegibilidade,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,tipo_imovel_sugerido,Tipo imovel sugerido,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,uso_imovel_sugerido,Uso imovel sugerido,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,tipo_vinculo_sugerido,Tipo vinculo sugerido,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,plano_recomendado,Plano recomendado,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,coberturas_recomendadas,Coberturas recomendadas,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,confianca_geral,Confianca geral,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,justificativa_recomendacao,Justificativa recomendacao,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,perguntas_confirmacao,Perguntas confirmacao,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_RESULTADO_TIMES,fontes_publicas_adicionais,Fontes publicas adicionais,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Obrigatório conforme instruções,SIM
+TEMPLATE_COBERTURAS_TIMES,cliente_id,Cliente id,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,imovel_id,Imovel id,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,cobertura,Cobertura,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,faixa_valor_min,Faixa valor min,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,faixa_valor_max,Faixa valor max,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,confianca_estimativa,Confianca estimativa,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,dados_utilizados,Dados utilizados,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,regra_calculo_utilizada,Regra calculo utilizada,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,justificativa,Justificativa,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,informacao_a_confirmar,Informacao a confirmar,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM
+TEMPLATE_COBERTURAS_TIMES,observacao,Observacao,SAIDA_DA_EQUIPE,Preenchido pela equipe,LIVRE_E_DOCUMENTADA,Uma linha por cobertura fixa e adicional aplicável,SIM

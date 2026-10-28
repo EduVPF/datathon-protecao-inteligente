@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano Unificado · Seguro Residencial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:ital,wght@0,800;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarelo:#FCFC30; --azul:#465EFF; --azul-escuro:#2D37F5; --azul-claro:#E4ECFF; --azul-fundo:#F2F5FF;
+  --texto:#111214; --suave:#555A63; --borda:#DBDDE1; --fundo:#F4F4F6; --branco:#fff;
+  --verde:#0E7A46; --verde-claro:#E3F6EC; --vermelho:#B42A25; --vermelho-claro:#FDECEA; --ambar:#7A5900; --ambar-claro:#FFF6D6;
+  --sombra:0 8px 24px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box}
+::selection{background:var(--amarelo);color:var(--azul-escuro)}
+:focus-visible{outline:3px solid var(--azul);outline-offset:3px;border-radius:8px}
+html,body{margin:0;height:100%}
+body{background:var(--fundo);color:var(--texto);font-family:Inter,sans-serif;overflow:hidden}
+/* barra superior */
+.topo{position:fixed;top:0;left:0;right:0;height:56px;background:var(--azul);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px;z-index:5}
+.topo b{font-family:Nunito;font-weight:900;font-size:18px;letter-spacing:-.01em}
+.topo .sep{opacity:.5}
+.topo .prazo{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px}
+.topo .prazo span{background:var(--amarelo);color:var(--azul-escuro);font-weight:800;border-radius:999px;padding:4px 12px;font-variant-numeric:tabular-nums}
+.progresso{position:fixed;top:56px;left:0;height:4px;background:var(--amarelo);transition:width .4s cubic-bezier(.16,1,.3,1);z-index:5}
+/* slides */
+.palco{position:fixed;inset:60px 0 64px 0;overflow:hidden}
+.slide{position:absolute;inset:0;padding:36px 64px 24px;display:none;overflow-y:auto}
+.slide.on{display:block;animation:entra .45s cubic-bezier(.16,1,.3,1)}
+@keyframes entra{from{opacity:.3;transform:translateY(10px)}to{opacity:1;transform:none}}
+.miolo{max-width:1180px;margin:0 auto}
+h1{font-family:Nunito;font-weight:900;font-size:clamp(40px,6vw,76px);line-height:1.02;letter-spacing:-.02em;margin:0 0 16px;text-wrap:balance}
+h2{font-family:Nunito;font-weight:900;font-size:clamp(30px,3.6vw,46px);line-height:1.08;letter-spacing:-.015em;margin:0 0 8px;text-wrap:balance}
+h1 em,h2 em{color:var(--azul);font-style:italic}
+h3{font-family:Nunito;font-weight:800;font-size:20px;margin:0 0 8px}
+.lead{font-size:clamp(17px,1.6vw,21px);color:var(--suave);max-width:820px;margin:0 0 28px;line-height:1.5}
+p{line-height:1.55;margin:0 0 10px}
+.grade{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.slide{padding:24px 18px}}
+.card{background:var(--branco);border-radius:18px;padding:22px;box-shadow:var(--sombra)}
+.card .num{font-family:Nunito;font-weight:900;font-size:42px;color:var(--azul-escuro);line-height:1;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.card.destaque{background:var(--azul);color:#fff}
+.card.destaque .suave{color:#DCE3FF}
+.suave{color:var(--suave);font-size:15px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+.tag.am{background:var(--amarelo);color:var(--azul-escuro)}
+.tag.ok{background:var(--verde-claro);color:var(--verde)}
+.tag.no{background:var(--vermelho-claro);color:var(--vermelho)}
+.tag.at{background:var(--ambar-claro);color:var(--ambar)}
+.tag.az{background:var(--azul-claro);color:var(--azul-escuro)}
+table{width:100%;border-collapse:collapse;background:var(--branco);border-radius:16px;overflow:hidden;box-shadow:var(--sombra);font-size:15.5px}
+th{background:var(--azul-claro);color:var(--azul-escuro);text-align:left;font-weight:700;padding:12px 16px;font-size:13px;text-transform:uppercase;letter-spacing:.03em}
+td{padding:12px 16px;border-top:1px solid var(--borda);vertical-align:top;line-height:1.45}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.lista{list-style:none;padding:0;margin:0}
+.lista li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;line-height:1.45}
+.lista li svg{width:20px;height:20px;flex-shrink:0;margin-top:1px}
+/* capa */
+.capa{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center;min-height:100%}
+@media (max-width:900px){.capa{grid-template-columns:1fr}}
+.capa .faixa{background:var(--amarelo);color:var(--azul-escuro);font-weight:800;display:inline-block;padding:6px 14px;border-radius:999px;margin-bottom:22px;font-size:15px}
+.capa .bloco-azul{background:var(--azul);border-radius:28px;padding:32px;color:#fff;box-shadow:var(--sombra)}
+.capa .bloco-azul .grande{font-family:Nunito;font-weight:900;font-size:64px;line-height:1;color:var(--amarelo);font-variant-numeric:tabular-nums}
+.capa .bloco-azul .rot{font-size:15px;color:#DCE3FF;margin-bottom:22px}
+/* fluxo do motor */
+.fluxo{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+.etapa{flex:1;min-width:150px;background:var(--branco);border-radius:16px;padding:16px;box-shadow:var(--sombra);position:relative}
+.etapa .k{font-family:Nunito;font-weight:900;font-size:13px;color:var(--azul);text-transform:uppercase;letter-spacing:.05em}
+.etapa b{display:block;font-family:Nunito;font-size:19px;margin:4px 0 6px}
+.seta{align-self:center;color:var(--azul);font-weight:900;font-size:22px}
+.saidas{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.ficha{background:var(--amarelo);color:var(--azul-escuro);border-radius:18px;padding:18px 22px;font-family:Nunito;font-weight:900;font-size:22px;text-align:center;box-shadow:var(--sombra)}
+.ficha small{display:block;font-family:Inter;font-weight:600;font-size:13px}
+/* gráfico */
+.grafico{background:var(--branco);border-radius:18px;padding:18px 22px;box-shadow:var(--sombra)}
+.grafico svg{width:100%;height:auto;display:block}
+.legenda{display:flex;gap:18px;font-size:13.5px;color:var(--suave);margin-top:6px;flex-wrap:wrap}
+.legenda i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+/* exemplo */
+.compara{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:900px){.compara{grid-template-columns:1fr}}
+.valor{font-family:Nunito;font-weight:900;font-size:clamp(34px,4vw,52px);line-height:1;font-variant-numeric:tabular-nums}
+.riscado{color:var(--vermelho);text-decoration:line-through;text-decoration-thickness:3px}
+.passo{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--borda);font-size:16px}
+.passo:first-of-type{border-top:none}
+.passo b{font-variant-numeric:tabular-nums;white-space:nowrap}
+/* fases */
+.fases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:900px){.fases{grid-template-columns:1fr}}
+.fase{background:var(--branco);border-radius:18px;padding:22px;box-shadow:var(--sombra);border-top:6px solid var(--borda)}
+.fase.f1{border-top-color:var(--amarelo)}.fase.f2{border-top-color:var(--azul)}.fase.f3{border-top-color:var(--borda)}
+.fase .quando{font-size:13px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.04em}
+.fase h3{font-size:22px;margin:4px 0 12px}
+.tarefa{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--borda);font-size:15px;line-height:1.4}
+.tarefa:first-of-type{border-top:none}
+.tarefa code{font-family:Nunito;font-weight:900;color:var(--azul-escuro);background:var(--azul-claro);border-radius:8px;padding:1px 8px;font-size:14px;height:fit-content}
+.corte{margin-top:16px;background:var(--vermelho-claro);color:#7a1f1b;border-radius:14px;padding:12px 16px;font-size:15px}
+/* pessoas */
+.pessoas{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media (max-width:1000px){.pessoas{grid-template-columns:repeat(2,1fr)}}
+.pessoa{background:var(--branco);border-radius:18px;padding:18px;box-shadow:var(--sombra)}
+.pessoa .av{width:44px;height:44px;border-radius:50%;background:var(--azul);color:var(--amarelo);font-family:Nunito;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.pessoa .bl{font-size:12px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:.04em;margin-top:10px}
+.pessoa p{font-size:14.5px;margin:2px 0 0}
+/* decisões */
+.decisao{display:flex;gap:16px;align-items:flex-start;background:var(--branco);border-radius:18px;padding:20px 22px;box-shadow:var(--sombra)}
+.decisao .q{font-family:Nunito;font-weight:900;font-size:30px;color:var(--azul);line-height:1;min-width:34px}
+.decisao h3{margin-bottom:4px}
+.rec{margin-top:8px;font-size:14.5px;background:var(--azul-fundo);border-radius:10px;padding:8px 12px;color:var(--azul-escuro)}
+/* rodapé de navegação */
+.nav{position:fixed;left:0;right:0;bottom:0;height:64px;background:var(--branco);border-top:1px solid var(--borda);display:flex;align-items:center;gap:12px;padding:0 24px;z-index:5}
+.nav button{font-family:Inter;font-weight:700;font-size:14px;border:none;border-radius:10px;height:40px;padding:0 18px;cursor:pointer}
+.nav .ant{background:var(--azul-claro);color:var(--azul-escuro)}
+.nav .prox{background:var(--amarelo);color:var(--azul-escuro)}
+.nav button[disabled]{opacity:.4;cursor:default}
+.pontos{display:flex;gap:6px;flex-wrap:wrap;margin:0 auto}
+.pontos button{width:34px;height:34px;padding:0;border-radius:50%;background:var(--fundo);color:var(--suave);font-size:13px}
+.pontos button.on{background:var(--azul);color:#fff}
+.dica{font-size:12.5px;color:var(--suave);white-space:nowrap}
+@media (max-width:900px){.dica{display:none}.topo .sub{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topo">
+  <b>Plano Unificado</b><span class="sep">·</span><span class="sub">Datathon Proteção Inteligente · Seguro Residencial</span>
+  <div class="prazo">Entrega 29/10, 10h <span id="contador">—</span></div>
+</header>
+<div class="progresso" id="barra"></div>
+
+<main class="palco" id="palco">
+
+<!-- 1. CAPA -->
+<section class="slide" data-titulo="Capa"><div class="miolo capa">
+  <div>
+    <span class="faixa">Plano do time + plano do motor, juntos</span>
+    <h1>Do dado do banco à <em>proposta explicada</em></h1>
+    <p class="lead">Um motor de regras que lê o que o banco já sabe sobre o cliente e o imóvel e entrega, para os 138 casos da base de teste: elegibilidade, plano, faixas por cobertura, confiança, até 3 perguntas e o motivo.</p>
+  </div>
+  <div class="bloco-azul">
+    <div class="grande">138</div><div class="rot">casos cliente-imóvel para preencher</div>
+    <div class="grande">2</div><div class="rot">planilhas: resultado e coberturas</div>
+    <div class="grande">3</div><div class="rot">fases: completo → provado → bonito</div>
+  </div>
+</div></section>
+
+<!-- 2. ENTREGA -->
+<section class="slide" data-titulo="O que entregar"><div class="miolo">
+  <h2>O que a banca <em>avalia</em></h2>
+  <p class="lead">O app é a demonstração. O centro da entrega são as planilhas e o código que as gera.</p>
+  <div class="grade g4">
+    <div class="card destaque"><span class="tag am">Mais importante</span><h3 style="margin-top:12px">2 planilhas</h3><p class="suave">Resultado (1 linha por caso) e coberturas (1 linha por cobertura), para os 138 casos.</p></div>
+    <div class="card"><span class="tag az">Código</span><h3 style="margin-top:12px">Motor + testes</h3><p class="suave">Gera as planilhas do zero, com <code>requirements.txt</code> e a versão do Python.</p></div>
+    <div class="card"><span class="tag az">Documento</span><h3 style="margin-top:12px">README</h3><p class="suave">Equipe, arquitetura, como rodar, premissas, fontes, métricas e uso de IA.</p></div>
+    <div class="card"><span class="tag az">Vídeo</span><h3 style="margin-top:12px">Até 5 minutos</h3><p class="suave">Problema, solução, demo funcionando, resultados, limitações e próximos passos.</p></div>
+  </div>
+  <div class="grade g3" style="margin-top:22px">
+    <div class="card"><div class="num">20%</div><p class="suave">Adequação da proteção: elegibilidade, plano, coberturas e faixas</p></div>
+    <div class="card"><div class="num">20%</div><p class="suave">Inovação e diferencial</p></div>
+    <div class="card"><div class="num">15% + 15%</div><p class="suave">Qualidade da jornada · uso inteligente dos dados</p></div>
+  </div>
+</div></section>
+
+<!-- 3. VALIDAÇÃO -->
+<section class="slide" data-titulo="Validação"><div class="miolo">
+  <h2>Conferimos o plano do time <em>nas fontes</em></h2>
+  <p class="lead">Cada número foi checado no documento original em 28/10.</p>
+  <table>
+    <tr><th>Afirmação</th><th>Resultado</th><th>Evidência</th></tr>
+    <tr><td>Custo do m² SINAPI (IBGE) de ago/2026, 9 estados</td><td><span class="tag ok">Exato</span></td><td>PDF oficial do IBGE, publicado em 11/09/2026</td></tr>
+    <tr><td>Ceará "a conferir"</td><td><span class="tag ok">Encontrado</span></td><td>R$ 1.883,20 (com desoneração) · R$ 1.974,41 (sem)</td></tr>
+    <tr><td>IPCA de 4,58% em 12 meses até set/2026</td><td><span class="tag ok">Exato</span></td><td>API do Banco Central, série 433</td></tr>
+    <tr><td>Aluguel FipeZAP de set/2026: R$ 54,77/m²</td><td><span class="tag ok">Número certo</span></td><td>Confirmado no informe oficial da Fipe; só o link citado era de dez/2024</td></tr>
+    <tr><td>Incêndio da casa × 1,12</td><td><span class="tag at">Sem base</span></td><td>Trocado por uma faixa entre SINAPI (mín.) e CUB (máx.)</td></tr>
+    <tr><td>Danos por água só sobre os bens</td><td><span class="tag at">Incompleto</span></td><td>A cobertura também paga danos ao imóvel: somamos os acabamentos</td></tr>
+  </table>
+  <p class="suave" style="margin-top:14px">Achado extra: o PDF do SINAPI tem duas tabelas. Para reconstruir uma casa, a <b>sem desoneração</b> (encargos completos) representa melhor o custo real.</p>
+</div></section>
+
+<!-- 4. O MELHOR DOS DOIS -->
+<section class="slide" data-titulo="O melhor dos dois"><div class="miolo">
+  <h2>O melhor de <em>cada plano</em></h2>
+  <p class="lead">Nada foi jogado fora: cada plano cobriu o ponto cego do outro.</p>
+  <div class="grade g2">
+    <div class="card"><h3>Do plano do time</h3><ul class="lista" id="lista-time"></ul></div>
+    <div class="card"><h3>Do plano do motor</h3><ul class="lista" id="lista-motor"></ul></div>
+  </div>
+</div></section>
+
+<!-- 5. COMO FUNCIONA -->
+<section class="slide" data-titulo="Como funciona"><div class="miolo">
+  <h2>Como o motor <em>pensa</em></h2>
+  <p class="lead">Seis estações em sequência, só com regras explicáveis. Nenhuma usa renda, idade, dependentes ou pet.</p>
+  <div class="fluxo" id="fluxo"></div>
+  <div class="saidas">
+    <div class="ficha">Ficha JSON<small>uma por cliente-imóvel</small></div>
+    <div class="grade g3">
+      <div class="card"><h3>Planilhas</h3><p class="suave">Os 2 templates da entrega, validados automaticamente.</p></div>
+      <div class="card"><h3>App do cliente</h3><p class="suave">Proposta pronta, confirmações e contratação em 1 toque.</p></div>
+      <div class="card"><h3>Painel do gerente</h3><p class="suave">A mesma ficha com fontes, confiança e roteiro.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 6. FONTES -->
+<section class="slide" data-titulo="Fontes externas"><div class="miolo">
+  <h2>Custo de reconstruir: <em>duas fontes públicas</em></h2>
+  <p class="lead">A faixa de cada estado vai do SINAPI (IBGE, mínimo) ao CUB (Sinduscon, máximo). As fontes ficam salvas no projeto, então o motor funciona offline.</p>
+  <div class="grade" style="grid-template-columns:1.7fr 1fr;align-items:start">
+    <div class="grafico">
+      <svg id="haltere" viewBox="0 0 1000 430" role="img" aria-label="Faixa de custo do m² por estado"></svg>
+      <div class="legenda"><span><i style="background:var(--azul)"></i>SINAPI ago/2026, sem desoneração (mín.)</span><span><i style="background:var(--azul-escuro);border:3px solid var(--amarelo)"></i>CUB R8-N (máx.)</span><span>R$ por m²</span></div>
+    </div>
+    <div class="grade" style="gap:12px">
+      <div class="card" style="padding:16px 18px"><span class="tag ok">Usar</span><h3 style="margin:8px 0 4px">IPCA (Banco Central)</h3><p class="suave" style="margin:0">Compras dos últimos 3 anos a preço de hoje: fator ≈ 1,069.</p></div>
+      <div class="card" style="padding:16px 18px"><span class="tag ok">Usar</span><h3 style="margin:8px 0 4px">FipeZAP aluguel</h3><p class="suave" style="margin:0">Informe oficial de set/2026: perda de aluguel de quem mora no próprio imóvel.</p></div>
+      <div class="card" style="padding:16px 18px"><span class="tag az">Se sobrar tempo</span><h3 style="margin:8px 0 4px">Atlas de Desastres</h3><p class="suave" style="margin:0">Alagamento e vendaval por município.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 7. PLANO -->
+<section class="slide" data-titulo="Escolha do plano"><div class="miolo">
+  <h2>Como o plano <em>é escolhido</em></h2>
+  <p class="lead">Cada sinal observado soma pontos. A justificativa diz por que não o plano mais barato e por que não o mais caro.</p>
+  <div class="grade g2">
+    <table>
+      <tr><th>Sinal</th><th>Pontos</th></tr>
+      <tr><td>Inquilino (precisa de moradia se o imóvel ficar inabitável)</td><td><span class="tag az">Total +2</span></td></tr>
+      <tr><td>Recebe aluguel deste imóvel</td><td><span class="tag az">Total +2</span></td></tr>
+      <tr><td>Apartamento ou casa em condomínio (dano ao vizinho)</td><td><span class="tag az">Total +1</span></td></tr>
+      <tr><td>Bens totais ≥ R$ 25 mil</td><td><span class="tag am">Prático +2</span></td></tr>
+      <tr><td>Eletrônicos ≥ R$ 8 mil · casa fora de condomínio · vidraçaria · veraneio</td><td><span class="tag am">Prático +1 cada</span></td></tr>
+    </table>
+    <div class="grade" style="gap:14px">
+      <div class="card destaque"><h3>Total</h3><p class="suave">se os pontos de Total somam 2 ou mais</p></div>
+      <div class="card" style="background:var(--amarelo)"><h3 style="color:var(--azul-escuro)">Prático</h3><p style="color:var(--azul-escuro);font-size:15px">se Prático soma 2 ou mais, ou Total soma 1</p></div>
+      <div class="card"><h3>Essencial</h3><p class="suave">nos demais casos</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 8. COBERTURAS -->
+<section class="slide" data-titulo="Coberturas"><div class="miolo">
+  <h2>Cada cobertura cobre <em>a maior perda provável</em></h2>
+  <p class="lead">O seguro é a primeiro risco absoluto, sem rateio. Por isso cada limite mira o pior caso realista daquela cobertura, e não "tudo".</p>
+  <table>
+    <tr><th>Cobertura</th><th>Base da faixa</th><th>Por quê</th></tr>
+    <tr><td>Incêndio (casa)</td><td>Reconstrução + bens</td><td>Com limite único, o prédio tem prioridade</td></tr>
+    <tr><td>Incêndio (apto ou financiado)</td><td>25%–40% da reconstrução + bens</td><td>Estrutura em segundo risco (cl. 15.2)</td></tr>
+    <tr><td>Roubo com arrombamento</td><td>Eletrônicos e portáteis</td><td>Levam a TV, não o sofá; joias e relógios não são cobertos</td></tr>
+    <tr><td>Danos elétricos</td><td>Eletrônicos + eletrodomésticos</td><td>Só o que liga na tomada</td></tr>
+    <tr><td>Danos por água</td><td>Bens molháveis + acabamentos</td><td>Paga bens e danos ao imóvel</td></tr>
+    <tr><td>Responsabilidade civil</td><td>Reparo de uma unidade vizinha</td><td>Exposição pelo tipo de imóvel, sem atributos pessoais</td></tr>
+    <tr><td>Perda de aluguel</td><td>Aluguel × 6 a 12 meses</td><td>Pago, recebido ou de mercado (FipeZAP)</td></tr>
+  </table>
+</div></section>
+
+<!-- 9. EXEMPLO -->
+<section class="slide" data-titulo="Exemplo real"><div class="miolo">
+  <h2>Um caso real: <em>apê financiado em Curitiba</em></h2>
+  <p class="lead">CASO_00005 da base de teste, 110 m². A regra nova corta a cobrança dupla da estrutura.</p>
+  <div class="compara">
+    <div class="card">
+      <span class="tag no">Antes (protótipo)</span>
+      <div class="valor riscado" style="margin:14px 0 8px">R$ 260 mil</div>
+      <p class="suave">Incêndio pela reconstrução inteira, como se o condomínio e o seguro do financiamento não existissem.</p>
+    </div>
+    <div class="card">
+      <span class="tag ok">Agora (plano unificado)</span>
+      <div class="valor" style="margin:14px 0 8px;color:var(--azul-escuro)">R$ 100 – 180 mil</div>
+      <div class="passo"><span>Reconstrução: 110 m² × R$ 2.287 a 2.739</span><b>R$ 252 – 301 mil</b></div>
+      <div class="passo"><span>Segundo risco: só acabamentos (25%–40%)</span><b>R$ 63 – 120 mil</b></div>
+      <div class="passo"><span>Bens (compras × IPCA → estoque)</span><b>R$ 22 – 60 mil</b></div>
+      <div class="passo"><span>Piso do produto</span><b>R$ 100 mil</b></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 10. FASES -->
+<section class="slide" data-titulo="Fases"><div class="miolo">
+  <h2>Três fases: <em>completo, provado, bonito</em></h2>
+  <p class="lead">Primeiro as planilhas completas. Depois as provas. O resto só se sobrar tempo.</p>
+  <div class="fases" id="fases"></div>
+  <div class="corte"><b>Regra de corte:</b> se apertar, cai primeiro a Fase 3, depois a demo (T7) e as métricas (T6). <b>T1 a T5 nunca se cortam.</b></div>
+</div></section>
+
+<!-- 11. PESSOAS -->
+<section class="slide" data-titulo="Quem faz o quê"><div class="miolo">
+  <h2>Quem faz <em>o quê</em></h2>
+  <p class="lead">Cinco frentes em paralelo, com a entrega às 10h de 29/10.</p>
+  <div class="pessoas" id="pessoas"></div>
+</div></section>
+
+<!-- 12. DECISÕES -->
+<section class="slide" data-titulo="Decisões"><div class="miolo">
+  <h2>Decisões <em>tomadas</em></h2>
+  <p class="lead">Os quatro pontos estão fechados. A Fase 1 pode começar.</p>
+  <div class="grade g2" id="decisoes"></div>
+</div></section>
+
+</main>
+
+<nav class="nav" aria-label="Navegação">
+  <button class="ant" id="ant">← Anterior</button>
+  <div class="pontos" id="pontos"></div>
+  <span class="dica">Use ← → ou espaço</span>
+  <button class="prox" id="prox">Próximo →</button>
+</nav>
+
+<script>
+const OK = '<svg viewBox="0 0 24 24" fill="none" stroke="#0E7A46" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+// slide 4
+const TIME = ["SINAPI do IBGE: fonte oficial do custo de obra","IPCA pela API do Banco Central: compras a preço de hoje","FipeZAP para o aluguel de quem mora no próprio imóvel","Limites do produto tirados das prints do app","Elegibilidade só SIM/NÃO; dependentes e pet fora da decisão","Tipo do imóvel conferido pelo complemento","Por que não o mais barato e por que não o mais caro","Estratégia: versão completa em 3 horas, demo lendo o motor"];
+const MOTOR = ["CUB como teto da faixa de reconstrução","Regras das condições gerais: segundo risco, bens não cobertos","Bens por três âncoras: comprovado, estoque e piso","Confiança = fonte × frescor (dado antigo vale menos)","Ficha JSON única para planilha, app e gerente","Validação automática das planilhas e teste de justiça","Casos extremos tratados e testados","Tarefas com testes e comandos para conferir"];
+document.getElementById("lista-time").innerHTML = TIME.map(t=>`<li>${OK}<span>${t}</span></li>`).join("");
+document.getElementById("lista-motor").innerHTML = MOTOR.map(t=>`<li>${OK}<span>${t}</span></li>`).join("");
+
+// slide 5
+const ETAPAS = [["1","Imóvel","Tipo, uso, vínculo e área"],["2","Elegibilidade","Regras do produto primeiro"],["3","Bens","Faixa de valor dos bens"],["4","Plano","Pontos por sinal + motivo"],["5","Coberturas","Faixa mín. e máx. em reais"],["6","Confiança","Até 3 perguntas por impacto"]];
+document.getElementById("fluxo").innerHTML = ETAPAS.map(([k,t,d],i)=>`<div class="etapa"><span class="k">Estação ${k}</span><b>${t}</b><span class="suave">${d}</span></div>${i<ETAPAS.length-1?'<span class="seta">→</span>':''}`).join("");
+
+// slide 6: gráfico de faixa por UF
+const CUSTO = [["SP",2209.93,2238.58],["RJ",2300.67,2476.31],["MG",1963.18,2548.75],["PR",2287.42,2738.93],["RS",2062.87,2943.73],["DF",2151.68,2423.72],["GO",2112.97,2242.42],["BA",1969.60,2243.22],["PE",1881.36,2240.23],["CE",1974.41,2510.74]];
+(function(){
+  const svg = document.getElementById("haltere"), x0=110, x1=960, v0=1800, v1=3000, X=v=>x0+(v-v0)/(v1-v0)*(x1-x0);
+  let s = "";
+  for(let v=1800; v<=3000; v+=200){ s += `<line x1="${X(v)}" x2="${X(v)}" y1="18" y2="410" stroke="#E6E8EC"/><text x="${X(v)}" y="428" font-size="20" fill="#555A63" text-anchor="middle" font-family="Inter">${v.toLocaleString("pt-BR")}</text>`; }
+  CUSTO.forEach(([uf,a,b],i)=>{ const y = 36 + i*38;
+    s += `<text x="${x0-18}" y="${y+8}" font-size="24" font-weight="700" fill="#111214" text-anchor="end" font-family="Inter">${uf}</text>
+      <line x1="${X(a)}" x2="${X(b)}" y1="${y}" y2="${y}" stroke="#465EFF" stroke-width="8" stroke-linecap="round" opacity=".35"/>
+      <circle cx="${X(a)}" cy="${y}" r="11" fill="#465EFF"><title>${uf} SINAPI: R$ ${a.toLocaleString("pt-BR")}</title></circle>
+      <circle cx="${X(b)}" cy="${y}" r="11" fill="#2D37F5" stroke="#FCFC30" stroke-width="3"><title>${uf} CUB: R$ ${b.toLocaleString("pt-BR")}</title></circle>`; });
+  svg.innerHTML = s;
+})();
+
+// slide 10
+const FASES = [
+  ["f1","Fase 1 · agora + 3h","Versão completa",[["T1","Fontes salvas no projeto + parâmetros sem renda"],["T2","Tipo, área e bens (três âncoras × IPCA)"],["T3","Elegibilidade, plano e coberturas"],["T4","Validação + as 2 planilhas v1 salvas"]]],
+  ["f2","Fase 2 · noite","Provas e demo",[["T5","Confiança, perguntas e testes de justiça"],["T6","Métricas e 3 casos contrastantes"],["T7","Protótipo do gerente lendo o motor"]]],
+  ["f3","Fase 3 · se sobrar","Acabamento",[["T8","Separar o motor em módulos"],["T9","API FastAPI para agentes"],["T10","Atlas de Desastres por município"]]]
+];
+document.getElementById("fases").innerHTML = FASES.map(([c,q,t,ts])=>`<div class="fase ${c}"><span class="quando">${q}</span><h3>${t}</h3>${ts.map(([k,d])=>`<div class="tarefa"><code>${k}</code><span>${d}</span></div>`).join("")}</div>`).join("");
+
+// slide 11
+const PESSOAS = [
+  ["1",["T1: fontes e parâmetros"],["T5: confiança e testes"],["Correções e pytest final"]],
+  ["2",["T2: tipo, área e bens"],["T6: métricas e casos"],["Conferir as planilhas"]],
+  ["3",["T3: plano e coberturas"],["Revisar 10 casos à mão"],["—"]],
+  ["4",["Validar CUB e FipeZAP + FONTES.md"],["T7: demo lendo o motor"],["Gravar e ajustar o vídeo"]],
+  ["5",["T4: validação + roteiro"],["README (fontes, métricas, IA)"],["README final e entrega"]]
+];
+document.getElementById("pessoas").innerHTML = PESSOAS.map(([n,a,b,c])=>`<div class="pessoa"><div class="av">${n}</div><b>Pessoa ${n}</b>
+  <div class="bl">Fase 1</div><p>${a}</p><div class="bl">Noite</div><p>${b}</p><div class="bl">Madrugada · manhã</div><p>${c}</p></div>`).join("");
+
+// slide 12
+const DECISOES = [
+  ["SINAPI sem desoneração","É o mínimo da faixa de reconstrução; o CUB é o máximo.","Reflete o custo real de reconstruir e evita subseguro."],
+  ["FipeZAP oficial de set/2026","Os valores das 10 capitais vieram do informe da Fipe.","O número do plano original estava certo; só o link estava errado."],
+  ["Dependentes e pet fora","Não decidem plano, faixa nem canal.","Há um teste de justiça para garantir."],
+  ["Segundo risco mantido","Incêndio menor em apartamento ou imóvel financiado (cl. 15.2).","Levar à mentoria; se recusarem, basta mudar um parâmetro."]
+];
+document.getElementById("decisoes").innerHTML = DECISOES.map(([t,d,r],i)=>`<div class="decisao"><span class="q">${i+1}</span><div><h3>${t}</h3><p class="suave" style="margin:0">${d}</p><div class="rec">${r}</div></div></div>`).join("");
+
+// navegação
+const slides = [...document.querySelectorAll(".slide")];
+let atual = 0;
+const pontos = document.getElementById("pontos");
+pontos.innerHTML = slides.map((s,i)=>`<button aria-label="${s.dataset.titulo}" title="${s.dataset.titulo}">${i+1}</button>`).join("");
+const botoes = [...pontos.children];
+function mostrar(i){
+  atual = Math.max(0, Math.min(slides.length-1, i));
+  slides.forEach((s,k)=>s.classList.toggle("on", k===atual));
+  botoes.forEach((b,k)=>b.classList.toggle("on", k===atual));
+  document.getElementById("barra").style.width = ((atual+1)/slides.length*100)+"%";
+  document.getElementById("ant").disabled = atual===0;
+  document.getElementById("prox").disabled = atual===slides.length-1;
+  try{ history.replaceState(null,"","#"+(atual+1)); }catch(e){}
+}
+botoes.forEach((b,i)=>b.onclick=()=>mostrar(i));
+document.getElementById("ant").onclick=()=>mostrar(atual-1);
+document.getElementById("prox").onclick=()=>mostrar(atual+1);
+document.addEventListener("keydown",e=>{
+  if(["ArrowRight","PageDown"," "].includes(e.key)){ e.preventDefault(); mostrar(atual+1); }
+  if(["ArrowLeft","PageUp"].includes(e.key)){ e.preventDefault(); mostrar(atual-1); }
+  if(e.key==="Home") mostrar(0); if(e.key==="End") mostrar(slides.length-1);
+});
+mostrar((parseInt(location.hash.slice(1))||1)-1);
+
+// contagem regressiva até 29/10, 10h (Brasília)
+const PRAZO = new Date("2026-10-29T10:00:00-03:00");
+function tic(){
+  const ms = PRAZO - new Date(), el = document.getElementById("contador");
+  if(ms<=0){ el.textContent = "prazo encerrado"; return; }
+  const h = Math.floor(ms/3.6e6), m = Math.floor(ms%3.6e6/6e4);
+  el.textContent = `faltam ${h}h ${String(m).padStart(2,"0")}min`;
+}
+tic(); setInterval(tic, 30000);
+</script>
+</body>
+</html>

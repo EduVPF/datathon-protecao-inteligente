@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protótipo Seguro Residencial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:ital,wght@0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amarelo:#FCFC30; --azul:#465EFF; --azul-escuro:#2D37F5; --azul-hover:#3135D9; --azul-claro:#E4ECFF;
+  --texto:#111214; --suave:#6C7077; --fundo:#F4F4F6; --borda:#DBDDE1; --branco:#fff;
+  --verde:#0E8A4F; --verde-claro:#E3F6EC; --vermelho:#C8312B; --vermelho-claro:#FDECEA; --coral:#FF6F68;
+  --sombra:0 6px 8px rgba(24,24,27,.06),0 1px 4px rgba(24,24,27,.08),0 0 1px rgba(24,24,27,.08);
+  --esc:1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#dfe3ec;font-family:Inter,sans-serif;color:var(--texto)}
+.palco{display:flex;gap:28px;justify-content:center;align-items:flex-start;padding:24px 16px;min-height:100vh}
+.celular{width:390px;height:820px;background:#111;border-radius:48px;padding:12px;box-shadow:0 30px 60px rgba(20,25,60,.25);flex-shrink:0}
+.tela{width:100%;height:100%;background:var(--fundo);border-radius:38px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:13px;font-weight:600;background:var(--azul);color:#fff}
+.topo{background:var(--azul);color:#fff;padding:8px 16px 14px}
+.topo .linha{display:flex;align-items:center;gap:10px}
+.topo h1{font-family:Nunito;font-size:18px;margin:0;font-weight:800;flex:1}
+.topo button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px}
+.progresso{display:flex;gap:4px;margin-top:10px}
+.progresso span{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.3)}
+.progresso span.on{background:var(--amarelo)}
+.passo{font-size:12px;opacity:.85;margin-top:6px}
+.conteudo{flex:1;overflow-y:auto;padding:16px 16px 110px;font-size:calc(15px*var(--esc));line-height:1.5}
+.folha{background:var(--branco);border-radius:16px;padding:16px;box-shadow:var(--sombra);margin-bottom:12px}
+h2{font-family:Nunito;font-weight:900;font-size:calc(24px*var(--esc));line-height:1.15;margin:4px 0 8px;color:var(--texto)}
+h2 em{color:var(--azul);font-style:italic}
+h3{font-family:Nunito;font-weight:800;font-size:calc(17px*var(--esc));margin:0 0 6px}
+p{margin:0 0 10px}
+.suave{color:var(--suave);font-size:calc(13px*var(--esc))}
+.btn{display:block;width:100%;border:none;border-radius:8px;min-height:calc(50px*var(--esc));font-family:Inter;font-weight:700;font-size:calc(15px*var(--esc));cursor:pointer;text-transform:uppercase;letter-spacing:.02em}
+.btn-amarelo{background:var(--amarelo);color:var(--azul-escuro)}
+.btn-amarelo:hover{background:#f2f21c}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-claro{background:var(--azul-claro);color:var(--azul-escuro)}
+.rodape{position:absolute;left:0;right:0;bottom:0;background:var(--branco);padding:12px 16px 18px;box-shadow:0 -4px 14px rgba(0,0,0,.06);display:flex;gap:8px;align-items:center}
+.rodape .btn{flex:1}
+.ajuda{width:calc(52px*var(--esc));height:calc(50px*var(--esc));border-radius:12px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:11px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
+.ajuda svg{width:20px;height:20px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px}
+.chip.obs{background:var(--verde-claro);color:var(--verde)}
+.chip.est{background:#FFF6D6;color:#8A6500}
+.chip.conf{background:var(--azul-claro);color:var(--azul-escuro)}
+.dado{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--borda);gap:8px}
+.dado:last-child{border-bottom:none}
+.dado b{font-weight:600}
+.opcoes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.opcao{border:1.5px solid var(--borda);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:#fff;font-weight:600;font-size:calc(14px*var(--esc))}
+.opcao.sel{border-color:var(--azul);background:var(--azul-claro);color:var(--azul-escuro)}
+.opcao svg{width:64px;height:56px;display:block;margin:0 auto 6px}
+.conf-barra{height:8px;background:var(--borda);border-radius:8px;overflow:hidden;margin:6px 0 4px}
+.conf-barra div{height:100%;background:var(--verde);transition:width .6s}
+.cenarios{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:8px -2px}
+.cenario{flex:0 0 auto;border:1.5px solid var(--borda);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;white-space:nowrap}
+.cenario.sel{background:var(--azul);color:#fff;border-color:var(--azul)}
+.compara{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.caixa{border-radius:14px;padding:12px}
+.caixa.sem{background:var(--vermelho-claro);color:var(--vermelho)}
+.caixa.com{background:var(--verde-claro);color:var(--verde)}
+.caixa .valor{font-family:Nunito;font-weight:900;font-size:calc(22px*var(--esc));display:block;margin-top:2px}
+.plano{border:1.5px solid var(--borda);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff;cursor:pointer;position:relative}
+.plano.rec{border:2px solid var(--azul)}
+.plano.sel{box-shadow:0 0 0 3px var(--azul-claro)}
+.selo{position:absolute;top:-10px;left:12px;background:var(--amarelo);color:var(--azul-escuro);font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px;text-transform:uppercase}
+.plano .cab{display:flex;justify-content:space-between;align-items:baseline}
+.plano .nome{font-family:Nunito;font-weight:900;font-size:calc(19px*var(--esc));color:var(--azul-escuro)}
+.plano .preco{font-weight:700}
+.lista{list-style:none;padding:0;margin:8px 0 0;font-size:calc(13px*var(--esc))}
+.lista li{display:flex;gap:6px;align-items:flex-start;margin-bottom:3px}
+.ok{color:var(--verde);font-weight:800}.nao{color:#B0B3BA;font-weight:800}
+.comodos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.comodo{border:1.5px solid var(--borda);border-radius:12px;padding:10px;cursor:pointer;background:#fff;font-weight:600;font-size:calc(14px*var(--esc));display:flex;align-items:center;gap:8px}
+.comodo.sel{border-color:var(--azul);background:var(--azul-claro)}
+.comodo svg{width:30px;height:30px;flex-shrink:0}
+.situacao{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--borda);align-items:flex-start}
+.situacao:last-child{border:none}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tag.s{background:var(--verde-claro);color:var(--verde)}.tag.n{background:#EEE;color:#666}
+.assist{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.assist div{background:var(--azul-claro);border-radius:12px;padding:8px 6px;text-align:center;font-size:calc(11.5px*var(--esc));font-weight:600;color:var(--azul-escuro)}
+.assist div.off{background:#F0F0F2;color:#A3A6AD}
+.assist svg{width:26px;height:26px;display:block;margin:0 auto 4px}
+.cob{padding:10px 0;border-bottom:1px solid var(--borda)}
+.cob:last-child{border:none}
+.cob .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--azul)}
+.sw{position:relative;width:46px;height:26px;flex-shrink:0}
+.sw input{display:none}
+.sw span{position:absolute;inset:0;background:#C9CCD3;border-radius:999px;cursor:pointer;transition:.2s}
+.sw span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+span{background:var(--azul)}
+.sw input:checked+span:before{transform:translateX(20px)}
+.aviso{background:#FFF6D6;border-radius:12px;padding:10px 12px;font-size:calc(13px*var(--esc));color:#6B4F00;margin:8px 0}
+.aviso.azul{background:var(--azul-claro);color:var(--azul-escuro)}
+.precobar{display:flex;justify-content:space-between;align-items:baseline;background:var(--azul-claro);border-radius:12px;padding:10px 12px;margin:8px 0}
+.precobar b{font-family:Nunito;font-size:calc(22px*var(--esc));color:var(--azul-escuro)}
+.vig{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.vig div{border:1.5px solid var(--borda);border-radius:10px;padding:8px 2px;text-align:center;cursor:pointer;font-weight:700;font-size:calc(13px*var(--esc));background:#fff}
+.vig div small{display:block;font-weight:600;font-size:10px;color:var(--verde)}
+.vig div.sel{border-color:var(--azul);background:var(--azul-claro)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1.5px solid var(--borda);border-radius:12px;margin-bottom:8px;cursor:pointer;background:#fff;font-size:calc(14px*var(--esc))}
+.check.sel{border-color:var(--verde);background:var(--verde-claro)}
+.check .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--borda);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+.check.sel .box{background:var(--verde);border-color:var(--verde)}
+.ferramentas{position:absolute;top:44px;right:14px;display:flex;gap:6px;z-index:3}
+.ferramentas button{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer}
+.ferramentas button.on{background:var(--amarelo);color:var(--azul-escuro);border-color:var(--amarelo)}
+.sheet-fundo{position:absolute;inset:0;background:rgba(17,18,20,.45);display:none;align-items:flex-end;z-index:10}
+.sheet-fundo.on{display:flex}
+.sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:18px 16px 24px;max-height:85%;overflow-y:auto}
+.sheet .item{display:flex;gap:12px;align-items:center;padding:12px;border:1.5px solid var(--borda);border-radius:14px;margin-bottom:8px;cursor:pointer}
+.sheet .item:hover{border-color:var(--azul)}
+.sheet .item svg{width:28px;height:28px;color:var(--azul);flex-shrink:0}
+.chat{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:14px}
+.msg.ela{background:var(--azul-claro);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.eu{background:var(--azul);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.bloqueio{background:linear-gradient(160deg,#2a3a8f,#465EFF 55%,#7b8cff);color:#fff;height:100%;padding:56px 14px 14px;display:flex;flex-direction:column}
+.hora{font-family:Nunito;font-weight:800;font-size:64px;text-align:center;line-height:1}
+.data{text-align:center;opacity:.85;margin-bottom:26px}
+.notif{background:rgba(255,255,255,.92);color:var(--texto);border-radius:18px;padding:12px;margin-bottom:10px;cursor:pointer;font-size:13.5px}
+.notif .app{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--suave);margin-bottom:4px}
+.notif .ic{width:22px;height:22px;border-radius:6px;background:var(--amarelo);display:flex;align-items:center;justify-content:center;color:var(--azul-escuro);font-weight:900;font-size:10px}
+.notif .ic.wa{background:#25D366;color:#fff}
+.notas{width:380px;max-width:100%;background:#fff;border-radius:18px;padding:18px 20px;box-shadow:var(--sombra);font-size:14px;line-height:1.55;position:sticky;top:24px}
+.notas h4{font-family:Nunito;font-size:18px;margin:0 0 4px;color:var(--azul-escuro)}
+.notas .prob{background:var(--vermelho-claro);color:#7a1f1b;border-radius:10px;padding:8px 10px;margin:8px 0}
+.notas .sol{background:var(--verde-claro);color:#0b5a35;border-radius:10px;padding:8px 10px;margin:8px 0}
+.notas nav{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.notas nav button{border:1px solid var(--borda);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+.notas nav button.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+.fade{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+body.simples{--esc:1.25}
+body.simples .so-normal{display:none}
+.track{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.track .bola{width:22px;height:22px;border-radius:50%;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.track .bola.ag{background:var(--azul)}
+@media (max-width:820px){.notas{position:static}}
+</style>
+</head>
+<body>
+<div class="palco">
+  <div class="celular"><div class="tela" id="tela"></div></div>
+  <aside class="notas" id="notas"></aside>
+</div>
+
+<script>
+// ---------- dados do caso (CASO_00005 / IMO_CASO_00005_01 da base de teste) ----------
+const CLIENTE = {
+  cidade: "Curitiba", complemento: "Bloco B, apto 305", tipo: "Apartamento", area: 110, origemArea: "cadastro do IPTU",
+  financiado: true, parcela: 950, condominio: 650, dependentes: 1, eletronicos36m: 8800, mora: true
+};
+// ---------- produto (nomes e limites tirados do app atual; preços ilustrativos calibrados nos valores vistos no app) ----------
+const COB = {
+  incendio:{nome:"Incêndio, raio, explosão e fumaça", padrao:300000, min:100000, max:600000, passo:10000, taxa:0.03, franquia:"sem franquia"},
+  eletricos:{nome:"Danos elétricos", padrao:10000, min:5000, max:30000, passo:1000, taxa:0.4, franquia:"10% do prejuízo, mínimo R$ 450"},
+  agua:{nome:"Danos por água (alagamento, chuva, cano)", padrao:5000, min:3000, max:50000, passo:1000, taxa:0.5, franquia:"10% do prejuízo, mínimo R$ 1.000"},
+  vendaval:{nome:"Vendaval e granizo", padrao:20000, min:1000, max:60000, passo:1000, taxa:0.05, franquia:"10% do prejuízo, mínimo R$ 500"},
+  impacto:{nome:"Impacto de veículos e queda de aeronave", padrao:10000, min:10000, max:10000, passo:1000, taxa:0.04, franquia:"10% do prejuízo, mínimo R$ 400"},
+  roubo:{nome:"Roubo ou furto com arrombamento", padrao:3000, min:1000, max:45000, passo:1000, taxa:3.5, franquia:"10% do prejuízo, mínimo R$ 400", extra:true},
+  vidros:{nome:"Quebra de vidros", padrao:1500, min:1000, max:25000, passo:500, taxa:3.58, franquia:"R$ 150", extra:true},
+  rc:{nome:"Responsabilidade civil familiar", padrao:40000, min:10000, max:200000, passo:5000, taxa:0.35, franquia:"sem franquia", extra:true},
+  aluguel:{nome:"Perda ou pagamento de aluguel", padrao:10000, min:5000, max:30000, passo:1000, taxa:1.0, franquia:"sem franquia", extra:true},
+  despesas:{nome:"Despesas emergenciais", padrao:5000, min:2000, max:15000, passo:1000, taxa:2.004, franquia:"sem franquia", extra:true}
+};
+const FIXAS = ["incendio","eletricos","agua","vendaval","impacto"];
+const PLANOS = {
+  ESSENCIAL:{nome:"Essencial", extras:[], pacotes:1},
+  PRATICO:{nome:"Prático", extras:["roubo","vidros"], pacotes:3},
+  TOTAL:{nome:"Total", extras:["roubo","vidros","rc","aluguel","despesas"], pacotes:6}
+};
+const PACOTES = ["Casa em apuros","Casa funcionando","Casa limpa","Casa arrumada","Casa sem pragas","Casa segura"];
+const BASE = 18.34, PACOTE = 6;
+const DESCONTO = {1:0,2:.05,3:.096,4:.14,5:.18};
+
+const st = {
+  tela:0, plano:"TOTAL", recomendado:"TOTAL", cenario:"agua", vig:1, pagamento:"debito",
+  resp:{mora:null, tipo:"apto"}, valores:{}, ligadas:{}, entend:[false,false], comodo:"banheiro"
+};
+Object.keys(COB).forEach(k=>{st.valores[k]=COB[k].padrao; st.ligadas[k]=true});
+st.valores.incendio = 260000; // ajuste pela calculadora de reconstrução (110 m² x custo de obra no PR)
+st.valores.agua = 18000;      // ajuste pelo prejuízo típico de alagamento num apto de 110 m²
+
+const brl = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
+const brl2 = v => "R$ " + v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function preco(planoKey, ligadas=st.ligadas, valores=st.valores){
+  const p = PLANOS[planoKey];
+  let v = BASE + p.pacotes*PACOTE;
+  FIXAS.forEach(k=> v += COB[k].taxa*valores[k]/1000);
+  p.extras.forEach(k=>{ if(ligadas[k]) v += COB[k].taxa*valores[k]/1000 });
+  return v;
+}
+function precoPadrao(planoKey){
+  const vals={}, lig={}; Object.keys(COB).forEach(k=>{vals[k]=COB[k].padrao; lig[k]=true}); vals.incendio=260000; vals.agua=18000;
+  return preco(planoKey, lig, vals);
+}
+function precoFinal(){ return preco(st.plano)*(1-DESCONTO[st.vig]); }
+
+// ---------- ilustrações (estilo cartoon, cores BB) ----------
+const ILU = {
+  predio:`<svg viewBox="0 0 120 100"><rect x="30" y="20" width="60" height="75" rx="4" fill="#465EFF"/><rect x="38" y="30" width="12" height="12" rx="2" fill="#FCFC30"/><rect x="70" y="30" width="12" height="12" rx="2" fill="#E4ECFF"/><rect x="38" y="52" width="12" height="12" rx="2" fill="#E4ECFF"/><rect x="70" y="52" width="12" height="12" rx="2" fill="#FCFC30"/><rect x="52" y="74" width="16" height="21" rx="2" fill="#2D37F5"/><rect x="10" y="94" width="100" height="4" rx="2" fill="#C9CCD3"/></svg>`,
+  casa:`<svg viewBox="0 0 120 100"><path d="M20 50 L60 18 L100 50" fill="none" stroke="#2D37F5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><rect x="30" y="48" width="60" height="46" rx="4" fill="#465EFF"/><rect x="40" y="58" width="14" height="14" rx="2" fill="#FCFC30"/><rect x="64" y="64" width="16" height="30" rx="2" fill="#2D37F5"/><rect x="10" y="94" width="100" height="4" rx="2" fill="#C9CCD3"/></svg>`,
+  chuva:`<svg viewBox="0 0 220 120"><ellipse cx="80" cy="30" rx="34" ry="20" fill="#9AA6C8"/><ellipse cx="115" cy="24" rx="30" ry="20" fill="#B5BFDB"/><ellipse cx="140" cy="34" rx="26" ry="16" fill="#9AA6C8"/><g stroke="#465EFF" stroke-width="4" stroke-linecap="round"><line x1="70" y1="58" x2="64" y2="72"/><line x1="95" y1="56" x2="89" y2="70"/><line x1="120" y1="58" x2="114" y2="72"/><line x1="145" y1="56" x2="139" y2="70"/></g><rect x="60" y="78" width="100" height="36" rx="6" fill="#fff" stroke="#DBDDE1" stroke-width="2"/><rect x="60" y="100" width="100" height="14" rx="4" fill="#7FA8FF" opacity=".75"/><rect x="72" y="86" width="22" height="16" rx="3" fill="#FF6F68"/><rect x="104" y="84" width="26" height="18" rx="3" fill="#2D37F5"/><circle cx="148" cy="96" r="5" fill="#FCFC30"/></svg>`,
+  raio:`<svg viewBox="0 0 220 120"><ellipse cx="110" cy="26" rx="44" ry="20" fill="#6E7891"/><path d="M112 40 L96 72 L112 72 L100 104 L132 62 L116 62 L126 40Z" fill="#FCFC30"/><rect x="140" y="70" width="58" height="38" rx="5" fill="#111214"/><rect x="146" y="76" width="46" height="26" rx="2" fill="#3a3f4a"/><path d="M150 80 l8 8 m6 -10 l8 12 m4 -8 l6 8" stroke="#FF6F68" stroke-width="3" stroke-linecap="round"/><rect x="164" y="108" width="10" height="6" fill="#111214"/></svg>`,
+  vizinho:`<svg viewBox="0 0 220 120"><rect x="50" y="6" width="120" height="50" rx="5" fill="#E4ECFF" stroke="#465EFF" stroke-width="3"/><text x="62" y="24" font-family="Nunito" font-weight="900" font-size="12" fill="#2D37F5">SEU APÊ</text><rect x="50" y="62" width="120" height="52" rx="5" fill="#fff" stroke="#DBDDE1" stroke-width="3"/><text x="62" y="80" font-family="Nunito" font-weight="900" font-size="12" fill="#6C7077">VIZINHO</text><path d="M120 46 q-6 10 0 16 q6 10 0 20" stroke="#465EFF" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="118" cy="92" r="5" fill="#465EFF"/><circle cx="130" cy="100" r="4" fill="#465EFF"/><rect x="138" y="90" width="22" height="16" rx="3" fill="#FF6F68"/></svg>`,
+  ladrao:`<svg viewBox="0 0 220 120"><rect x="60" y="20" width="100" height="90" rx="6" fill="#465EFF"/><rect x="76" y="34" width="68" height="48" rx="4" fill="#E4ECFF"/><path d="M76 34 L144 82 M144 34 L76 82" stroke="#fff" stroke-width="4"/><circle cx="170" cy="70" r="16" fill="#111214"/><rect x="160" y="64" width="20" height="6" rx="3" fill="#FCFC30"/><rect x="158" y="86" width="24" height="26" rx="8" fill="#111214"/></svg>`
+};
+const ICO = {
+  ajuda:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 1 1 3.5 6.6L4 20l1.4-3.5A8 8 0 0 1 4 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4"/><circle cx="12" cy="16.8" r=".6" fill="currentColor"/></svg>`,
+  chat:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h16v11H8l-4 4z"/></svg>`,
+  video:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>`,
+  fone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>`,
+  familia:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M13 20c0-2.5 2-4 4-4s4 1.5 4 4"/></svg>`,
+  cozinha:`<svg viewBox="0 0 32 32"><rect x="5" y="8" width="22" height="18" rx="3" fill="#465EFF"/><circle cx="11" cy="14" r="2.5" fill="#FCFC30"/><circle cx="21" cy="14" r="2.5" fill="#FCFC30"/><rect x="9" y="19" width="14" height="4" rx="1.5" fill="#E4ECFF"/></svg>`,
+  banheiro:`<svg viewBox="0 0 32 32"><path d="M5 16h22v3a6 6 0 0 1-6 6H11a6 6 0 0 1-6-6z" fill="#465EFF"/><path d="M9 16V8a3 3 0 0 1 6 0" stroke="#2D37F5" stroke-width="2.5" fill="none"/><circle cx="16" cy="10" r="1.6" fill="#7FA8FF"/><circle cx="18" cy="13" r="1.3" fill="#7FA8FF"/></svg>`,
+  sala:`<svg viewBox="0 0 32 32"><rect x="6" y="6" width="20" height="13" rx="2" fill="#111214"/><rect x="8" y="8" width="16" height="9" rx="1" fill="#465EFF"/><rect x="4" y="21" width="24" height="6" rx="3" fill="#FCFC30"/></svg>`,
+  quarto:`<svg viewBox="0 0 32 32"><rect x="4" y="15" width="24" height="9" rx="2" fill="#465EFF"/><rect x="6" y="11" width="8" height="5" rx="2" fill="#E4ECFF"/><rect x="4" y="24" width="3" height="3" fill="#2D37F5"/><rect x="25" y="24" width="3" height="3" fill="#2D37F5"/></svg>`,
+  telhado:`<svg viewBox="0 0 32 32"><path d="M3 17 16 6l13 11" stroke="#2D37F5" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="8" y="16" width="16" height="11" rx="2" fill="#465EFF"/><path d="M22 4l-2 5h3l-2 5" stroke="#FCFC30" stroke-width="2" fill="none"/></svg>`,
+  porta:`<svg viewBox="0 0 32 32"><rect x="9" y="4" width="14" height="24" rx="2" fill="#465EFF"/><circle cx="19" cy="17" r="1.6" fill="#FCFC30"/><rect x="4" y="27" width="24" height="2" fill="#C9CCD3"/></svg>`
+};
+const PAC_ICO = ["🔧","🔌","🧽","🪛","🐜","🛡️"];
+
+// ---------- cenários "e se?" (valores de exemplo para um apto de 110 m²) ----------
+function cenarios(){
+  const agua = st.valores.agua, ele = st.valores.eletricos;
+  const pagaAgua = 17800 - Math.min(agua, 17800) + Math.max(1000, .1*Math.min(agua,17800));
+  return {
+    agua:{rotulo:"Alagou o apê", ilu:ILU.chuva, texto:`Chuva forte entra pela janela e cano da área estoura: piso, móveis e eletrônicos molhados.`, prejuizo:17800, cob:"agua",
+      com: pagaAgua, nota: agua < 17800 ? `Com danos por água em ${brl(agua)}, você ainda pagaria parte. Dá para aumentar em Ajustar.` : `Já sugerimos danos por água de ${brl(agua)} (o app hoje vem com R$ 5.000, que pagaria bem menos). Você paga só a franquia.`},
+    raio:{rotulo:"Raio queimou a TV", ilu:ILU.raio, texto:"Pico de energia numa tempestade queima TV, notebook e geladeira.", prejuizo:8800, cob:"eletricos",
+      com: Math.max(450,.1*Math.min(ele,8800)) + Math.max(0,8800-ele), nota:"Danos elétricos está em todos os planos."},
+    vizinho:{rotulo:"Molhei o vizinho", ilu:ILU.vizinho, texto:"A máquina de lavar vaza e a água desce para o apartamento de baixo.", prejuizo:14000, cob:"rc",
+      com: st.plano==="TOTAL" && st.ligadas.rc ? 0 : 14000, nota: st.plano==="TOTAL" && st.ligadas.rc ? "A responsabilidade civil familiar paga o conserto do vizinho." : "Só o plano Total tem responsabilidade civil familiar."},
+    roubo:{rotulo:"Arrombaram a porta", ilu:ILU.ladrao, texto:"Levaram notebook e celular enquanto você viajava.", prejuizo:6000, cob:"roubo",
+      com: st.plano!=="ESSENCIAL" && st.ligadas.roubo ? Math.max(400,.1*Math.min(st.valores.roubo,6000)) + Math.max(0,6000-st.valores.roubo) : 6000, nota: st.plano==="ESSENCIAL" ? "O Essencial não cobre roubo." : "Roubo com arrombamento está no Prático e no Total."}
+  };
+}
+
+// ---------- telas ----------
+const TELAS = [
+ {id:"gancho", titulo:"Aviso", passo:null,
+  prob:"Hoje o cliente só chega ao seguro se procurar dentro da Central de Seguros.",
+  sol:"Um aviso no app (e no WhatsApp oficial, só como lembrete) com um motivo concreto da vida dele: a chuva em Curitiba e o fato de o seguro do condomínio não cobrir os bens de dentro do apê. O toque leva direto para dentro do app."},
+ {id:"esse", titulo:"E se acontecer?", passo:1,
+  prob:"O app atual abre com foto genérica e 'Simular seguro'. O cliente não vê o que ganha.",
+  sol:"Primeira tela mostra o prejuízo em reais, com desenho, comparando sem e com seguro. Os valores mudam se o cliente ajustar o plano depois."},
+ {id:"casa", titulo:"Sua casa", passo:2,
+  prob:"O app atual pede endereço, tipo e uso em 3 listas, sem dizer o que já sabe.",
+  sol:"Mostra o que o banco já sabe (com a origem de cada dado) e faz só 1 pergunta, com figura. A confiança sobe na hora."},
+ {id:"plano", titulo:"Seu plano", passo:3,
+  prob:"Dois planos espremidos lado a lado; o Total some para a direita e ninguém sabe que dá para arrastar. Cupom antes de entender o produto.",
+  sol:"Os 3 planos em lista vertical, o recomendado destacado com o motivo, e uma linha dizendo 'o que muda' de um para o outro."},
+ {id:"cobre", titulo:"O que cobre", passo:4,
+  prob:"Para entender cada cobertura ou assistência, o cliente abre popup dentro de popup (mais de 20 telas de texto). Franquia escondida.",
+  sol:"A 'casa que explica': toca no cômodo e vê situações reais marcadas como coberto ou não, com a franquia em uma linha. Assistências em grade com ícone."},
+ {id:"ajuste", titulo:"Ajustar", passo:5,
+  prob:"Personalização com campos de digitar valor e preço errado: tirar os adicionais do Prático não muda o preço.",
+  sol:"Botões liga/desliga e barras deslizantes. O preço recalcula a cada mudança. Se o cliente deixa o Prático igual ao Essencial, o app avisa e sugere o mais barato."},
+ {id:"fechar", titulo:"Conferir e contratar", passo:6,
+  prob:"Vigência em tela separada só com porcentagem; o resumo não existe antes do pagamento.",
+  sol:"Vigência com o desconto em reais, resumo de uma tela, 2 confirmações do que o plano não cobre e a desistência em 7 dias explicada."},
+ {id:"meu", titulo:"Meu seguro", passo:null,
+  prob:"Depois de contratar, o cliente não sabe onde pedir ajuda.",
+  sol:"O seguro vira um card no app: pedir assistência e acompanhar como em app de entrega, avisar sinistro, ver o que cobre. Tudo sem sair do app."}
+];
+
+function render(){
+  const t = TELAS[st.tela];
+  const el = document.getElementById("tela");
+  if(t.id==="gancho"){ el.innerHTML = telaGancho(); }
+  else {
+    const corpo = {esse:telaEsse, casa:telaCasa, plano:telaPlano, cobre:telaCobre, ajuste:telaAjuste, fechar:telaFechar, meu:telaMeu}[t.id]();
+    el.innerHTML = `
+      <div class="status"><span>9:41</span><span>●●● 5G</span></div>
+      <div class="topo"><div class="linha"><button onclick="voltar()" aria-label="Voltar">←</button><h1>${t.id==="meu"?"Meu seguro":"Seguro Residencial"}</h1></div>
+      ${t.passo?`<div class="progresso">${[1,2,3,4,5,6].map(i=>`<span class="${i<=t.passo?'on':''}"></span>`).join("")}</div><div class="passo">Passo ${t.passo} de 6 · ${t.titulo}</div>`:""}
+      </div>
+      <div class="ferramentas"><button id="bS" onclick="toggleSimples()" class="${document.body.classList.contains('simples')?'on':''}">Aa</button><button onclick="ouvir()">🔊 Ouvir</button></div>
+      <div class="conteudo fade" id="conteudo">${corpo.html}</div>
+      <div class="rodape">${corpo.rodape}<button class="ajuda" onclick="abrirAjuda()">${ICO.ajuda}Ajuda</button></div>
+      <div class="sheet-fundo" id="sheet" onclick="if(event.target===this)fecharAjuda()"><div class="sheet" id="sheetc"></div></div>`;
+  }
+  renderNotas();
+}
+
+function telaGancho(){
+  return `<div class="bloqueio fade">
+    <div class="hora">9:41</div><div class="data">terça-feira, 28 de outubro</div>
+    <div class="notif" onclick="ir(1)"><div class="app"><span class="ic">BB</span>App BB · agora</div>
+      <b>A temporada de chuva começa em Curitiba</b><br>O seguro do seu condomínio cobre o prédio, não o que tem dentro do seu apê. Veja em 1 minuto quanto custaria um alagamento.</div>
+    <div class="notif" onclick="ir(1)"><div class="app"><span class="ic wa">✓</span>WhatsApp · BB (conta oficial) · 2 min</div>
+      Olá! Separamos uma proteção para o apartamento que você está financiando. Para ver, abra o app do BB > Seguros. <i>O BB nunca pede senha por aqui.</i></div>
+    <p style="text-align:center;opacity:.8;font-size:12px;margin-top:auto">Toque num aviso para abrir o app</p></div>`;
+}
+
+function telaEsse(){
+  const cs = cenarios(), c = cs[st.cenario];
+  return {html:`
+    <h2>E se acontecer na <em>sua casa?</em></h2>
+    <p class="suave">Escolha uma situação. Os valores são exemplos para um apartamento de ${CLIENTE.area} m² em ${CLIENTE.cidade}.</p>
+    <div class="cenarios">${Object.entries(cs).map(([k,v])=>`<div class="cenario ${k===st.cenario?'sel':''}" onclick="st.cenario='${k}';render()">${v.rotulo}</div>`).join("")}</div>
+    <div class="folha">${c.ilu}<p style="margin-top:6px" data-say>${c.texto}</p>
+      <div class="compara">
+        <div class="caixa sem">Sem seguro, sai do seu bolso<span class="valor">${brl(c.prejuizo)}</span></div>
+        <div class="caixa com">Com o plano ${PLANOS[st.plano].nome}<span class="valor">${brl(c.com)}</span></div>
+      </div>
+      <p class="suave" style="margin-top:8px">${c.nota}</p></div>
+    <div class="folha"><h3>Além do imprevisto grande</h3><p class="suave">Encanador, chaveiro e eletricista 24h já vêm no plano. Seguro também serve para o dia a dia.</p></div>`,
+   rodape:`<button class="btn btn-amarelo" onclick="ir(2)">Montar minha proteção</button>`};
+}
+
+function telaCasa(){
+  const conf = st.resp.mora===null ? 72 : 94;
+  return {html:`
+    <h2>Já sabemos bastante da <em>sua casa</em></h2>
+    <p class="suave">Confira. Se algo estiver errado, toque para corrigir.</p>
+    <div class="folha">
+      <div class="dado"><span>Tipo<br><b>Apartamento</b></span><span class="chip obs">✓ pelo endereço</span></div>
+      <div class="dado"><span>Endereço<br><b>${CLIENTE.complemento}, ${CLIENTE.cidade}</b></span><span class="chip obs">✓ cadastro</span></div>
+      <div class="dado"><span>Tamanho<br><b>${CLIENTE.area} m²</b></span><span class="chip obs">✓ ${CLIENTE.origemArea}</span></div>
+      <div class="dado"><span>Relação com o imóvel<br><b>Seu, financiado</b></span><span class="chip obs">✓ parcela no BB</span></div>
+      <div class="dado"><span>Quem mora<br><b>Você + ${CLIENTE.dependentes} dependente</b></span><span class="chip est">≈ estimado</span></div>
+      <div class="dado"><span>Bens dentro de casa<br><b>cerca de ${brl(CLIENTE.eletronicos36m+4200)}</b></span><span class="chip est">≈ pelas compras</span></div>
+    </div>
+    <div class="folha"><h3 data-say>Só uma pergunta: você mora neste apartamento?</h3>
+      <div class="opcoes">
+        <div class="opcao ${st.resp.mora===true?'sel':''}" onclick="st.resp.mora=true;render()">${ILU.predio}Sim, moro aqui</div>
+        <div class="opcao ${st.resp.mora===false?'sel':''}" onclick="st.resp.mora=false;render()">${ILU.casa}Não, é de outro uso</div>
+      </div>
+      <p class="suave" style="margin:0">Confiança da proposta</p>
+      <div class="conf-barra"><div style="width:${conf}%"></div></div>
+      <p class="suave">${conf}% ${st.resp.mora===null?"· falta confirmar o uso":"· pronta para recomendar"}</p>
+    </div>`,
+   rodape:`<button class="btn btn-amarelo" onclick="${st.resp.mora===null?"alert('Responda a pergunta para continuar')":"ir(3)"}">Ver meu plano</button>`};
+}
+
+function telaPlano(){
+  const motivo = {
+    TOTAL:"Você mora em apartamento: um vazamento pode chegar no vizinho de baixo. Com dependente em casa, a responsabilidade civil faz diferença, e só o Total tem.",
+  };
+  const muda = {ESSENCIAL:"Protege a estrutura e o essencial. Não cobre roubo nem o vizinho.", PRATICO:"Soma roubo com arrombamento e quebra de vidros.", TOTAL:"Soma responsabilidade civil, aluguel e despesas emergenciais."};
+  const ord = ["TOTAL","PRATICO","ESSENCIAL"];
+  return {html:`
+    <h2>Recomendamos o <em>Total</em></h2>
+    <div class="aviso azul" data-say><b>Por quê?</b> ${motivo.TOTAL}</div>
+    ${ord.map(k=>{const p=PLANOS[k]; const n=5+p.extras.length;
+      return `<div class="plano ${k===st.recomendado?'rec':''} ${k===st.plano?'sel':''}" onclick="st.plano='${k}';render()">
+        ${k===st.recomendado?'<span class="selo">Recomendado para você</span>':''}
+        <div class="cab"><span class="nome">${p.nome}</span><span class="preco">${brl2(precoPadrao(k))}/mês</span></div>
+        <p class="suave" style="margin:2px 0 0">${n} coberturas · ${p.pacotes} pacote${p.pacotes>1?'s':''} de assistência</p>
+        <p style="margin:6px 0 0;font-size:13px">${muda[k]}</p>
+        ${k===st.plano?'<p style="margin:6px 0 0;font-size:12px;font-weight:700;color:var(--azul)">✓ Selecionado</p>':''}
+      </div>`}).join("")}
+    <p class="suave">Preço já ajustado para o seu apê: reconstrução de ${brl(st.valores.incendio)} e danos por água de ${brl(st.valores.agua)}. Valores ilustrativos.</p>`,
+   rodape:`<button class="btn btn-amarelo" onclick="ir(4)">Ver o que cobre</button>`};
+}
+
+function telaCobre(){
+  const p = PLANOS[st.plano];
+  const tem = k => FIXAS.includes(k) || (p.extras.includes(k) && st.ligadas[k]);
+  const S = {
+    banheiro:[["Cano estourou e molhou o piso","agua"],["A água desceu para o vizinho","rc"],["Desgaste do encanamento antigo",null]],
+    cozinha:[["Raio queimou a geladeira","eletricos"],["Fogo no fogão","incendio"],["Geladeira quebrou por uso",null]],
+    sala:[["Arrombaram e levaram a TV","roubo"],["Vidro da janela quebrou","vidros"],["TV caiu e quebrou sozinha",null]],
+    quarto:[["Infiltração depois de chuva forte","agua"],["Precisou de chaveiro de madrugada","assist"]],
+    telhado:[["Granizo quebrou telhas","vendaval"],["Vendaval arrancou parte do telhado","vendaval"]],
+    porta:[["Ficou sem poder morar após um incêndio","aluguel"],["Fechadura arrombada","roubo"]]
+  };
+  const nomes = {banheiro:"Banheiro",cozinha:"Cozinha",sala:"Sala",quarto:"Quarto",telhado:"Telhado e janelas",porta:"Porta e moradia"};
+  return {html:`
+    <h2>O que o plano <em>${p.nome}</em> cobre</h2>
+    <p class="suave">Toque num cômodo.</p>
+    <div class="comodos">${Object.keys(nomes).map(k=>`<div class="comodo ${k===st.comodo?'sel':''}" onclick="st.comodo='${k}';render()">${ICO[k]}${nomes[k]}</div>`).join("")}</div>
+    <div class="folha">${S[st.comodo].map(([txt,k])=>{
+      const cob = k==="assist" ? true : (k? tem(k):false);
+      const fr = k && k!=="assist" && COB[k] ? `Franquia: ${COB[k].franquia}` : (k==="assist"?"Assistência 24h, sem custo":"Desgaste e falta de manutenção não entram em nenhum plano");
+      return `<div class="situacao"><span class="tag ${cob?'s':'n'}">${cob?'Coberto':'Não coberto'}</span><div><b style="font-weight:600">${txt}</b><br><span class="suave">${fr}</span></div></div>`}).join("")}</div>
+    <div class="folha"><h3>Assistências 24h incluídas</h3>
+      <div class="assist">${PACOTES.map((n,i)=>`<div class="${i<p.pacotes?'':'off'}"><span style="font-size:22px;display:block">${PAC_ICO[i]}</span>${n}</div>`).join("")}</div>
+      <p class="suave" style="margin-top:8px">Em cinza: só em planos maiores.</p></div>`,
+   rodape:`<button class="btn btn-claro" onclick="ir(5)">Ajustar</button><button class="btn btn-amarelo" onclick="ir(6)">Continuar</button>`};
+}
+
+function telaAjuste(){
+  const p = PLANOS[st.plano];
+  const v = preco(st.plano);
+  let dica = "";
+  if(st.plano==="PRATICO" && !st.ligadas.roubo && !st.ligadas.vidros){
+    const e = preco("ESSENCIAL");
+    dica = `<div class="aviso">Sem roubo e sem vidros, as coberturas ficaram iguais às do <b>Essencial</b>. A diferença agora são só 2 pacotes de assistência. <a href="#" onclick="st.plano='ESSENCIAL';render();return false">Trocar para o Essencial e pagar ${brl2(e)}/mês</a></div>`;
+  }
+  if(st.plano==="TOTAL" && !st.ligadas.rc && !st.ligadas.aluguel && !st.ligadas.despesas){
+    dica = `<div class="aviso">Sem as 3 coberturas do Total, ele ficou igual ao <b>Prático</b> mais 3 pacotes de assistência. <a href="#" onclick="st.plano='PRATICO';render();return false">Ver o Prático por ${brl2(preco('PRATICO'))}/mês</a></div>`;
+  }
+  const linha = k => {const c=COB[k], fixa=FIXAS.includes(k), lig=fixa||st.ligadas[k];
+    return `<div class="cob"><div class="l1"><span>${c.nome}</span>${fixa?'<span class="chip conf">fixa</span>':`<label class="sw"><input type="checkbox" ${lig?'checked':''} onchange="st.ligadas['${k}']=this.checked;render()"><span></span></label>`}</div>
+      ${lig && c.min!==c.max?`<div class="suave" style="display:flex;justify-content:space-between"><span>${brl(c.min)}</span><b style="color:var(--texto)">${brl(st.valores[k])}</b><span>${brl(c.max)}</span></div>
+      <input type="range" min="${c.min}" max="${c.max}" step="${c.passo}" value="${st.valores[k]}" oninput="st.valores['${k}']=+this.value;atualizaPreco()" onchange="render()">`:''}
+      ${k==='incendio'?`<p class="suave" style="margin:2px 0 0">Reconstruir ${CLIENTE.area} m² no PR custa entre ${brl(231000)} e ${brl(290000)}. Mais que isso você paga sem precisar.</p>`:''}
+      ${k==='agua'?`<p class="suave" style="margin:2px 0 0">Um alagamento como o da primeira tela custa cerca de ${brl(17800)}.</p>`:''}
+    </div>`};
+  return {html:`
+    <h2>Ajuste do <em>seu jeito</em></h2>
+    <p class="suave">O preço muda na hora. Coberturas fixas não saem; só o valor muda.</p>
+    <div class="precobar"><span>Plano ${p.nome}</span><b id="pv">${brl2(v)}/mês</b></div>
+    ${dica}
+    <div class="folha">${FIXAS.map(linha).join("")}</div>
+    ${p.extras.length?`<div class="folha"><h3>Adicionais do ${p.nome}</h3>${p.extras.map(linha).join("")}</div>`:`<div class="aviso azul">O Essencial não tem adicionais. Quer roubo ou vidros? <a href="#" onclick="st.plano='PRATICO';render();return false">Ver o Prático</a></div>`}
+    <p class="suave">Preços ilustrativos, calibrados nos valores vistos no app atual.</p>`,
+   rodape:`<button class="btn btn-amarelo" onclick="ir(6)">Continuar</button>`};
+}
+function atualizaPreco(){ const e=document.getElementById("pv"); if(e) e.textContent = brl2(preco(st.plano))+"/mês"; }
+
+function telaFechar(){
+  const p = PLANOS[st.plano], mensal = preco(st.plano), final = precoFinal(), anos = st.vig;
+  const economia = (mensal-final)*12*anos;
+  const naoCobre = st.plano==="ESSENCIAL" ? "roubo e o conserto do vizinho" : st.plano==="PRATICO" ? "o conserto do vizinho (responsabilidade civil)" : "desgaste natural e obra";
+  return {html:`
+    <h2>Confira e <em>pronto</em></h2>
+    <div class="folha"><div class="cab" style="display:flex;justify-content:space-between"><b style="font-family:Nunito;font-size:20px;color:var(--azul-escuro)">Plano ${p.nome}</b><b>${brl2(final)}/mês</b></div>
+      <p class="suave" style="margin:4px 0 0">${5+p.extras.filter(k=>st.ligadas[k]).length} coberturas · ${p.pacotes} pacote(s) de assistência · ${CLIENTE.complemento}</p></div>
+    <div class="folha"><h3>Por quanto tempo?</h3>
+      <div class="vig">${[1,2,3,4,5].map(a=>`<div class="${a===anos?'sel':''}" onclick="st.vig=${a};render()">${a} ano${a>1?'s':''}${a>1?`<small>-${Math.round(DESCONTO[a]*1000)/10}%</small>`:''}</div>`).join("")}</div>
+      <p class="suave" style="margin:0">${anos>1?`Você economiza ${brl(economia)} no total.`:"Escolha mais anos para ter desconto."}</p></div>
+    <div class="folha"><h3>Antes de contratar, confirme</h3>
+      <div class="check ${st.entend[0]?'sel':''}" onclick="st.entend[0]=!st.entend[0];render()"><span class="box">${st.entend[0]?'✓':''}</span><span>Entendi que este plano <b>não cobre ${naoCobre}</b>.</span></div>
+      <div class="check ${st.entend[1]?'sel':''}" onclick="st.entend[1]=!st.entend[1];render()"><span class="box">${st.entend[1]?'✓':''}</span><span>Confirmo que o imóvel não está em obra ou reforma e é de alvenaria.</span></div>
+      <p class="suave" style="margin:4px 0 0">Mudou de ideia? Você pode desistir em até 7 dias pelo app, com o dinheiro de volta.</p></div>
+    <div class="folha"><h3>Pagamento</h3>
+      <div class="opcoes" style="margin:4px 0 0"><div class="opcao ${st.pagamento==='debito'?'sel':''}" onclick="st.pagamento='debito';render()">Débito em conta</div><div class="opcao ${st.pagamento==='cartao'?'sel':''}" onclick="st.pagamento='cartao';render()">Cartão de crédito</div></div></div>`,
+   rodape:`<button class="btn btn-amarelo" onclick="${st.entend[0]&&st.entend[1]?"ir(7)":"alert('Confirme os dois itens para contratar')"}">Contratar por ${brl2(final)}/mês</button>`};
+}
+
+function telaMeu(){
+  const p = PLANOS[st.plano];
+  return {html:`
+    <h2>Sua casa está <em>protegida</em></h2>
+    <div class="folha" style="background:var(--azul);color:#fff"><b style="font-family:Nunito;font-size:18px">Plano ${p.nome}</b><br><span style="opacity:.85">${CLIENTE.complemento} · ${brl2(precoFinal())}/mês · vigência ${st.vig} ano(s)</span></div>
+    <div class="folha"><h3>Pedido em andamento</h3>
+      <div class="track"><span class="bola">✓</span><div><b style="font-weight:600">Encanador solicitado</b><br><span class="suave">Hoje, 14:02</span></div></div>
+      <div class="track"><span class="bola">✓</span><div><b style="font-weight:600">Profissional a caminho</b><br><span class="suave">Carlos · avaliação 4,9</span></div></div>
+      <div class="track"><span class="bola ag">⏱</span><div><b style="font-weight:600">Chega em cerca de 40 min</b><br><span class="suave">Peças até R$ 100 incluídas</span></div></div></div>
+    <div class="opcoes"><div class="opcao" onclick="ir(4)">O que cobre</div><div class="opcao" onclick="abrirAjuda()">Avisar sinistro</div><div class="opcao" onclick="abrirAjuda()">Pedir assistência</div><div class="opcao" onclick="alert('Desistência em 7 dias: no protótipo, só ilustração')">Desistir (7 dias)</div></div>`,
+   rodape:`<button class="btn btn-claro" onclick="st.tela=0;render()">Recomeçar a demonstração</button>`};
+}
+
+// ---------- ajuda sem sair do app ----------
+function abrirAjuda(){
+  const s=document.getElementById("sheet"), c=document.getElementById("sheetc");
+  c.innerHTML = `<h3>Como prefere tirar a dúvida?</h3><p class="suave">Você não sai do app. A pessoa vê a mesma proposta que você.</p>
+    <div class="item" onclick="chat()">${ICO.chat}<div><b>Conversar agora</b><br><span class="suave">Especialista BB Seguros responde em ~1 min</span></div></div>
+    <div class="item" onclick="video()">${ICO.video}<div><b>Videochamada com o gerente</b><br><span class="suave">Ele vê sua tela, com os dados sensíveis escondidos</span></div></div>
+    <div class="item" onclick="ajudante()">${ICO.familia}<div><b>Pedir ajuda a alguém de confiança</b><br><span class="suave">Filho, neto ou amigo vê a proposta. Só você contrata.</span></div></div>
+    <div class="item" onclick="alert('Pedido registrado: a central liga em até 10 minutos, já com a sua proposta aberta.')">${ICO.fone}<div><b>Me liguem</b><br><span class="suave">Código da proposta: BB-8K2</span></div></div>
+    <button class="btn btn-claro" style="margin-top:6px" onclick="fecharAjuda()">Voltar</button>`;
+  s.classList.add("on");
+}
+function fecharAjuda(){ document.getElementById("sheet").classList.remove("on"); }
+function chat(){
+  document.getElementById("sheetc").innerHTML = `<h3>Juliana · Especialista BB Seguros</h3><p class="suave">Ela está vendo: plano ${PLANOS[st.plano].nome}, ${TELAS[st.tela].titulo.toLowerCase()}</p>
+  <div class="chat"><div class="msg ela">Oi! Vi que você está olhando o plano ${PLANOS[st.plano].nome} para o seu apartamento em Curitiba. Posso ajudar?</div>
+  <div class="msg eu">Se o cano do vizinho de cima estourar e molhar meu apê, o seguro paga?</div>
+  <div class="msg ela">Paga sim: entra em danos por água, com franquia de 10% (mínimo R$ 1.000). E se for o contrário, sua água no vizinho, quem paga é a responsabilidade civil do Total.</div></div>
+  <button class="btn btn-claro" style="margin-top:12px" onclick="fecharAjuda()">Voltar para a proposta</button>`;
+}
+function video(){
+  document.getElementById("sheetc").innerHTML = `<div style="background:#111;border-radius:16px;height:200px;display:flex;align-items:center;justify-content:center;color:#fff;flex-direction:column;gap:6px"><div style="width:64px;height:64px;border-radius:50%;background:var(--azul);display:flex;align-items:center;justify-content:center;font-family:Nunito;font-weight:900;font-size:22px">RG</div>Ricardo · seu gerente<br><span style="font-size:12px;opacity:.7">conectando…</span></div>
+  <p class="suave" style="margin-top:10px">Ele vai ver esta proposta com você. Você pode encerrar o compartilhamento quando quiser.</p>
+  <button class="btn btn-claro" onclick="fecharAjuda()">Encerrar</button>`;
+}
+function ajudante(){
+  document.getElementById("sheetc").innerHTML = `<h3>Convidar alguém de confiança</h3><p class="suave">A pessoa recebe a proposta no app do BB dela, só para ver e comentar. Você pode tirar o acesso quando quiser.</p>
+  <div class="item">${ICO.familia}<div><b>Escolher contato</b><br><span class="suave">Pela sua agenda ou chave Pix</span></div></div>
+  <button class="btn btn-claro" onclick="fecharAjuda()">Voltar</button>`;
+}
+
+// ---------- modo simples e voz ----------
+function toggleSimples(){ document.body.classList.toggle("simples"); render(); }
+function ouvir(){
+  const c = document.getElementById("conteudo"); if(!c || !window.speechSynthesis) return;
+  const partes = [...c.querySelectorAll("h2,[data-say],.aviso,h3")].map(e=>e.innerText).join(". ");
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(partes); u.lang="pt-BR"; u.rate=.95; speechSynthesis.speak(u);
+}
+
+// ---------- navegação ----------
+function ir(i){ if(window.speechSynthesis) speechSynthesis.cancel(); st.tela=i; render(); const c=document.getElementById("conteudo"); if(c) c.scrollTop=0; }
+function voltar(){ ir(Math.max(0, st.tela-1)); }
+function renderNotas(){
+  const t = TELAS[st.tela];
+  document.getElementById("notas").innerHTML = `
+    <h4>${st.tela+1}. ${t.titulo}</h4>
+    <div class="prob"><b>App atual:</b> ${t.prob}</div>
+    <div class="sol"><b>Nossa proposta:</b> ${t.sol}</div>
+    <p style="font-size:12px;color:var(--suave);margin:8px 0 0">Caso real da base de teste: CASO_00005 (apartamento financiado em Curitiba). Preços e prejuízos são ilustrativos. Use <b>Aa</b> para o modo simples e <b>Ouvir</b> para a leitura em voz alta. O botão <b>Ajuda</b> está em todas as telas.</p>
+    <nav>${TELAS.map((x,i)=>`<button class="${i===st.tela?'on':''}" onclick="ir(${i})">${i+1}. ${x.titulo}</button>`).join("")}</nav>`;
+}
+render();
+</script>
+</body>
+</html>
