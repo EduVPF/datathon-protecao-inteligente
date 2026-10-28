@@ -162,11 +162,31 @@ def test_familia_nao_empurra_para_o_pratico(linha, cal, vazio):
 def test_seguro_existente_um_imovel_nao_elegivel(caso, cal, teste):
     import motor
     r, b = caso(APTO_CURITIBA)
-    r.possui_seguro_residencial = "SIM"
+    r.possui_seguro_residencial, r.qtd_produtos_seguridade = "SIM", 1   # tem produto de seguridade BB
     catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
     f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=1)
     assert f["elegibilidade"] == "NAO" and f["pendencias"][0]["codigo"] == "SEGURO_EXISTENTE"
     assert motor.justificativa(f).startswith("Não elegível para nova proposta")
+
+
+def test_seguro_existente_sem_produto_bb_vira_pergunta(caso, cal, teste):
+    # A vedação do guia é só para seguro BB; sem produto de seguridade BB, pode ser outra seguradora.
+    import motor
+    r, b = caso(APTO_CURITIBA)
+    r.possui_seguro_residencial, r.qtd_produtos_seguridade = "SIM", 0
+    catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
+    f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=1)
+    assert f["elegibilidade"] == "SIM" and f["canal"] == "GERENTE"
+    assert f["perguntas"][0]["prioridade"] == 100 and "BB Seguros" in f["perguntas"][0]["texto"]
+
+
+def test_dado_observado_antigo_conta_como_estimado():
+    # "Dados antigos valem menos": observado mais velho que a meia-vida do campo vira ESTIMADO.
+    import motor
+    recente = {"natureza": "OBSERVADO", "fonte_tipo": "TRANSACAO", "idade_meses": 3}
+    antigo = {"natureza": "OBSERVADO", "fonte_tipo": "TRANSACAO", "idade_meses": 30}
+    assert motor.classe_dado(recente, "vinculo") == "OBSERVADO"
+    assert motor.classe_dado(antigo, "vinculo") == "ESTIMADO" and antigo["antigo"]
 
 
 def test_seguro_existente_dois_imoveis_pergunta_qual(caso, cal, teste):

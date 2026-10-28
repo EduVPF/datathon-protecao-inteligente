@@ -4,7 +4,7 @@ window.FICHAS_DEMO = {
   "perfil_A_apto_urbano": "IMO_CASO_00005_01",
   "perfil_B_casa_familiar": "IMO_CASO_00031_01",
   "perfil_C_casa_lazer": "IMO_CASO_00010_01",
-  "nao_elegivel_seguro_existente": "IMO_CASO_00001_01",
+  "nao_elegivel_seguro_existente": "IMO_CASO_00014_01",
   "one_click_limpo": "IMO_CASO_00005_01",
   "inquilino_total": "IMO_CASO_00008_01",
   "elegibilidade_a_confirmar": "IMO_CASO_00003_01"
@@ -154,7 +154,7 @@ window.FICHAS_DEMO = {
    "adicionais": [
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
-     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
+     "motivo": "há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros"
     }
    ],
    "coberturas": [
@@ -262,9 +262,9 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
+     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros."
     }
    ],
    "perguntas": [
@@ -438,7 +438,7 @@ window.FICHAS_DEMO = {
      "plano": "TOTAL",
      "peso": 1,
      "codigo": "FAMILIA_DECLARADA",
-     "texto": "você informou que mora com crianças e pets, e um acidente com eles pode causar dano a terceiros, que só o Total cobre"
+     "texto": "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre"
     }
    ],
    "motivos_plano": [
@@ -452,7 +452,7 @@ window.FICHAS_DEMO = {
      "plano": "TOTAL",
      "peso": 1,
      "codigo": "FAMILIA_DECLARADA",
-     "texto": "você informou que mora com crianças e pets, e um acidente com eles pode causar dano a terceiros, que só o Total cobre"
+     "texto": "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre"
     }
    ],
    "pontos": {
@@ -571,7 +571,7 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
      "observacao": ""
     },
@@ -785,7 +785,7 @@ window.FICHAS_DEMO = {
    "adicionais": [
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
-     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
+     "motivo": "há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros"
     }
    ],
    "coberturas": [
@@ -869,9 +869,9 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
+     "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros."
     }
    ],
    "perguntas": [
@@ -919,21 +919,21 @@ window.FICHAS_DEMO = {
     "obra": 0.0
    }
   },
-  "IMO_CASO_00001_01": {
-   "cliente_id": "CASO_00001",
-   "imovel_id": "IMO_CASO_00001_01",
-   "local": "Recife/PE",
-   "complemento": "CASA FUNDOS",
+  "IMO_CASO_00014_01": {
+   "cliente_id": "CASO_00014",
+   "imovel_id": "IMO_CASO_00014_01",
+   "local": "Sao Paulo/SP",
+   "complemento": "BLOCO B APTO 305",
    "canal_digital": {
-    "usuario_app": "SIM",
-    "maturidade_digital": 100
+    "usuario_app": "NAO",
+    "maturidade_digital": 12
    },
    "campos": {
     "tipo": {
-     "valor": "CASA_EM_CONDOMINIO",
+     "valor": "APARTAMENTO",
      "natureza": "INFERIDO",
      "confianca": "ALTA",
-     "fonte": "termos 'casa' + 'condomínio' no endereço e pagamento de condomínio; confirmado pelo complemento",
+     "fonte": "termo 'apartamento' no endereço; confirmado pelo complemento",
      "fonte_tipo": "DOCUMENTO",
      "idade_meses": 0,
      "diverge": false,
@@ -961,51 +961,51 @@ window.FICHAS_DEMO = {
      "classe": "OBSERVADO"
     },
     "area": {
-     "valor": 265,
-     "natureza": "ESTIMADO",
-     "confianca": "MEDIA",
-     "fonte": "estimada pelo IPTU (R$ 3.350/ano) e energia (R$ 700/mês) comparados a imóveis de Recife",
-     "fonte_tipo": "DERIVADO",
-     "idade_meses": 3,
-     "min": 195.36921179966464,
-     "max": 340.3794573804528,
-     "peso": 0.688,
-     "classe": "ESTIMADO"
+     "valor": 90,
+     "natureza": "OBSERVADO",
+     "confianca": "ALTA",
+     "fonte": "área cadastrada (LAUDO_FINANCIAMENTO)",
+     "fonte_tipo": "DOCUMENTO",
+     "idade_meses": 0,
+     "min": 90.0,
+     "max": 90.0,
+     "peso": 0.9,
+     "classe": "OBSERVADO"
     },
     "bens": {
-     "valor": 89821,
+     "valor": 59155,
      "natureza": "ESTIMADO",
      "confianca": "MEDIA",
-     "fonte": "compras de R$ 45.400 nos últimos 36 meses (corrigidas pelo IPCA) e 1 bens vinculados (R$ 550 ponderado pela chance de estarem no imóvel)",
+     "fonte": "compras de R$ 29.900 nos últimos 36 meses (corrigidas pelo IPCA) e 5 bens vinculados (R$ 11.850 ponderado pela chance de estarem no imóvel)",
      "fonte_tipo": "TRANSACAO",
      "idade_meses": 18,
-     "min": 48551.72198245173,
-     "max": 131089.6493526197,
+     "min": 31975.69355231953,
+     "max": 86334.37259126273,
      "categorias": {
       "eletronicos": {
-       "min": 16201.731013967923,
-       "max": 43744.67373771339
+       "min": 12137.930495612933,
+       "max": 32772.41233815492
       },
       "eletrodomesticos": {
-       "min": 12833.054268489444,
-       "max": 34649.2465249215
+       "min": 8608.840571778335,
+       "max": 23243.869543801506
       },
       "moveis": {
-       "min": 19516.936699994363,
-       "max": 52695.72908998478
+       "min": 11228.922484928264,
+       "max": 30318.090709306314
       }
      },
      "portateis": {
-      "min": 16201.731013967923,
-      "max": 43744.67373771339
+      "min": 12137.930495612933,
+      "max": 32772.41233815492
      },
      "eletricos": {
-      "min": 29034.785282457367,
-      "max": 78393.92026263489
+      "min": 20746.771067391266,
+      "max": 56016.28188195642
      },
      "molhaveis": {
-      "min": 48551.72198245173,
-      "max": 131089.6493526197
+      "min": 31975.69355231953,
+      "max": 86334.37259126273
      },
      "peso": 0.566,
      "classe": "OBSERVADO"
@@ -1013,15 +1013,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1599.16,
-     2675.69
+     1878.44,
+     2910.15
     ],
     "fator_padrao": [
      0.85,
      1.3
     ],
-    "reconstrucao_min": 312000,
-    "reconstrucao_max": 911000,
+    "reconstrucao_min": 169000,
+    "reconstrucao_max": 262000,
     "segundo_risco": true
    },
    "elegibilidade": "NAO",
@@ -1030,11 +1030,11 @@ window.FICHAS_DEMO = {
      "codigo": "SEGURO_EXISTENTE",
      "prioridade": 100,
      "pergunta": "",
-     "texto": "endereço já segurado na BB Seguros (cliente com seguro residencial e um imóvel só); é vedada mais de uma proposta para o mesmo endereço"
+     "texto": "provável seguro BB neste endereço: o cliente tem seguro residencial, já tem produtos de seguridade do BB e só tem este imóvel; é vedada mais de uma proposta para o mesmo endereço"
     }
    ],
    "avisos": [],
-   "plano": "PRATICO",
+   "plano": "TOTAL",
    "motivos": [
     {
      "plano": "TOTAL",
@@ -1044,56 +1044,51 @@ window.FICHAS_DEMO = {
     },
     {
      "plano": "PRATICO",
-     "peso": 2,
-     "codigo": "BENS_ALTOS",
-     "texto": "seus bens comprovados somam pelo menos R$ 48.552, acima da maioria dos clientes"
-    },
-    {
-     "plano": "PRATICO",
      "peso": 1,
      "codigo": "ELETRONICOS",
-     "texto": "você tem pelo menos R$ 16.202 em eletrônicos, os mais visados num arrombamento"
+     "texto": "você tem pelo menos R$ 12.138 em eletrônicos, os mais visados num arrombamento"
+    },
+    {
+     "plano": "TOTAL",
+     "peso": 1,
+     "codigo": "FAMILIA_DECLARADA",
+     "texto": "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre"
     }
    ],
    "motivos_plano": [
     {
-     "plano": "PRATICO",
-     "peso": 2,
-     "codigo": "BENS_ALTOS",
-     "texto": "seus bens comprovados somam pelo menos R$ 48.552, acima da maioria dos clientes"
+     "plano": "TOTAL",
+     "peso": 1,
+     "codigo": "VIZINHOS",
+     "texto": "em prédio ou condomínio, um vazamento ou incêndio pode atingir o vizinho"
     },
     {
-     "plano": "PRATICO",
+     "plano": "TOTAL",
      "peso": 1,
-     "codigo": "ELETRONICOS",
-     "texto": "você tem pelo menos R$ 16.202 em eletrônicos, os mais visados num arrombamento"
+     "codigo": "FAMILIA_DECLARADA",
+     "texto": "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre"
     }
    ],
    "pontos": {
-    "pratico": 3,
-    "total": 1
+    "pratico": 1,
+    "total": 2
    },
    "alternativa": {
-    "plano": "TOTAL",
-    "texto": "Total: acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"
+    "plano": "PRATICO",
+    "texto": "Prático: mais barato, sem o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"
    },
-   "por_que_nao_abaixo": "o Essencial não cobre roubo com arrombamento e quebra de vidros",
-   "por_que_nao_acima": "o Total acrescenta a perda de aluguel e as despesas emergenciais (a RC familiar já entra como adicional), mas os sinais ainda são fracos para isso",
-   "adicionais": [
-    {
-     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
-     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
-    }
-   ],
+   "por_que_nao_abaixo": "o Prático não cobre o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais",
+   "por_que_nao_acima": "",
+   "adicionais": [],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
-     "min": 127000,
-     "max": 495000,
+     "min": 100000,
+     "max": 191000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 195–340 m² × R$ 1.599–R$ 2.676/m² (SINAPI PE até SINAPI PE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 90–90 m² × R$ 1.878–R$ 2.910/m² (SINAPI SP até CUB SP oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
@@ -1101,7 +1096,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 34000,
+     "min": 21000,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -1113,11 +1108,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 31000,
-     "max": 60000,
+     "min": 3500,
+     "max": 13000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
-     "regra": "10%–20% da reconstrução",
+     "regra": "2%–5% da reconstrução",
      "justificativa": "Casa expõe telhado; apartamento expõe sobretudo janelas.",
      "confirmar": "",
      "observacao": ""
@@ -1126,7 +1121,7 @@ window.FICHAS_DEMO = {
      "cobertura": "IMPACTO_VEICULOS_TERRESTRES",
      "tipo": "FIXA",
      "min": 10000,
-     "max": 20000,
+     "max": 10000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel",
      "regra": "padrão do produto (casa até R$ 20 mil)",
@@ -1149,7 +1144,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_ELETRICOS",
      "tipo": "FIXA",
-     "min": 29000,
+     "min": 21000,
      "max": 30000,
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
@@ -1161,8 +1156,8 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
      "tipo": "FIXA",
-     "min": 16000,
-     "max": 44000,
+     "min": 12000,
+     "max": 33000,
      "confianca": "MEDIA",
      "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
      "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
@@ -1173,8 +1168,8 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "QUEBRA_DE_VIDROS",
      "tipo": "FIXA",
-     "min": 3000,
-     "max": 8000,
+     "min": 2000,
+     "max": 5000,
      "confianca": "BAIXA",
      "dados_utilizados": "tipo do imóvel, gastos com vidraçaria 24m",
      "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
@@ -1184,55 +1179,77 @@ window.FICHAS_DEMO = {
     },
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
-     "tipo": "ADICIONAL",
-     "min": 34000,
-     "max": 112000,
+     "tipo": "FIXA",
+     "min": 39000,
+     "max": 122000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.599–R$ 2.676/m² (SINAPI PE até SINAPI PE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.878–R$ 2.910/m² (SINAPI SP até CUB SP oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
-     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
+     "observacao": ""
+    },
+    {
+     "cobertura": "PERDA_PAGAMENTO_ALUGUEL",
+     "tipo": "FIXA",
+     "min": 30000,
+     "max": 30000,
+     "confianca": "MEDIA",
+     "dados_utilizados": "FipeZAP set/2026: R$ 66/m² × área",
+     "regra": "aluguel mensal × 6 a 12 meses",
+     "justificativa": "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
+     "confirmar": "Valor de aluguel de um imóvel equivalente",
+     "observacao": ""
+    },
+    {
+     "cobertura": "DESPESAS_EMERGENCIAIS",
+     "tipo": "FIXA",
+     "min": 2000,
+     "max": 9500,
+     "confianca": "MEDIA",
+     "dados_utilizados": "faixa de incêndio",
+     "regra": "2%–5% da faixa de incêndio",
+     "justificativa": "Medidas urgentes para evitar que o dano aumente.",
+     "confirmar": "",
+     "observacao": ""
     }
    ],
    "perguntas": [
     {
      "prioridade": 58,
-     "texto": "Estimamos que o imóvel tem cerca de 265 m². Confere?",
-     "codigo": "AREA",
-     "reduz_faixa_ate": 155000
+     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 32.000 e R$ 86.000?",
+     "codigo": "BENS",
+     "reduz_faixa_ate": 54000
     },
     {
      "prioridade": 56,
      "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
      "codigo": "PADRAO",
-     "reduz_faixa_ate": 126000
+     "reduz_faixa_ate": 36000
     },
     {
-     "prioridade": 54,
-     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 49.000 e R$ 131.000?",
-     "codigo": "BENS",
-     "reduz_faixa_ate": 83000
+     "prioridade": 30,
+     "texto": "O imóvel é seu e já está quitado?",
+     "codigo": "VINCULO"
     }
    ],
-   "perguntas_candidatas": 4,
+   "perguntas_candidatas": 3,
    "confianca": "MEDIA",
-   "confianca_score": 57,
-   "confianca_motivo": "estimado: área, vínculo",
+   "confianca_score": 74,
+   "confianca_motivo": "estimado: vínculo",
    "completude": {
     "faltantes": [
-     "area_cadastrada_m2",
-     "padrao_construtivo_cadastrado",
-     "material_parede_externa_cadastrado"
+     "padrao_construtivo_cadastrado"
     ],
-    "pct": 0
+    "pct": 67
    },
    "canal": "GERENTE",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
     "IPCA 12m, série 433 (Banco Central)",
-    "Condições Gerais BB Seguro Residencial v1.4"
+    "Condições Gerais BB Seguro Residencial v1.4",
+    "FipeZAP Locação set/2026 (Fipe)"
    ],
    "sinais": {
     "parcela": 0.0,
@@ -1367,7 +1384,7 @@ window.FICHAS_DEMO = {
      "plano": "TOTAL",
      "peso": 1,
      "codigo": "FAMILIA_DECLARADA",
-     "texto": "você informou que mora com crianças e pets, e um acidente com eles pode causar dano a terceiros, que só o Total cobre"
+     "texto": "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre"
     }
    ],
    "motivos_plano": [
@@ -1500,7 +1517,7 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
      "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.678–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
      "observacao": ""
     },
@@ -1833,7 +1850,7 @@ window.FICHAS_DEMO = {
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
      "regra": "casa: faixa de referência de danos a terceiros",
-     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Dependentes e pet só pesam na escolha do plano, não no valor.",
      "confirmar": "",
      "observacao": ""
     },

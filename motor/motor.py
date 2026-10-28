@@ -244,7 +244,7 @@ def valor_imovel(r, tipo, vinculo, area):
 
 def avaliar_elegibilidade(r, uso, n_imoveis=None):
     """SIM ou NAO. NAO só com prova: situação cadastral não regular, ou cliente com
-    seguro BB e um imóvel só (o seguro é deste endereço). Sinal fraco vira SIM +
+    seguro residencial, produto de seguridade BB e um imóvel só (provável seguro BB neste endereço). Sinal fraco vira SIM +
     pergunta de confirmação (guia §9.1). `n_imoveis`: imóveis do cliente na base."""
     pendencias, avisos = [], []
     situacao = str(r.situacao_imovel_cadastral).upper()
@@ -261,15 +261,23 @@ def avaliar_elegibilidade(r, uso, n_imoveis=None):
                            "texto": f"gastos de {brl(r.gastos_material_construcao_24m)} em material de construção em 24 meses podem indicar reforma, que impede a contratação",
                            "pergunta": f"Notamos {brl(r.gastos_material_construcao_24m)} em material de construção nos últimos 2 anos. O imóvel está em obra ou reforma agora?"})
     if r.possui_seguro_residencial == "SIM":
-        if n_imoveis == 1:
+        # A vedação do guia vale só para seguro da BB no mesmo endereço. O campo da base não diz
+        # a seguradora: só tratamos como seguro BB quando o cliente já tem produto de seguridade do BB.
+        produtos_bb = (getattr(r, "qtd_produtos_seguridade", 0) or 0) >= 1
+        if n_imoveis == 1 and produtos_bb:
             return "NAO", [{"codigo": "SEGURO_EXISTENTE", "prioridade": 100, "pergunta": "",
-                            "texto": "endereço já segurado na BB Seguros (cliente com seguro residencial e um imóvel só); "
-                                     "é vedada mais de uma proposta para o mesmo endereço"}], avisos
-        pergunta = ("Qual dos seus imóveis já tem o seguro residencial da BB Seguros?" if n_imoveis
-                    else "Você já tem seguro residencial da BB Seguros para este endereço?")
-        pendencias.append({"codigo": "SEGURO_EXISTENTE", "prioridade": 95,
-                           "texto": "o cliente já tem seguro residencial em um dos imóveis, e não pode haver duas propostas BB para o mesmo endereço",
-                           "pergunta": pergunta})
+                            "texto": "provável seguro BB neste endereço: o cliente tem seguro residencial, já tem produtos "
+                                     "de seguridade do BB e só tem este imóvel; é vedada mais de uma proposta para o mesmo endereço"}], avisos
+        if n_imoveis == 1:
+            pendencias.append({"codigo": "SEGURO_EXISTENTE", "prioridade": 100,
+                               "texto": "o cliente tem seguro residencial, mas nenhum produto de seguridade do BB; se o seguro atual "
+                                        "for de outra seguradora, a proposta é permitida",
+                               "pergunta": "O seu seguro residencial atual é da BB Seguros?"})
+        else:
+            pendencias.append({"codigo": "SEGURO_EXISTENTE", "prioridade": 95,
+                               "texto": "o cliente já tem seguro residencial em um dos imóveis, e não pode haver duas propostas BB para o mesmo endereço",
+                               "pergunta": ("Qual dos seus imóveis já tem o seguro residencial da BB Seguros?" if n_imoveis
+                                            else "Você já tem seguro residencial da BB Seguros para este endereço?")})
     if uso["valor"] == "LAZER_VERANEIO":
         avisos.append("imóvel de veraneio: roubo não cobre residência desocupada (CG, Roubo 2.1 c)")
     return "SIM", pendencias, avisos
@@ -278,7 +286,7 @@ def avaliar_elegibilidade(r, uso, n_imoveis=None):
 # --- Plano ---------------------------------------------------------------------
 
 def familia_declarada(r):
-    """O que o cliente informou sobre a casa: (tem crianças/dependentes, tem pet).
+    """Composição da casa: (tem dependentes no cadastro, informou pet).
     Uso único: necessidade de RC familiar. Nunca entra em valor, risco, canal ou confiança."""
     return (getattr(r, "quantidade_dependentes", 0) or 0) > 0, getattr(r, "possui_pet_informado", "") == "SIM"
 
@@ -318,7 +326,7 @@ def escolher_plano(r, tipo, vinculo, uso, bens):
     # (CG, Roubo 2.1 c), então recomendar o Prático por o imóvel ficar vazio seria incoerente.
     if all(familia_declarada(r)):
         soma("TOTAL", 1, "FAMILIA_DECLARADA",
-             "você informou que mora com crianças e pets, e um acidente com eles pode causar dano a terceiros, que só o Total cobre")
+             "há dependentes no cadastro e você informou um pet; um acidente com eles pode causar dano a terceiros, que só o Total cobre")
 
     total = sum(m["peso"] for m in motivos if m["plano"] == "TOTAL")
     pratico = sum(m["peso"] for m in motivos if m["plano"] == "PRATICO")
@@ -434,7 +442,7 @@ def dimensionar(cob, ctx):
             lo, hi, regra = 30000, 60000, "casa: faixa de referência de danos a terceiros"
         return saida(lo, hi, "MEDIA", "tipo do imóvel; SINAPI, CUB", regra,
                      "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. "
-                     "Crianças e pets informados só pesam na escolha do plano, não no valor.")
+                     "Dependentes e pet só pesam na escolha do plano, não no valor.")
     if cob == "PERDA_PAGAMENTO_ALUGUEL":
         m_lo, m_hi = P.MESES_PERDA_ALUGUEL
         aluguel_m2 = P.aluguel_m2(r.uf_real)
@@ -476,12 +484,12 @@ def valor_da_informacao(area, bens, imovel):
 
 def coberturas_adicionais(r, tipo, plano):
     """Coberturas de planos acima que entram como adicional (guia 9.2: as coberturas do Prático
-    e do Total podem ser incluídas ou excluídas). Hoje uma regra: crianças ou pets informados +
+    e do Total podem ser incluídas ou excluídas). Hoje uma regra: dependentes ou pet informados +
     imóvel em prédio ou condomínio → RC familiar, sem levar o cliente ao Total inteiro."""
     adicionais = []
     if plano != "TOTAL" and any(familia_declarada(r)) and tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO"):
         adicionais.append(("RESPONSABILIDADE_CIVIL_FAMILIAR",
-                           "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"))
+                           "há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros"))
     return adicionais
 
 
@@ -507,7 +515,7 @@ def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, 
     if vinculo["valor"] == "PROPRIETARIO":
         cand.append((30, "O imóvel é seu e já está quitado?", "VINCULO"))
     if plano and plano != "TOTAL" and any(familia_declarada(r)) and not coberturas_adicionais(r, tipo, plano):
-        cand.append((45, "Você informou crianças ou pets em casa. Quer proteção para danos que eles causem a terceiros? "
+        cand.append((45, "Há dependentes ou pet na sua casa. Quer proteção para danos que eles causem a terceiros? "
                          "Ela vem no plano Total.", "RC_FAMILIA"))
     cand.sort(key=lambda x: -x[0])
     vdi = vdi if imovel else {}
@@ -541,11 +549,16 @@ def campos_faltantes(r):
 NOME_CAMPO = {"area": "área", "bens": "valor dos bens", "uso": "uso do imóvel", "vinculo": "vínculo", "tipo": "tipo do imóvel"}
 
 
-def classe_dado(d):
-    """OBSERVADO (documento, transação ou confirmado), ESTIMADO (derivado ou inferido) ou PRESUMIDO."""
+def classe_dado(d, campo=None):
+    """OBSERVADO (documento, transação ou confirmado), ESTIMADO (derivado ou inferido) ou PRESUMIDO.
+    Dado antigo vale menos: observado com idade maior que a meia-vida do campo conta como ESTIMADO."""
     if d.get("natureza") == "CONFIRMADO":
         return "OBSERVADO"
-    return P.CLASSE_FONTE.get(d.get("fonte_tipo", "INFERIDO"), "ESTIMADO")
+    classe = P.CLASSE_FONTE.get(d.get("fonte_tipo", "INFERIDO"), "ESTIMADO")
+    if classe == "OBSERVADO" and campo and d.get("idade_meses", 0) > P.MEIA_VIDA_MESES.get(campo, 12):
+        d["antigo"] = True
+        return "ESTIMADO"
+    return classe
 
 
 def confianca_geral(campos, elegibilidade, pendencias, faltantes=()):
@@ -557,7 +570,7 @@ def confianca_geral(campos, elegibilidade, pendencias, faltantes=()):
     pesos = {"tipo": 1, "vinculo": 1, "uso": 1, "area": 2, "bens": 2}
     for k in pesos:
         campos[k]["peso"] = round(peso_dado(campos[k], k), 3)
-        campos[k]["classe"] = classe_dado(campos[k])
+        campos[k]["classe"] = classe_dado(campos[k], k)
     score = sum(pesos[k] * campos[k]["peso"] for k in pesos) / sum(pesos.values())
     score *= 1 - sum(P.PENALIDADE_COMPLETUDE[c] for c in faltantes)
 
@@ -574,7 +587,7 @@ def confianca_geral(campos, elegibilidade, pendencias, faltantes=()):
     if presumidos:
         partes.append("presumido: " + ", ".join(NOME_CAMPO[k] for k in presumidos))
     if estimados:
-        partes.append("estimado: " + ", ".join(NOME_CAMPO[k] for k in estimados))
+        partes.append("estimado: " + ", ".join(NOME_CAMPO[k] + (" (dado antigo)" if campos[k].get("antigo") else "") for k in estimados))
     if pendencias and elegibilidade == "SIM":
         partes.append("elegibilidade a confirmar")
     motivo = "; ".join(partes) or "todos os dados críticos observados"

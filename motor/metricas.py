@@ -24,7 +24,7 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
     por_id = {f["imovel_id"]: f for f in fichas}
 
     # Justiça: trocar renda e idade não pode mudar nada.
-    # Necessidade declarada: trocar crianças e pet pode mudar só o plano, os motivos e as
+    # Necessidade declarada: trocar dependentes e pet pode mudar só o plano, os motivos e as
     # perguntas; nunca a faixa de uma cobertura em comum, a elegibilidade, o canal ou a confiança.
     # Sensibilidade: área 10% maior deve aumentar (ou manter) o incêndio.
     mudou_justica, familia_fora_do_lugar, familia_muda_plano, variacoes, quedas = 0, 0, 0, [], 0

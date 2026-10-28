@@ -12,14 +12,14 @@
   "TOTAL": 49
  },
  "elegibilidade": {
-  "NAO": 24,
-  "SIM": 114
+  "SIM": 122,
+  "NAO": 16
  },
  "casos_com_confirmacao_de_elegibilidade": 37,
  "elegibilidade_por_regra": {
   "SEGURO_EXISTENTE": 30,
-  "POSSIVEL_REFORMA": 7,
-  "NAO_ELEGIVEL": 24
+  "POSSIVEL_REFORMA": 9,
+  "NAO_ELEGIVEL": 16
  },
  "coberturas_adicionais": {
   "RESPONSABILIDADE_CIVIL_FAMILIAR": 41
@@ -45,8 +45,8 @@
   "GERENTE": 71,
   "ONE_CLICK": 67
  },
- "perguntas_media": 2.72,
- "perguntas_candidatas_media": 3.43,
+ "perguntas_media": 2.73,
+ "perguntas_candidatas_media": 3.51,
  "teste_justica_casos_alterados": 0,
  "justica_por_quinto_de_renda": {
   "quintos": {
@@ -55,7 +55,7 @@
     "essencial_pct": 46.4,
     "pratico_pct": 14.3,
     "total_pct": 39.3,
-    "elegivel_pct": 85.7,
+    "elegivel_pct": 89.3,
     "inquilino_pct": 25.0,
     "bens_comprovados_mediana": 18795
    },
@@ -64,7 +64,7 @@
     "essencial_pct": 44.4,
     "pratico_pct": 29.6,
     "total_pct": 25.9,
-    "elegivel_pct": 85.2,
+    "elegivel_pct": 96.3,
     "inquilino_pct": 22.2,
     "bens_comprovados_mediana": 24168
    },
@@ -82,7 +82,7 @@
     "essencial_pct": 3.7,
     "pratico_pct": 66.7,
     "total_pct": 29.6,
-    "elegivel_pct": 77.8,
+    "elegivel_pct": 88.9,
     "inquilino_pct": 14.8,
     "bens_comprovados_mediana": 47589
    },
@@ -91,16 +91,16 @@
     "essencial_pct": 0.0,
     "pratico_pct": 71.4,
     "total_pct": 28.6,
-    "elegivel_pct": 78.6,
+    "elegivel_pct": 82.1,
     "inquilino_pct": 17.9,
     "bens_comprovados_mediana": 79217
    }
   },
-  "razao_elegibilidade_menor_maior": 0.91
+  "razao_elegibilidade_menor_maior": 0.85
  },
  "familia_declarada_muda_plano": 18,
  "familia_declarada_muda_valor_ou_confianca": 0,
  "sensibilidade_area_10pct_incendio_media_pct": 4.78,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.51
+ "tempo_segundos": 0.9
 }

@@ -17,3 +17,6 @@ __pycache__/
 .idea/
 Thumbs.db
 desktop.ini
+
+# Instaladores e executáveis (ex.: o instalador do Obsidian)
+*.exe
