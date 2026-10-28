@@ -19,6 +19,7 @@ from collections import Counter
 from pathlib import Path
 
 import motor
+from metricas import calcular_metricas, casos_contrastantes
 from templates import validar_templates
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -52,11 +53,16 @@ def gerar(saida, entrega=False):
     cob.to_csv(saida / PLANILHAS[1], index=False, encoding="utf-8-sig", lineterminator="\n")
     (saida / "fichas.json").write_text(json.dumps(fichas, ensure_ascii=False, indent=1), encoding="utf-8")
     (saida / "calibracao.json").write_text(json.dumps(cal, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
-    info = {**resumo(fichas, time.time() - inicio), "erros_validacao": len(erros), "erros": erros}
+    met = calcular_metricas(teste, cal, fichas, resultado, cob, time.time() - inicio)
+    casos = casos_contrastantes(fichas)
+    (saida / "metricas.json").write_text(json.dumps(met, ensure_ascii=False, indent=1), encoding="utf-8")
+    (saida / "casos_contrastantes.json").write_text(json.dumps(casos, ensure_ascii=False, indent=1), encoding="utf-8")
+    info = {**resumo(fichas, time.time() - inicio), "erros_validacao": len(erros), "erros": erros,
+            "teste_justica_casos_alterados": met["teste_justica_casos_alterados"], "casos_contrastantes": casos}
     if entrega and not erros:
         destino = RAIZ / "entrega"
         destino.mkdir(exist_ok=True)
-        for nome in PLANILHAS:
+        for nome in PLANILHAS + ["metricas.json", "casos_contrastantes.json"]:
             shutil.copy(saida / nome, destino / nome)
     return info
 

@@ -142,3 +142,75 @@ def test_validador_pega_erros(planilhas, teste):
     cob = cob[cob.cobertura != "QUEDA_AERONAVE"]                          # cobertura fixa faltando
     erros = validar_templates(res, cob, teste["template"], teste["template_coberturas"], teste["catalogo"])
     assert any("mínimo maior" in e for e in erros) and any("sem as fixas" in e for e in erros)
+
+
+# --- T5: confiança, perguntas, justiça e coerência ------------------------------
+import json  # noqa: E402
+
+
+def test_dado_antigo_pesa_menos():
+    novo = motor.peso_dado({"fonte_tipo": "TRANSACAO", "idade_meses": 3}, "bens")
+    velho = motor.peso_dado({"fonte_tipo": "TRANSACAO", "idade_meses": 30}, "bens")
+    assert velho < novo
+
+
+def test_dado_confirmado_vale_o_maximo():
+    assert motor.peso_dado({"natureza": "CONFIRMADO", "fonte_tipo": "PRESUMIDO", "idade_meses": 99}, "bens") == 1.0
+
+
+def test_no_maximo_tres_perguntas_por_impacto(ficha):
+    f = ficha("IMO_CASO_00001_01", gastos_material_construcao_24m=40000)
+    assert len(f["perguntas"]) == 3 and f["perguntas_candidatas"] > 3
+    assert [p["prioridade"] for p in f["perguntas"]] == sorted((p["prioridade"] for p in f["perguntas"]), reverse=True)
+
+
+def test_pendencia_impede_confianca_alta(ficha):
+    assert ficha(APTO_CURITIBA, gastos_material_construcao_24m=40000)["confianca"] != "ALTA"
+
+
+def test_justica_ficha_inteira_igual(ficha):
+    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19, quantidade_dependentes=0, possui_pet_informado="NAO", origem_renda="INFORMADA")
+    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85, quantidade_dependentes=3, possui_pet_informado="SIM", origem_renda="PRESUMIDA")
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+    texto = json.dumps(a)
+    for chave in ['"renda', '"origem_renda"', '"idade"', '"quantidade_dependentes"', '"possui_pet', '"dependentes"']:
+        assert chave not in texto
+
+
+def test_area_maior_nunca_reduz_incendio(ficha):
+    p = ficha(APTO_CURITIBA, area_cadastrada_m2=100)
+    g = ficha(APTO_CURITIBA, area_cadastrada_m2=110)
+    assert _cob(g, "INCENDIO_RAIO_EXPLOSAO_FUMACA")["max"] >= _cob(p, "INCENDIO_RAIO_EXPLOSAO_FUMACA")["max"]
+
+
+def test_extremos_respeitam_limites(ficha):
+    import parametros
+    f = ficha(APTO_CURITIBA, compras_eletronicos_36m=900000, compras_moveis_36m=900000, compras_eletrodomesticos_36m=900000,
+              gastos_vidracaria_24m=500000, area_cadastrada_m2=5000)
+    for c in f["coberturas"]:
+        lo, hi = parametros.LIMITES_PRODUTO[c["cobertura"]]
+        assert isinstance(c["min"], int) and lo <= c["min"] <= c["max"] <= hi
+
+
+def test_bens_de_outro_imovel_nao_entram(caso):
+    _, b1 = caso("IMO_CASO_00005_01")
+    _, b2 = caso("IMO_CASO_00005_02")
+    assert set(b1.imovel_id_referencia) <= {"IMO_CASO_00005_01"} and set(b2.imovel_id_referencia) <= {"IMO_CASO_00005_02"}
+
+
+def test_reprodutivel(tmp_path):
+    import gerar
+    gerar.gerar(tmp_path / "a")
+    gerar.gerar(tmp_path / "b")
+    for nome in ["template_resultado_times.csv", "template_coberturas_times.csv", "fichas.json"]:
+        assert (tmp_path / "a" / nome).read_bytes() == (tmp_path / "b" / nome).read_bytes()
+
+
+# --- T6: métricas e casos contrastantes ----------------------------------------
+def test_metricas_e_casos(tmp_path):
+    import gerar
+    info = gerar.gerar(tmp_path)
+    met = json.loads((tmp_path / "metricas.json").read_text(encoding="utf-8"))
+    assert met["teste_justica_casos_alterados"] == 0
+    assert met["completude_coberturas_fixas_pct"] == 100.0 and met["sensibilidade_area_casos_com_queda"] == 0
+    assert all(info["casos_contrastantes"].values())

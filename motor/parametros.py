@@ -113,7 +113,7 @@ MATURIDADE_MIN_ONE_CLICK = 40   # comportamento digital, não atributo pessoal
 # --- Confiança e perguntas ------------------------------------------------------
 PESO_FONTE = {"CONFIRMADO": 1.0, "DOCUMENTO": 0.9, "TRANSACAO": 0.8, "INFERIDO": 0.6, "PRESUMIDO": 0.5}
 MEIA_VIDA_MESES = {"vinculo": 12, "area": 120, "bens": 36, "uso": 12, "tipo": 120}
-PESO_CONFIANCA = {"ALTA": 1.0, "MEDIA": 0.6, "BAIXA": 0.3}
+CONF_ALTA, CONF_MEDIA = 0.75, 0.55   # limiares da confiança geral (score de 0 a 1)
 MAX_PERGUNTAS = 3
 
 # faixa() usa este nome

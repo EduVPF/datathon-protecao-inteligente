@@ -130,8 +130,9 @@ def inferir_tipo(r):
     # conferência com o complemento (AP/APTO/BLOCO/TORRE × CASA/LOTE/QUADRA)
     pelo_compl = tipo_pelo_complemento(r.complemento)
     d["diverge"] = pelo_compl is not None and (pelo_compl == "APARTAMENTO") != (d["valor"] == "APARTAMENTO")
+    d["fonte_tipo"] = "DOCUMENTO"
     if d["diverge"]:
-        d["confianca"] = "MEDIA"
+        d["confianca"], d["fonte_tipo"] = "MEDIA", "INFERIDO"
         d["fonte"] += f"; o complemento sugere {pelo_compl.lower()}"
     elif pelo_compl:
         d["fonte"] += "; confirmado pelo complemento"
@@ -140,24 +141,24 @@ def inferir_tipo(r):
 
 def inferir_vinculo(r):
     if r.pagamento_aluguel_recorrente == "SIM":
-        return dado("INQUILINO", "OBSERVADO", "ALTA", f"aluguel recorrente de {brl(r.valor_aluguel_recorrente)}/mês", "TRANSACAO", 6)
+        return dado("INQUILINO", "OBSERVADO", "ALTA", f"aluguel recorrente de {brl(r.valor_aluguel_recorrente)}/mês", "TRANSACAO", 3)
     if r.parcela_financiamento_imobiliario > 0:
-        return dado("FINANCIADO", "OBSERVADO", "ALTA", f"parcela de financiamento de {brl(r.parcela_financiamento_imobiliario)}/mês", "TRANSACAO", 6)
+        return dado("FINANCIADO", "OBSERVADO", "ALTA", f"parcela de financiamento de {brl(r.parcela_financiamento_imobiliario)}/mês", "TRANSACAO", 3)
     if r.credito_recorrente_compativel_aluguel == "SIM" and r.endereco_principal_compativel == "NAO":
         return dado("PROPRIETARIO_LOCADOR", "INFERIDO", "MEDIA",
-                    f"recebe crédito recorrente compatível com aluguel ({brl(r.valor_medio_credito_recorrente)}/mês)", "TRANSACAO", 6)
-    return dado("PROPRIETARIO", "INFERIDO", "MEDIA", "sem aluguel pago nem financiamento: provável imóvel quitado", "INFERIDO", 6)
+                    f"recebe crédito recorrente compatível com aluguel ({brl(r.valor_medio_credito_recorrente)}/mês)", "TRANSACAO", 3)
+    return dado("PROPRIETARIO", "INFERIDO", "MEDIA", "sem aluguel pago nem financiamento: provável imóvel quitado", "INFERIDO", 3)
 
 
 def inferir_uso(r, outro_principal):
     if r.endereco_principal_compativel == "SIM":
         return dado("RESIDENCIAL_HABITUAL", "OBSERVADO", "ALTA", "endereço compatível com o endereço principal do cliente", "DOCUMENTO", 0)
     if r.credito_recorrente_compativel_aluguel == "SIM":
-        return dado("RESIDENCIAL_LOCADO_A_TERCEIROS", "INFERIDO", "MEDIA", "não é o endereço principal e há crédito de aluguel", "TRANSACAO", 6)
+        return dado("RESIDENCIAL_LOCADO_A_TERCEIROS", "INFERIDO", "MEDIA", "não é o endereço principal e há crédito de aluguel", "TRANSACAO", 3)
     if outro_principal:
-        return dado("LAZER_VERANEIO", "INFERIDO", "BAIXA", "cliente mora em outro imóvel cadastrado", "INFERIDO", 0)
+        return dado("LAZER_VERANEIO", "INFERIDO", "BAIXA", "cliente mora em outro imóvel cadastrado", "PRESUMIDO", 0)
     return dado("RESIDENCIAL_HABITUAL", "INFERIDO", "BAIXA",
-                "único imóvel, mas o endereço não bate com o principal (cadastro desatualizado?)", "INFERIDO", 0)
+                "único imóvel, mas o endereço não bate com o principal (cadastro desatualizado?)", "PRESUMIDO", 0)
 
 
 def inferir_area(r, cal):
@@ -170,7 +171,7 @@ def inferir_area(r, cal):
     if not math.isfinite(a) or a <= 0:  # sem área, IPTU nem energia: mediana de imóveis parecidos
         chave = f"{r.codigo_ibge_municipio}|{'APTO' if r.possui_termo_apartamento == 'SIM' else 'CASA'}"
         a = cal["area_mediana"].get(chave, cal["area_mediana_geral"])
-        d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de imóveis parecidos em {r.municipio_real}", "INFERIDO", 0)
+        d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de imóveis parecidos em {r.municipio_real}", "PRESUMIDO", 0)
         d["min"], d["max"] = a * 0.7, a * 1.3
         return d
     d = dado(round(a), "ESTIMADO", "MEDIA",
@@ -448,14 +449,26 @@ def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens):
     return [{"prioridade": p, "texto": t, "codigo": c} for p, t, c in cand[:P.MAX_PERGUNTAS]], len(cand)
 
 
+def peso_dado(d, campo):
+    """Quanto um dado vale (0 a 1) = peso da fonte × frescor.
+    Frescor = 0,5 ** (idade do sinal / meia-vida do campo): dado antigo vale menos."""
+    if d.get("natureza") == "CONFIRMADO":
+        return 1.0
+    fonte = P.PESO_FONTE.get(d.get("fonte_tipo", "INFERIDO"), 0.6)
+    return fonte * 0.5 ** (d.get("idade_meses", 0) / P.MEIA_VIDA_MESES.get(campo, 12))
+
+
 def confianca_geral(campos, elegibilidade, pendencias):
+    """Média ponderada do peso de cada dado (área e bens valem o dobro).
+    Com pergunta de elegibilidade pendente, a confiança não passa de MÉDIA."""
     pesos = {"tipo": 1, "vinculo": 1, "uso": 1, "area": 2, "bens": 2}
-    score = sum(pesos[k] * P.PESO_CONFIANCA[campos[k]["confianca"]] for k in pesos) / sum(pesos.values())
-    score = round(score * 100)
-    nivel = "ALTA" if score >= 80 else "MEDIA" if score >= 55 else "BAIXA"
+    for k in pesos:
+        campos[k]["peso"] = round(peso_dado(campos[k], k), 3)
+    score = sum(pesos[k] * campos[k]["peso"] for k in pesos) / sum(pesos.values())
+    nivel = "ALTA" if score >= P.CONF_ALTA else "MEDIA" if score >= P.CONF_MEDIA else "BAIXA"
     if (pendencias or elegibilidade != "SIM") and nivel == "ALTA":
         nivel = "MEDIA"
-    return nivel, score
+    return nivel, round(score * 100)
 
 
 # --- Orquestração --------------------------------------------------------------
