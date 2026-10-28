@@ -139,6 +139,23 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "backtest_fora_da_amostra": cal.get("backtest", {}),
         "mercado": metricas_de_mercado(fichas),
         "qualidade_do_motivo": qualidade_do_motivo(fichas),
+        "dados_faltantes": dados_faltantes(fichas, cal),
+    }
+
+
+def dados_faltantes(fichas, cal):
+    """Como cada lacuna foi tratada: quem tem tudo é fácil; a personalização vale para quem não tem."""
+    area = [f["campos"]["area"] for f in fichas]
+    origem = Counter(f["valor_imovel"]["origem_padrao"] for f in fichas)
+    return {
+        "area_cadastrada": sum(a["natureza"] == "OBSERVADO" for a in area),
+        "area_estimada_por_iptu_e_energia": sum(a["natureza"] == "ESTIMADO" and not a.get("regional") for a in area),
+        "area_pela_media_da_regiao": sum(bool(a.get("regional")) for a in area),
+        "padrao_cadastrado": origem.get("cadastrado", 0),
+        "padrao_estimado_pelo_iptu": origem.get("estimado pelo IPTU/m²", 0),
+        "padrao_faixa_aberta_com_pergunta": origem.get("não cadastrado", 0),
+        "bens_pela_media_da_regiao": sum(bool(f["campos"]["bens"].get("regional")) for f in fichas),
+        "teste_cep_da_base": cal.get("teste_cep", {}),
     }
 
 

@@ -511,3 +511,32 @@ def test_coberturas_com_texto_personalizado(todas):
         textos = [c["justificativa"] for f in todas for c in f["coberturas"] if c["cobertura"] == cob]
         assert len(set(textos)) > len(textos) * 0.5, cob
         assert all("R$" in t for t in textos), cob
+
+
+# --- F2: média da região em degraus (mentoria 28/10) ----------------------------
+def test_area_sem_sinais_usa_municipio_e_tipo(linha, cal, dev):
+    r = linha(area_cadastrada_m2=0, pagamento_iptu_anual=0, energia_media_mensal_6m=0,
+              codigo_ibge_municipio=4106902, municipio_real="Curitiba", uf_real="PR", possui_termo_apartamento="SIM")
+    d = motor.inferir_area(r, cal)
+    e = dev["enderecos_imoveis"]
+    alvo = e[(e.codigo_ibge_municipio == 4106902) & (e.possui_termo_apartamento == "SIM") & (e.area_cadastrada_m2 > 0)]
+    assert d["valor"] == round(alvo.area_cadastrada_m2.median()) and d["regional"] == "município e tipo"
+    assert "imóveis" in d["fonte"] and d["confianca"] == "BAIXA"
+
+
+def test_municipio_fora_da_base_sobe_para_o_estado(linha, cal):
+    r = linha(area_cadastrada_m2=0, pagamento_iptu_anual=0, energia_media_mensal_6m=0,
+              codigo_ibge_municipio=4113700, municipio_real="Londrina", uf_real="PR")
+    assert motor.inferir_area(r, cal)["regional"] == "estado"
+
+
+def test_bens_sem_compras_usam_a_media_da_regiao(linha, cal, vazio):
+    r = linha(compras_moveis_36m=0, compras_eletrodomesticos_36m=0, compras_eletronicos_36m=0)
+    d = motor.estimar_bens(r, vazio, cal)
+    assert d["regional"] and d["min"] > P.BENS_PISO and "região" in d["fonte"]
+    assert d["eletricos"]["max"] < d["max"] and d["confianca"] == "BAIXA"
+
+
+def test_cep_da_base_nao_tem_sinal(cal):
+    t = cal["teste_cep"]   # RN-10: CEP agregado fictício; o degrau de CEP fica desligado
+    assert abs(t["r2_cep"] - t["r2_cep_embaralhado"]) < 0.05 and not P.USAR_CEP

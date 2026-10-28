@@ -111,8 +111,8 @@ def _opcao_acima(f):
 
 EXPLICA_CAMPO = {
     ("uso", "PRESUMIDO"): "falta confirmar se você mora no imóvel",
-    ("area", "PRESUMIDO"): "a área veio da média de imóveis parecidos na sua cidade",
-    ("bens", "PRESUMIDO"): "não há compras recentes ligadas ao imóvel",
+    ("area", "PRESUMIDO"): "a área veio da média de imóveis parecidos na sua região",
+    ("bens", "PRESUMIDO"): "sem compras ligadas ao imóvel, usamos a média de casas parecidas na sua região",
     ("area", "ESTIMADO"): "a área foi estimada pelo IPTU e pela conta de luz",
     ("tipo", "ESTIMADO"): "o endereço não deixa claro se é casa ou apartamento",
     ("vinculo", "ESTIMADO"): "a sua relação com o imóvel foi deduzida das suas contas",

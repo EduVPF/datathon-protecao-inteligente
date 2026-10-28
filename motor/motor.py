@@ -48,7 +48,68 @@ def calibrar(dados):
     a = m[m.area_cadastrada_m2 > 0].copy()
     cal = _calibrar_area(a)
     cal["backtest"] = backtest(a)
+    # Média da região em degraus para o que faltar (área sem IPTU nem energia; imóvel sem compras)
+    compras = m.compras_moveis_36m + m.compras_eletrodomesticos_36m + m.compras_eletronicos_36m
+    com_compras = m.assign(compras=compras)[compras > 0]
+    cal["regional"] = {"area": _degraus(a, "area_cadastrada_m2"), "compras": _degraus(com_compras, "compras")}
+    tot = com_compras.compras.sum()
+    cal["fracao_compras"] = {"eletronicos": float(com_compras.compras_eletronicos_36m.sum() / tot),
+                             "eletricos": float((com_compras.compras_eletronicos_36m + com_compras.compras_eletrodomesticos_36m).sum() / tot)}
+    cal["teste_cep"] = teste_cep(a)
     return cal
+
+
+def _tipo_simples(df):
+    return df.possui_termo_apartamento.map({"SIM": "APTO"}).fillna("CASA")
+
+
+DEGRAUS = [("município e tipo", "municipio_tipo", ["codigo_ibge_municipio", "tipo_simples"]),
+           ("município", "municipio", ["codigo_ibge_municipio"]),
+           ("estado", "uf", ["uf_real"])]
+
+
+def _degraus(df, coluna):
+    """Mediana de `coluna` em cada degrau regional, só nos grupos com pelo menos
+    P.REGIONAL_MIN_IMOVEIS imóveis. Chave: 'nivel|valores' → (mediana, n)."""
+    df = df.assign(tipo_simples=_tipo_simples(df))
+    niveis = ([("cep", "cep", ["cep_agregado"])] if P.USAR_CEP else []) + DEGRAUS
+    tabela = {}
+    for _, nivel, cols in niveis:
+        g = df.groupby(cols)[coluna].agg(["median", "size"])
+        for chave, linha in g.iterrows():
+            if linha["size"] >= P.REGIONAL_MIN_IMOVEIS:
+                partes = chave if isinstance(chave, tuple) else (chave,)
+                tabela["|".join([nivel, *map(str, partes)])] = (float(linha["median"]), int(linha["size"]))
+    tabela["geral"] = (float(df[coluna].median()), int(df[coluna].notna().sum()))
+    return tabela
+
+
+def regional(cal, campo, r):
+    """(mediana, nome do degrau, nº de imóveis) do degrau mais próximo que tem dados:
+    município + tipo → município → estado → geral (e CEP antes, se P.USAR_CEP)."""
+    t = cal["regional"][campo]
+    tipo = "APTO" if r.possui_termo_apartamento == "SIM" else "CASA"
+    chaves = ([("CEP", f"cep|{r.cep_agregado}")] if P.USAR_CEP else []) + [
+        ("município e tipo", f"municipio_tipo|{r.codigo_ibge_municipio}|{tipo}"),
+        ("município", f"municipio|{r.codigo_ibge_municipio}"), ("estado", f"uf|{r.uf_real}"), ("geral", "geral")]
+    for nome, chave in chaves:
+        if chave in t:
+            return t[chave][0], nome, t[chave][1]
+
+
+def teste_cep(a):
+    """O CEP agregado explica a variação do IPTU/m² melhor que um CEP sorteado? (R² entre grupos
+    com 3+ imóveis.) Se não, ele é ruído e não entra como degrau regional (RN-10)."""
+    a = a.assign(rel=(a.pagamento_iptu_anual / a.area_cadastrada_m2))
+    a = a.assign(rel=a.rel / a.groupby("codigo_ibge_municipio").rel.transform("median"))
+
+    def r2(col):
+        x = a[a[col].map(a[col].value_counts()) >= 3]
+        media = x.groupby(col).rel.transform("mean")
+        return float(1 - ((x.rel - media) ** 2).sum() / ((x.rel - x.rel.mean()) ** 2).sum())
+    embaralhado = a.cep_agregado.sample(frac=1, random_state=0).to_numpy()
+    a = a.assign(cep_embaralhado=embaralhado)
+    return {"r2_cep": round(r2("cep_agregado"), 3), "r2_cep_embaralhado": round(r2("cep_embaralhado"), 3)}
 
 
 def _calibrar_area(a):
@@ -236,10 +297,9 @@ def inferir_area(r, cal):
         return d
     a = _area_estimada(r, cal)
     if not math.isfinite(a) or a <= 0:  # sem área, IPTU nem energia: mediana de imóveis parecidos
-        chave = f"{r.codigo_ibge_municipio}|{'APTO' if r.possui_termo_apartamento == 'SIM' else 'CASA'}"
-        a = cal["area_mediana"].get(chave, cal["area_mediana_geral"])
-        d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de imóveis parecidos em {r.municipio_real}", "PRESUMIDO", 0)
-        d["min"], d["max"] = a * 0.7, a * 1.3
+        a, nivel, n = regional(cal, "area", r)
+        d = dado(round(a), "ESTIMADO", "BAIXA", f"sem IPTU nem energia: mediana de {n} imóveis da região ({nivel})", "PRESUMIDO", 0)
+        d["min"], d["max"], d["regional"] = a * 0.7, a * 1.3, nivel
         return d
     sinais = [f"IPTU ({brl(r.pagamento_iptu_anual)}/ano)" if _positivo(r.pagamento_iptu_anual) else "",
               f"energia ({brl(r.energia_media_mensal_6m)}/mês)" if _positivo(r.energia_media_mensal_6m) else ""]
@@ -257,14 +317,27 @@ def _ancoras(compras, bens_ponderados):
     return lo, hi
 
 
-def estimar_bens(r, bens):
+def estimar_bens(r, bens, cal=None):
     """Faixa de valor dos bens do imóvel, por categoria. Sem arredondar: quem
-    arredonda é faixa(). Nunca lê renda, idade, dependentes ou pet."""
+    arredonda é faixa(). Nunca lê renda, idade, dependentes ou pet.
+    Sem compras nem bens vinculados: média de compras da região (com `cal`) ou o piso."""
     soma = lambda tipos: float(bens.loc[bens.tipo_bem.isin(tipos), "valor_bem_ponderado_referencia"].sum())
     ele, dom, mov = float(r.compras_eletronicos_36m), float(r.compras_eletrodomesticos_36m), float(r.compras_moveis_36m)
     compras = ele + dom + mov
     pond = float(bens.valor_bem_ponderado_referencia.sum())
 
+    if compras <= 0 and pond <= 0 and cal is not None:   # média da região, como se fossem as compras dele
+        med, nivel, n = regional(cal, "compras", r)
+        lo, hi = _ancoras(med, 0)
+        lo, hi = max(lo, P.BENS_PISO), max(hi, P.BENS_PISO)
+        d = dado(int(round((lo + hi) / 2)), "ESTIMADO", "BAIXA",
+                 f"sem compras nem bens ligados ao imóvel: média de compras de {n} imóveis da região ({nivel})", "PRESUMIDO", 0)
+        fr = cal["fracao_compras"]
+        d.update({"min": lo, "max": hi, "regional": nivel, "categorias": {},
+                  "portateis": {"min": lo * fr["eletronicos"], "max": hi * fr["eletronicos"]},
+                  "eletricos": {"min": lo * fr["eletricos"], "max": hi * fr["eletricos"]},
+                  "molhaveis": {"min": lo, "max": hi}})
+        return d
     if compras <= 0 and pond <= 0:
         d = dado(int(P.BENS_PISO * 1.5), "ESTIMADO", "BAIXA", "sem compras nem bens vinculados: piso de uma casa mobiliada", "PRESUMIDO", 0)
         d["min"], d["max"] = float(P.BENS_PISO), float(2 * P.BENS_PISO)
@@ -789,7 +862,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
     `n_imoveis`: quantos imóveis o cliente tem na base (para o seguro já existente)."""
     tipo, vinculo = inferir_tipo(r), inferir_vinculo(r)
     uso, area = inferir_uso(r, outro_principal), inferir_area(r, cal)
-    bens = estimar_bens(r, bens_imovel)
+    bens = estimar_bens(r, bens_imovel, cal)
     imovel = valor_imovel(r, tipo, vinculo, area, cal)
     eleg, pendencias, avisos = avaliar_elegibilidade(r, uso, n_imoveis)
     rec = escolher_plano(r, tipo, vinculo, uso, bens)

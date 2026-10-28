@@ -102,7 +102,7 @@
  "familia_declarada_muda_valor_ou_confianca": 0,
  "sensibilidade_area_10pct_incendio_media_pct": 4.64,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.57,
+ "tempo_segundos": 0.63,
  "backtest_fora_da_amostra": {
   "metodo": "2 metades da base de desenvolvimento (calibra numa, mede na outra)",
   "area_casos": 1016,
@@ -155,6 +155,19 @@
    "RESPONSABILIDADE_CIVIL_FAMILIAR": 36.7,
    "ROUBO_FURTO_ARROMBAMENTO": 70.4,
    "VENDAVAL_GRANIZO": 97.1
+  }
+ },
+ "dados_faltantes": {
+  "area_cadastrada": 46,
+  "area_estimada_por_iptu_e_energia": 92,
+  "area_pela_media_da_regiao": 0,
+  "padrao_cadastrado": 40,
+  "padrao_estimado_pelo_iptu": 25,
+  "padrao_faixa_aberta_com_pergunta": 73,
+  "bens_pela_media_da_regiao": 0,
+  "teste_cep_da_base": {
+   "r2_cep": 0.215,
+   "r2_cep_embaralhado": 0.223
   }
  }
 }

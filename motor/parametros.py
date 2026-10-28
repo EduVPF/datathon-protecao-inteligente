@@ -213,6 +213,12 @@ PENALIDADE_COMPLETUDE = {"area_cadastrada_m2": 0.15, "padrao_construtivo_cadastr
                          "material_parede_externa_cadastrado": 0.01}
 CAMPOS_COMPLETUDE = tuple(PENALIDADE_COMPLETUDE)
 MAX_PERGUNTAS = 3
+# Média da região em degraus (mentoria de 28/10): município + tipo → município → estado → geral.
+# Um degrau só vale com pelo menos este número de imóveis na base de desenvolvimento.
+REGIONAL_MIN_IMOVEIS = 20
+# O CEP agregado da base é fictício (guia; RN-10) e não tem sinal: explica a variação do IPTU/m²
+# tanto quanto um CEP embaralhado (calibrar() refaz esse teste). Ligar só com CEP real.
+USAR_CEP = False
 # Pergunta de valor que aperta a faixa em menos que isto não vale o esforço do cliente (premissa do time;
 # RN-36 "poucas e priorizadas" e RN-51 "equilíbrio"). Cerca de 1% de um incêndio típico.
 VALOR_MINIMO_PERGUNTA = 5000
