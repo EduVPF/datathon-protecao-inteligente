@@ -490,8 +490,9 @@ def _limpo(v):
     return v
 
 
-def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False):
-    """A ficha de um cliente-imóvel. Usada pelo processar() e pelos testes."""
+def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirmados=()):
+    """A ficha de um cliente-imóvel. Usada pelo processar(), pelos testes e pela API.
+    `confirmados`: campos que o cliente confirmou (passam a valer o máximo na confiança)."""
     tipo, vinculo = inferir_tipo(r), inferir_vinculo(r)
     uso, area = inferir_uso(r, outro_principal), inferir_area(r, cal)
     bens = estimar_bens(r, bens_imovel)
@@ -503,6 +504,8 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False):
     coberturas = [{"cobertura": cob, "tipo": "FIXA", **dimensionar(cob, ctx)} for cob in catalogo[rec["plano"]]]
     perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens)
     campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens}
+    for k in confirmados:
+        campos[k]["natureza"] = "CONFIRMADO"
     nivel, score = confianca_geral(campos, eleg, pendencias)
     one_click = (r.usuario_app == "SIM" and r.indice_maturidade_digital >= P.MATURIDADE_MIN_ONE_CLICK
                  and eleg == "SIM" and not pendencias and nivel != "BAIXA")
