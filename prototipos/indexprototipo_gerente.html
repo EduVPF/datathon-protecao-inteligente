@@ -241,7 +241,8 @@ const NOME_TIPO = {APARTAMENTO:"Apartamento", CASA:"Casa", CASA_EM_CONDOMINIO:"C
 const NOME_VINCULO = {INQUILINO:"Alugado: você é inquilino", FINANCIADO:"Seu, financiado", PROPRIETARIO:"Seu, quitado", PROPRIETARIO_LOCADOR:"Seu, alugado para outra pessoa"};
 const NOME_USO = {RESIDENCIAL_HABITUAL:"Moradia", LAZER_VERANEIO:"Veraneio", RESIDENCIAL_LOCADO_A_TERCEIROS:"Alugado para outra pessoa"};
 const SELO = {OBSERVADO:["obs","✓ observado"], CONFIRMADO:["conf","✓ confirmado"], ESTIMADO:["est","≈ estimado"], INFERIDO:["est","≈ inferido"]};
-const ROTULO_CASO = {one_click_limpo:"1 toque", inquilino_total:"Inquilino · Total", elegibilidade_a_confirmar:"A confirmar"};
+const ROTULO_CASO = {perfil_A_apto_urbano:"A · Apto urbano", perfil_B_casa_familiar:"B · Casa familiar", perfil_C_casa_lazer:"C · Casa de lazer",
+  nao_elegivel_seguro_existente:"Já segurado", one_click_limpo:"1 toque", inquilino_total:"Inquilino · Total", elegibilidade_a_confirmar:"A confirmar"};
 const titulo = s => String(s||"").toLowerCase().replace(/(^|\s)\S/g, c=>c.toUpperCase());
 const frase = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 function aplicarFicha(id){
@@ -818,13 +819,13 @@ function renderNotas(){
     <div class="sol"><b>Nossa proposta:</b> ${t.sol}</div>
     ${window.FICHAS_DEMO ? `<div style="background:var(--azul-claro);border-radius:10px;padding:8px 10px;margin:8px 0">
       <b style="font-size:13px">Caso real do motor:</b>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${Object.entries(window.FICHAS_DEMO.casos).map(([k,id])=>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${Object.entries(window.FICHAS_DEMO.casos).filter(([k,id])=>id).map(([k,id])=>
         `<button onclick="trocarCaso('${id}')" style="border:1px solid var(--azul);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;background:${FICHA&&FICHA.imovel_id===id?'var(--azul)':'#fff'};color:${FICHA&&FICHA.imovel_id===id?'#fff':'var(--azul-escuro)'}">${ROTULO_CASO[k]||k}</button>`).join("")}</div>
       ${FICHA?`<p style="font-size:12px;margin:6px 0 0">${FICHA.imovel_id} · ${FICHA.local} · plano ${PLANOS[FICHA.plano].nome} · ${FICHA.canal==="ONE_CLICK"?"1 toque":"gerente"}</p>`:""}</div>` : ""}
     <p style="font-size:12px;color:var(--suave);margin:8px 0 0">${FICHA ? "Dados, plano, faixas e motivo vêm do motor (motor/gerar.py → prototipos/fichas_demo.js)." : "Caso real da base de teste: CASO_00005 (apartamento financiado em Curitiba)."} Preços e prejuízos são ilustrativos. Use <b>Aa</b> para o modo simples e <b>Ouvir</b> para a leitura em voz alta. O botão <b>Ajuda</b> está em todas as telas.</p>
     <nav>${TELAS.map((x,i)=>`<button class="${i===st.tela?'on':''}" onclick="ir(${i})">${i+1}. ${x.titulo}</button>`).join("")}</nav>`;
 }
-if(window.FICHAS_DEMO) aplicarFicha(window.FICHAS_DEMO.casos.one_click_limpo);
+if(window.FICHAS_DEMO) aplicarFicha(window.FICHAS_DEMO.casos.perfil_A_apto_urbano || window.FICHAS_DEMO.casos.one_click_limpo);
 render();
 </script>
 </body>

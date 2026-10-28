@@ -47,7 +47,7 @@ def escrever_fichas_demo(teste, fichas, casos):
     sinais = m.set_index("imovel_id")
     por_id = {f["imovel_id"]: f for f in fichas}
     demo = {"casos": casos, "fichas": {}}
-    for imovel_id in casos.values():
+    for imovel_id in filter(None, casos.values()):
         s = sinais.loc[imovel_id]
         demo["fichas"][imovel_id] = {**por_id[imovel_id], "sinais": {
             "parcela": float(s.parcela_financiamento_imobiliario), "aluguel": float(s.valor_aluguel_recorrente),
