@@ -18,7 +18,7 @@ Python 3.11 (registrado em `.python-version`).
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 61 testes
+python -m pytest -q                 # 64 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -81,7 +81,7 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 - Custos e aluguel são médias do estado ou da capital, não do bairro.
 - O catálogo do datathon não tem "instalações e pequenos reparos", que o guia lista no Essencial. Seguimos o catálogo, que é a nomenclatura de conferência.
 - Os valores de vendaval, danos por água, RC e despesas emergenciais são proporções premissa do time (em `parametros.py` e `motor.dimensionar()`), sem dado de sinistro para calibrar.
-- A base não traz risco de território (alagamento, vendaval, furto); o motor não usa enriquecimento territorial.
+- A base não traz risco de território. Usamos registros oficiais da Defesa Civil (Atlas/S2iD) e o ranking de energia da ANEEL por município, só no texto do motivo; o risco de furto segue sem fonte.
 
 ## Métricas (base comum, 138 casos)
 | Métrica | Resultado |
@@ -97,8 +97,8 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 | Dependentes e pet mudando valor ou confiança | 0 casos (mudam o plano em 18, pela RC familiar) |
 | Estabilidade do plano (valores ±5%) | 1 caso muda (perto do limiar de eletrônicos) |
 | Estabilidade da confiança (pesos ±20%) | 0 casos mudam |
-| Faixa de incêndio por confiança (máx ÷ mín) | ALTA 1,89 · MÉDIA 2,25 · BAIXA 2,48 |
-| Sensibilidade (área +10%) | incêndio +4,7% em média, 0 quedas |
+| Faixa de incêndio por confiança (máx ÷ mín) | ALTA 1,89 · MÉDIA 2,33 · BAIXA 2,56 |
+| Sensibilidade (área +10%) | incêndio +4,6% em média, 0 quedas |
 | Regra dos 80% na elegibilidade por faixa de renda | 0,85 |
 | Reprodutibilidade | duas rodadas geram arquivos idênticos |
 | Tempo | ~0,5 s para os 138 casos |
@@ -107,9 +107,9 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 | Métrica | Resultado | Como |
 |---|---|---|
 | STP (vai direto ao 1 toque) | 48,6% | Elegível, sem pendência, confiança não baixa, usuário do app |
-| Esforço | 2,7 perguntas × 19,9 campos de uma cotação tradicional (86,5% menos) | 5 dados do imóvel + 6 declarações de elegibilidade + 1 valor por cobertura |
+| Esforço | 2,7 perguntas × 19,9 campos de uma cotação tradicional (86,4% menos) | 5 dados do imóvel + 6 declarações de elegibilidade + 1 valor por cobertura |
 | Aderência aos sinistros reais | 100% das recomendações têm danos elétricos, água e vendaval, que somam 79,4% dos acionamentos do residencial BB | `motor/externos/sinistros_residencial_bb.csv` |
-| ITV do incêndio (segurado ÷ valor em risco) | máximo da faixa 1,46 · mínimo 0,61 | O app deve sugerir o meio da faixa, não o mínimo |
+| ITV do incêndio (segurado ÷ valor em risco) | máximo da faixa 1,46 · mínimo 0,60 | O app deve sugerir o meio da faixa, não o mínimo |
 | Backtest fora da amostra: área | erro mediano 15%; a faixa contém a área real em 78% (meta 80%) | Calibra em metade da base de desenvolvimento, mede na outra |
 | Backtest fora da amostra: padrão pelo IPTU/m² | intervalo certo em 97,8% dos 180 estreitados | Mesmo método |
 
@@ -124,7 +124,7 @@ Tudo em `entrega/metricas.json`.
 | Não elegível | `IMO_CASO_00014_01` | — | Provável seguro BB no endereço (seguro residencial + produto de seguridade BB + um imóvel) |
 
 ## Fontes externas
-SINAPI (IBGE), CUB oficial (Sinduscons de SP, DF, GO e BA), IPCA (Banco Central, API SGS 433), FipeZAP Locação (Fipe), acionamentos do Seguro Residencial BB jan/2023–mai/2026 (só no texto do motivo) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
+SINAPI (IBGE), CUB oficial (Sinduscons de SP, DF, GO, BA, MG, RS e PR), IPCA (Banco Central, API SGS 433), FipeZAP Locação (Fipe), acionamentos do Seguro Residencial BB jan/2023–mai/2026, Atlas Digital de Desastres / S2iD (Sedec/MIDR, 1991–2025) e Ranking de Continuidade 2025 da ANEEL (os três só no texto do motivo) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
 
 ## Privacidade e responsabilidade
 - Só dados do pacote e fontes públicas. Os dados do pacote são fictícios.

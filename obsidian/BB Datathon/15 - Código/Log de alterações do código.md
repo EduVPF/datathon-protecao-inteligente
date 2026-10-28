@@ -9,6 +9,17 @@ Toda mudança no motor, do mais novo para o mais antigo. Repositório: [pedroiaa
 > [!info] Como registrar
 > A cada commit que mexe em `motor/`, `tests/` ou `entrega/`, acrescente uma linha aqui: **o que mudou, por quê e qual regra atende**. Os detalhes ficam no commit e na nota da etapa em `documentos/contexto/`.
 
+## 28/10 · noite: fontes territoriais ([[Atlas Digital de Desastres]], [[ANEEL continuidade]])
+| Arquivo | O que mudou | Por quê |
+|---|---|---|
+| `externos/desastres_municipio.csv` | Registros de água e vento por capital (Atlas/S2iD 1991–2025) | Motivo de danos por água e vendaval com dado oficial |
+| `externos/aneel_continuidade.csv` | Posição da distribuidora no ranking da ANEEL 2025 | Motivo de danos elétricos |
+| `externos/cub_uf.csv` | CUB oficial de MG, RS e PR (7 de 10 UFs) | Issue #11; a razão CUB/SINAPI passou de 1,09 para 1,14 |
+| `externos/coletar.py` | `--atlas` resume a base do Atlas (reprodutível) | RN-11 |
+| `parametros.py` | `desastres()`, `continuidade_energia()` | Leitura que devolve `None` sem o arquivo |
+| `motor.py` · `contexto_territorio` | Frase com o dado do município na justificativa; zero registros não gera frase | RN-12, RN-49 |
+| `tests/` | +3 testes (64 no total) | Motor igual sem os arquivos |
+
 ## 28/10 · noite: auditoria do código ([[Auditoria do código - 28-10]])
 | Arquivo | O que mudou | Por quê |
 |---|---|---|

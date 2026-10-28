@@ -4,6 +4,9 @@ status: planejado
 ---
 # Enriquecimento com dados externos (diferencial)
 
+> [!success] Atualização 28/10
+> Em uso: [[Atlas Digital de Desastres]] (S2iD), [[ANEEL continuidade]], SINAPI, CUB oficial de 7 UFs, IPCA, FipeZAP e sinistros da BB. Todos só reforçam o motivo ou formam a faixa do custo do m², e o motor roda sem eles. Detalhes em `motor/externos/FONTES.md`.
+
 > O que foi dito na apresentação (ver [[Transcrição da apresentação]], ~14:25–15:02): a organização entrega **UF, código IBGE, setor e coordenada aproximada**, mas **não** entrega índices de **alagamento, vendaval e furto**. Buscar esses dados é **opcional**, mas **a solução tem que funcionar sem eles**.
 > Regra nossa: só **fontes oficiais, confiáveis e com data conhecida**, e cada uma citada no template e na apresentação.
 

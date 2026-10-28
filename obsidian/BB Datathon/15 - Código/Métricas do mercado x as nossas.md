@@ -8,9 +8,9 @@ O que bancos e seguradoras medem, se a gente mede, e com que dado. Regra desta n
 
 > [!metrica] Os números novos (base Teste Comum, `entrega/metricas.json`)
 > - **STP (vai direto ao 1 toque):** 48,6% dos casos
-> - **Esforço:** uma cotação tradicional pede em média **19,9 campos**; a nossa jornada faz **2,7 perguntas** → **86,5% menos esforço**
+> - **Esforço:** uma cotação tradicional pede em média **19,9 campos**; a nossa jornada faz **2,7 perguntas** → **86,4% menos esforço**
 > - **Aderência aos sinistros reais:** 100% das recomendações incluem danos elétricos, danos por água e vendaval, que somam **79,4%** dos acionamentos do residencial da BB Seguros
-> - **ITV do incêndio:** o máximo da faixa cobre o valor em risco (mediana 1,46); o mínimo fica em 0,61 → mostrar valor sugerido no meio
+> - **ITV do incêndio:** o máximo da faixa cobre o valor em risco (mediana 1,46); o mínimo fica em 0,60 → mostrar valor sugerido no meio
 > - **Backtest fora da amostra:** área com erro mediano de **15%** e faixa que contém a área real em **78%** (meta: 80%); padrão pelo IPTU certo em **97,8%**
 
 ## 1. Métricas de mercado que agora calculamos
@@ -42,13 +42,18 @@ O que bancos e seguradoras medem, se a gente mede, e com que dado. Regra desta n
 > A **planta genérica de valores** do IPTU considera o padrão de acabamento ao calcular o valor venal (ex.: [lei de Valença-RJ](https://valenca.rj.gov.br/wp-content/uploads/2013/08/Lei-Complementar-126.pdf)). Então, com a área cadastrada, o IPTU por m² comparado à mediana do município indica o padrão.
 > Na base de desenvolvimento, a mediana dessa razão é **0,82** no econômico, **0,98** no normal e **1,32** no superior. Abaixo de 0,90 o motor descarta o superior; acima de 1,15, o econômico. Fora da amostra: 180 de 273 estreitados, **97,8%** certos.
 
-## 4. Próximas fontes (reais, verificáveis e opcionais)
+## 4. Fontes territoriais (atualizado 28/10 à noite)
+> [!success] Já em uso (só no texto do motivo)
+> - **[[Atlas Digital de Desastres]] (S2iD):** registros oficiais de chuva, alagamento e enxurrada (água) e de vendaval e granizo (vento) nas 10 capitais, de 1991 a 2025.
+> - **[[ANEEL continuidade]]:** posição da distribuidora de cada capital no ranking de quedas de energia de 2025 (danos elétricos).
+> - **CUB oficial:** agora 7 de 10 estados (MG, RS e PR conferidos nos sites oficiais); a razão para os outros 3 passou de 1,09 para 1,14.
+
 | Fonte | O que traria | Para quê | Status |
 |---|---|---|---|
 | **SUSEP SES** (ramo 0114, Compreensivo Residencial) | Prêmios e sinistros por seguradora e UF, atualizado semanalmente ([SES](https://www2.susep.gov.br/menuestatistica/ses/principal.aspx)) | Sinistralidade por UF no motivo; penetração por UF | Base completa para download; falta montar o recorte |
-| **ANEEL DEC/FEC** (interrupções de energia por conjunto elétrico) | Horas e número de quedas de energia na região | Motivo de **danos elétricos**, a cobertura mais acionada | Dados abertos da ANEEL; falta escolher o recorte por município |
-| **Atlas Digital de Desastres** (MIDR/S2iD) | Registros oficiais de vendaval, granizo e alagamento por município, 1991–2023 ([portal](https://atlasdigital.mdr.gov.br)) | Motivo de vendaval e danos por água | Portal com painel; exportação a confirmar |
-| **CUB oficial** dos 6 Sinduscons que faltam | Máximo do custo do m² | Fecha a issue #11 | Pendente |
+| **ANEEL DEC/FEC** por conjunto elétrico | Quedas de energia no bairro, não só na distribuidora | Motivo de danos elétricos mais local | ✅ ranking por distribuidora em uso; conjunto elétrico é o próximo passo (30 MB) |
+| **Atlas Digital de Desastres** (MIDR/S2iD) | Registros oficiais por município, 1991–2025 | Motivo de vendaval e danos por água | ✅ em uso |
+| **CUB oficial** de RJ, PE e CE | Máximo do custo do m² | Fecha a issue #11 | 🟡 MG, RS e PR feitos; os sites de RJ, PE e CE estavam fora do ar ou sem o valor |
 
 > [!regra] Como uma fonte nova entra no motor
 > CSV em `motor/externos/` + linha no `FONTES.md` (fonte, data de acesso, licença, nível, transformação, limitação) + leitura em `parametros.py` que devolve `None` quando o arquivo falta + teste mostrando que o motor roda sem ela (RN-11, RN-12).

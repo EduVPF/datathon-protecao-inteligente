@@ -15,7 +15,7 @@ flowchart LR
   D[(dados/<br>desenvolvimento)] -->|calibrar| C[calibração<br>+ backtest]
   T[(dados/<br>teste_comum)] --> P[processar_caso]
   C --> P
-  X[(motor/externos<br>SINAPI · CUB · IPCA<br>FipeZAP · sinistros BB)] --> PA[parametros.py]
+  X[(motor/externos<br>SINAPI · CUB · IPCA · FipeZAP<br>sinistros BB · S2iD · ANEEL)] --> PA[parametros.py]
   PA --> P
   P --> F[ficha JSON]
   F --> G[gerar.py → 2 planilhas<br>+ metricas.json]
@@ -33,7 +33,7 @@ flowchart LR
 | `motor/templates.py` | Confere se as 2 planilhas obedecem ao guia antes de gravar |
 | `motor/api.py` | API de demonstração (FastAPI): a mesma ficha para qualquer canal |
 | `motor/externos/` | Fontes externas salvas (CSV) + `FONTES.md` (licença, data, limitações) + `coletar.py` (atualiza o IPCA) |
-| `tests/` | 61 testes automáticos (`python -m pytest -q`) |
+| `tests/` | 64 testes automáticos (`python -m pytest -q`) |
 | `entrega/` | As 2 planilhas finais, `metricas.json` e `casos_contrastantes.json` |
 | `prototipos/` | O protótipo com gerente, que lê `fichas_demo.js` |
 
@@ -81,6 +81,7 @@ flowchart LR
 | `escolher_plano(...)` | Soma pontos por sinais do imóvel e escolhe Essencial, Prático ou Total. Escreve o motivo, a alternativa e o que fica descoberto |
 | `faixa_bruta_incendio(ctx)` | Reconstrução + bens, ou só acabamentos + bens no segundo risco |
 | `dimensionar(cob, ctx)` | A faixa mínima e máxima de cada cobertura, com regra, justificativa, o que confirmar e observação. Avisa quando a estimativa passa do limite do produto (subseguro) |
+| `contexto_territorio(cob, r)` | A frase com dado oficial do município: Defesa Civil para água e vento, ANEEL para danos elétricos. Sem dado ou com zero registros, devolve vazio |
 | `coberturas_adicionais(r, tipo, plano)` | RC familiar como adicional em prédio ou condomínio com dependentes ou pet |
 
 ### Perguntar e medir a confiança
@@ -114,6 +115,8 @@ flowchart LR
 | `FATOR_IPCA` | Compras de 36 meses a preço de hoje | Banco Central, série 433 |
 | `aluguel_m2(uf)` | Aluguel por m² da capital | FipeZAP set/2026 |
 | `sinistros_pct(cob)` | % dos acionamentos do residencial BB por cobertura (só no texto) | BB Seguros, jan/2023–mai/2026 |
+| `desastres(codigo_ibge)` | Registros de água e vento no município (só no texto) | Atlas Digital de Desastres / S2iD |
+| `continuidade_energia(codigo_ibge)` | Distribuidora e posição no ranking de quedas de energia (só no texto) | ANEEL, ranking 2025 |
 | `LIMITES_PRODUTO` | Mínimo e máximo de cada cobertura | Prints do app; os máximos sem print são premissa |
 | `BENS_RELEVANTES`, `PORTATEIS_RELEVANTES` | Cortes de pontos para o Prático | Mediana da base de desenvolvimento |
 | `PESO_FONTE`, `MEIA_VIDA_MESES`, `CLASSE_FONTE` | Qualidade do dado: precisão, atualidade e classe | Premissa do time (BCBS 239) |
@@ -146,7 +149,7 @@ flowchart LR
 | `POST /recomendar` | Recalcula com as respostas do cliente (bens "menos/isso/mais", área). Área 0 ou negativa é recusada (422) |
 
 ## 🔄 `externos/coletar.py`
-`atualizar_ipca()` baixa os últimos 12 meses do IPCA na API do Banco Central. **Só roda quando alguém quer atualizar**; o motor nunca chama.
+`atualizar_ipca()` baixa os últimos 12 meses do IPCA na API do Banco Central. `resumir_atlas(csv)` (`--atlas`) transforma a base do Atlas de Desastres na tabela das 10 capitais. **Só rodam quando alguém quer atualizar**; o motor nunca chama.
 
 ---
 
