@@ -29,7 +29,7 @@ Um **motor de regras** (sem caixa-preta) que gera uma **ficha** por cliente-imó
 | **Provar, não prometer** | Teste de justiça (renda e idade não mudam nada), reprodutibilidade e fontes oficiais com o PDF guardado | Explicabilidade (10%) + privacidade (10%) + dados (15%) |
 
 ## Regras que nunca quebramos
-- **Renda, idade, dependentes e pet não decidem nada.**
+- **Renda e idade não decidem nada.** Dependentes e pet só aparecem como **necessidade de responsabilidade civil** (o slide 14 da Brasilseg cita "casa familiar: pets, crianças, RC familiar") e nunca mudam valor, elegibilidade, canal ou confiança.
 - **Estimativa nunca aparece como fato:** cada dado é observado, estimado, inferido ou confirmado.
 - **Elegibilidade antes de recomendar;** sinal fraco vira pergunta, não recusa.
 - **O motor funciona sem internet;** as fontes externas ficam salvas no projeto.

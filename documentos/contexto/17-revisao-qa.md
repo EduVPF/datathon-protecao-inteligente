@@ -5,7 +5,7 @@
 **Onde estamos:** Fase 3 · revisão antes da entrega · branch `revisao-qa-p1-p5`
 
 ## O que fizemos
-- **Seguro BB já existente:** cliente com seguro residencial e **um imóvel só** sai `NAO` (o endereço já está segurado; o guia proíbe duas propostas). Com dois imóveis fica `SIM` e o motor pergunta qual já tem seguro. Na base de teste: 24 casos `NAO`.
+- **Seguro BB já existente:** cliente com seguro residencial e **um imóvel só** sai `NAO` (o endereço já está segurado; o guia proíbe duas propostas). Com dois imóveis fica `SIM` e o motor pergunta qual já tem seguro. Na base de teste: 24 casos `NAO`. **Ajustado na etapa [18](18-analise-pr13.md):** só vira `NAO` quem também tem produto de seguridade do BB (16 casos); os outros 8 viram `SIM` + pergunta "O seu seguro atual é da BB Seguros?".
 - **Perfis do slide 14** em `entrega/casos_contrastantes.json`: A apartamento urbano (`IMO_CASO_00005_01`, Prático), B casa familiar (`IMO_CASO_00031_01`, Total), C imóvel de lazer (`IMO_CASO_00010_01`, apartamento de veraneio, Essencial + RC) e um não elegível (`IMO_CASO_00001_01`).
 - **Crianças e pets:** só como necessidade que o cliente informou. Crianças e pet juntos somam 1 ponto ao Total. Só um dos dois vira pergunta. Nunca mudam faixa, elegibilidade, canal ou confiança.
 - **Confiança por regra, sem nota de corte** (detalhe abaixo).
@@ -56,7 +56,7 @@ A que mais aperta a faixa vem primeiro. Elegibilidade e uso do imóvel continuam
 | Q4 | 4% | 67% | 30% | 78% | R$ 47.589 |
 | Q5 (maior) | 0% | 71% | 29% | 79% | R$ 79.217 |
 
-O Prático cresce com a renda porque os bens crescem junto: é o que o cliente tem para proteger. O Total não segue a renda (vem de aluguel, vizinhos e família). A regra dos 80% que bancos usam em crédito vale para a decisão que nega algo, aqui a elegibilidade: 78,6% ÷ 85,7% = **0,91**, acima de 0,8.
+O Prático cresce com a renda porque os bens crescem junto: é o que o cliente tem para proteger. O Total não segue a renda (vem de aluguel, vizinhos e família). A regra dos 80% que bancos usam em crédito vale para a decisão que nega algo, aqui a elegibilidade: 78,6% ÷ 85,7% = **0,91**, acima de 0,8. *Depois do ajuste da etapa 18 (seguro BB só com produto de seguridade BB), a razão passa a **0,85**, ainda acima de 0,8.*
 
 ## Auditoria contra o guia (última rodada)
 Conferimos cada item do guia (seções 4 a 9 e 11). O que mudou:
@@ -83,7 +83,7 @@ Conferimos cada item do guia (seções 4 a 9 e 11). O que mudou:
 python -m pytest -q
 python motor/gerar.py --entrega
 ```
-Resultado esperado: 49 testes passando; Prático 59 · Total 49 · Essencial 30; 41 RC adicionais; elegível 114 · não elegível 24; confiança ALTA 17 · MÉDIA 101 · BAIXA 20; teste de justiça 0; estabilidade da confiança 0; regra dos 80% na elegibilidade 0,91.
+Resultado esperado (depois dos ajustes da etapa 18): 51 testes passando; Prático 59 · Total 49 · Essencial 30; 41 RC adicionais; elegível 122 · não elegível 16; confiança ALTA 17 · MÉDIA 101 · BAIXA 20; teste de justiça 0; estabilidade da confiança 0; regra dos 80% na elegibilidade 0,85.
 
 ## Pendências e riscos
 - O CUB de RJ, MG, PR, RS, PE e CE pode ser buscado no site de cada Sinduscon e marcado `oficial`.

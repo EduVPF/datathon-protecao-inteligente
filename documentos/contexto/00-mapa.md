@@ -19,6 +19,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | 15 | T7 · Demo lendo o motor | [15-t7-demo.md](15-t7-demo.md) | ✅ |
 | 16 | T9 · API para agentes | [16-t9-api.md](16-t9-api.md) | ✅ |
 | 17 | Revisão QA: elegibilidade, perfis do slide 14 e confiança por regra | [17-revisao-qa.md](17-revisao-qa.md) | ✅ |
+| 18 | PR #13 aceito, ajustes e o vault do Obsidian | [18-analise-pr13.md](18-analise-pr13.md) | ✅ |
 | 90 | Revisão do time (comece por aqui amanhã) | [90-revisao.md](90-revisao.md) | 📋 para revisar |
 
 ## Onde está cada coisa
@@ -32,6 +33,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | `documentos/` | Guia, pesquisa, planos, slides e estes documentos de contexto |
 | `dados/` | As bases da organização (dados fictícios) |
 | `referencias/fontes/` | Os PDFs originais das fontes |
+| `obsidian/` | O vault do Obsidian do time: notas, regras, pitch e a especificação do app v2 (abra a pasta `obsidian/` no Obsidian) |
 
 ## Como trabalhamos no GitHub
 - **Commits organizados direto na `main`**, um por etapa, sempre junto com o documento de contexto da etapa.

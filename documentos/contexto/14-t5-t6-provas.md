@@ -18,7 +18,7 @@
 | Teste | O que prova |
 |---|---|
 | `test_dado_antigo_pesa_menos` | Dado antigo vale menos (pedido da organização) |
-| `test_justica_ficha_inteira_igual` | Trocar renda, idade, dependentes e pet gera **exatamente a mesma ficha**, e nenhum desses campos aparece nela |
+| `test_justica_ficha_inteira_igual` | Trocar renda, idade, dependentes e pet gera **exatamente a mesma ficha**, e nenhum desses campos aparece nela. *Depois do PR #13 (etapa 17), o teste cobre renda e idade; dependentes e pet podem mudar só o plano (RC), e a métrica `familia_declarada_muda_valor_ou_confianca` = 0 garante o resto.* |
 | `test_area_maior_nunca_reduz_incendio` | Coerência: área maior nunca diminui o incêndio |
 | `test_extremos_respeitam_limites` | Compras de R$ 900 mil e 5.000 m²: todas as faixas ficam dentro dos limites do produto |
 | `test_no_maximo_tres_perguntas_por_impacto` | No máximo 3 perguntas, na ordem do impacto |

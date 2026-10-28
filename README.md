@@ -18,7 +18,7 @@ Python 3.11 (registrado em `.python-version`).
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 49 testes
+python -m pytest -q                 # 51 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -62,7 +62,7 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 - **Bens:** compras de 36 meses e bens vinculados, corrigidos pelo IPCA (Banco Central), até 2,7 × as compras (estoque).
 - **Área sem cadastro (67% dos casos):** estimada pelo IPTU e pela energia, comparados aos imóveis do mesmo município com área conhecida. Nunca pela renda.
 - **Padrão construtivo vazio:** faixa do econômico ao superior (0,85 a 1,30) e pergunta do acabamento.
-- **Plano:** pontos por sinal (aluguel, vizinhos, bens, eletrônicos, vidros, crianças e pets informados). Tabela completa em `documentos/contexto/17-revisao-qa.md`.
+- **Plano:** pontos por sinal (aluguel, vizinhos, bens, eletrônicos, vidros, dependentes e pet, só como necessidade de RC). Tabela completa em `documentos/contexto/17-revisao-qa.md`.
 - **Renda e idade não entram em nenhuma decisão.** Crianças e pets só como necessidade informada pelo cliente (RC familiar), nunca em valor, risco, canal ou confiança.
 
 ## Elegibilidade (guia 9.1)
@@ -89,17 +89,17 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 | Casos processados / com justificativa / coberturas fixas completas | 100% · 100% · 100% |
 | Falhas na execução | 0 |
 | Planos | Prático 59 · Total 49 · Essencial 30 |
-| Coberturas adicionais | 41 (RC familiar em prédio ou condomínio com crianças ou pets) |
-| Elegibilidade | SIM 114 · NAO 24 (já segurados) · 13 com confirmação pendente |
+| Coberturas adicionais | 41 (RC familiar em prédio ou condomínio com dependentes ou pet) |
+| Elegibilidade | SIM 122 · NAO 16 (provável seguro BB no endereço: seguro residencial + produto de seguridade BB + um imóvel) · 21 com confirmação pendente |
 | Confiança | ALTA 17 · MÉDIA 101 · BAIXA 20 (14%) |
-| Perguntas por caso | 2,72 (de 3,43 possíveis) |
+| Perguntas por caso | 2,73 (de 3,51 possíveis) |
 | Teste de justiça (troca renda e idade) | 0 casos mudam |
 | Crianças e pets mudando valor ou confiança | 0 casos |
 | Estabilidade do plano (valores ±5%) | 1 caso muda (perto do limiar de eletrônicos) |
 | Estabilidade da confiança (pesos ±20%) | 0 casos mudam |
 | Faixa de incêndio por confiança (máx ÷ mín) | ALTA 1,92 · MÉDIA 2,35 · BAIXA 2,64 |
 | Sensibilidade (área +10%) | incêndio +4,8% em média, 0 quedas |
-| Regra dos 80% na elegibilidade por faixa de renda | 0,91 |
+| Regra dos 80% na elegibilidade por faixa de renda | 0,85 |
 | Reprodutibilidade | duas rodadas geram arquivos idênticos |
 | Tempo | ~0,5 s para os 138 casos |
 
@@ -108,8 +108,8 @@ Tudo em `entrega/metricas.json`.
 ## Resultados: casos contrastantes (slide 14)
 | Perfil | Caso | Plano | Por quê |
 |---|---|---|---|
-| A · Apartamento urbano | `IMO_CASO_00005_01` | Prático + RC | Gasto recente com vidraçaria e vizinhos de parede; crianças ou pets informados → RC adicional |
-| B · Casa familiar | `IMO_CASO_00031_01` | Total | Casa em condomínio, crianças e pets informados, bens e eletrônicos altos |
+| A · Apartamento urbano | `IMO_CASO_00005_01` | Prático + RC | Gasto recente com vidraçaria e vizinhos de parede; dependentes ou pet → RC adicional |
+| B · Casa familiar | `IMO_CASO_00031_01` | Total | Casa em condomínio, dependentes e pet, bens e eletrônicos altos |
 | C · Imóvel de lazer | `IMO_CASO_00010_01` | Essencial + RC | Apartamento de veraneio que fica vazio: o roubo do Prático não cobre residência desocupada |
 | Não elegível | `IMO_CASO_00001_01` | — | Endereço já segurado na BB Seguros |
 
