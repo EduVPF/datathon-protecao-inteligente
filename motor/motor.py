@@ -229,218 +229,291 @@ def inferir_conteudo(r, bens):
     return d
 
 
-def valor_imovel(r, tipo, area):
-    cub = P.custo_m2(r.uf_real)[1] * P.FATOR_PADRAO.get(r.padrao_construtivo_cadastrado, 1.0)
-    cheio = (area["min"] * cub, area["max"] * cub)
-    if tipo["valor"] == "APARTAMENTO":
-        f_lo, f_hi = P.FRACAO_ACABAMENTOS
-        segurado = (cheio[0] * f_lo, cheio[1] * f_hi)
-    else:
-        segurado = cheio
-    return {"cub_m2": cub, "cheio": cheio, "segurado": segurado}
+def valor_imovel(r, tipo, vinculo, area):
+    """Custo de reconstruir o imóvel: área × [SINAPI, CUB] da UF × padrão construtivo.
+    Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado."""
+    lo_m2, hi_m2 = P.custo_m2(r.uf_real)
+    fator = P.FATOR_PADRAO.get(r.padrao_construtivo_cadastrado, 1.0)
+    return {
+        "custo_m2": (lo_m2 * fator, hi_m2 * fator),
+        "reconstrucao": (area["min"] * lo_m2 * fator, area["max"] * hi_m2 * fator),
+        "segundo_risco": tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO") or vinculo["valor"] == "FINANCIADO",
+        "fonte_disponivel": P.fonte_disponivel(r.uf_real),
+    }
 
 
 # --- Elegibilidade -------------------------------------------------------------
 
-def avaliar_elegibilidade(r):
-    pendencias = []
+def avaliar_elegibilidade(r, uso):
+    """SIM ou NAO. NAO só com prova (situação cadastral não regular); sinal fraco
+    vira SIM + pergunta de confirmação (guia §9.1)."""
+    pendencias, avisos = [], []
+    situacao = str(r.situacao_imovel_cadastral).upper()
+    if situacao not in ("REGULAR", "NAN", ""):
+        return "NAO", [{"codigo": "SITUACAO_CADASTRAL", "prioridade": 100, "pergunta": "",
+                        "texto": f"situação cadastral '{r.situacao_imovel_cadastral}': imóvel tombado, desapropriado ou condenado não é aceito"}], avisos
+    material = str(r.material_parede_externa_cadastrado).upper()
+    if material not in ("ALVENARIA", "NAO_DISPONIVEL", "NAN", ""):
+        pendencias.append({"codigo": "MATERIAL", "prioridade": 98,
+                           "texto": f"parede externa cadastrada como {material.lower()}: só é aceita casa de madeira pré-fabricada conforme ABNT",
+                           "pergunta": "A casa é de madeira pré-fabricada certificada (ABNT)?"})
     if r.gastos_material_construcao_24m >= P.OBRA_LIMIAR_CONFIRMAR:
-        pendencias.append({
-            "codigo": "POSSIVEL_REFORMA",
-            "texto": f"gastos de {brl(r.gastos_material_construcao_24m)} em material de construção em 24 meses podem indicar reforma (imóvel em reforma não é aceito)",
-            "pergunta": f"Notamos {brl(r.gastos_material_construcao_24m)} em material de construção nos últimos 2 anos. O imóvel está em obra ou reforma agora?",
-        })
+        pendencias.append({"codigo": "POSSIVEL_REFORMA", "prioridade": 100,
+                           "texto": f"gastos de {brl(r.gastos_material_construcao_24m)} em material de construção em 24 meses podem indicar reforma, que impede a contratação",
+                           "pergunta": f"Notamos {brl(r.gastos_material_construcao_24m)} em material de construção nos últimos 2 anos. O imóvel está em obra ou reforma agora?"})
     if r.possui_seguro_residencial == "SIM":
-        pendencias.append({
-            "codigo": "SEGURO_EXISTENTE",
-            "texto": "cliente já possui seguro residencial; não pode haver duas propostas BB para o mesmo endereço",
-            "pergunta": "Você já tem seguro residencial da BB Seguros para este endereço?",
-        })
-    situacao = "CONDICIONAL" if pendencias else "SIM"
-    return situacao, pendencias
+        pendencias.append({"codigo": "SEGURO_EXISTENTE", "prioridade": 95,
+                           "texto": "o cliente já tem seguro residencial, e não pode haver duas propostas BB para o mesmo endereço",
+                           "pergunta": "Você já tem seguro residencial da BB Seguros para este endereço?"})
+    if uso["valor"] == "LAZER_VERANEIO":
+        avisos.append("imóvel de veraneio: roubo não cobre residência desocupada (CG, Roubo 2.1 c)")
+    return "SIM", pendencias, avisos
 
 
 # --- Plano ---------------------------------------------------------------------
 
-def escolher_plano(r, tipo, vinculo, uso, conteudo):
-    motivos = [{"plano": "ESSENCIAL", "peso": 0, "codigo": "BASE",
-                "texto": "as coberturas básicas protegem estrutura e bens contra incêndio, água, vento e danos elétricos"}]
-    pratico, total = 0, 0
+ORDEM_PLANO = {"ESSENCIAL": 0, "PRATICO": 1, "TOTAL": 2}
+NOME_PLANO = {"ESSENCIAL": "Essencial", "PRATICO": "Prático", "TOTAL": "Total"}
+O_QUE_ACRESCENTA = {"PRATICO": "roubo com arrombamento e quebra de vidros",
+                    "TOTAL": "o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"}
 
-    if conteudo["valor"] >= P.CONTEUDO_RELEVANTE:
-        pratico += 2
-        motivos.append({"plano": "PRATICO", "peso": 2, "codigo": "CONTEUDO_ALTO",
-                        "texto": f"seus bens são estimados em cerca de {brl(conteudo['valor'])}, e proteção contra roubo passa a fazer diferença"})
-    elif conteudo["valor"] >= 15000:
-        pratico += 1
-        motivos.append({"plano": "PRATICO", "peso": 1, "codigo": "CONTEUDO_MEDIO",
-                        "texto": f"bens estimados em cerca de {brl(conteudo['valor'])}"})
+
+def escolher_plano(r, tipo, vinculo, uso, bens):
+    """Pontos por sinal observado no imóvel e nas transações (PLANO_UNIFICADO §5).
+    Renda, idade, dependentes e pet não entram."""
+    motivos = []
+
+    def soma(plano, peso, codigo, texto):
+        motivos.append({"plano": plano, "peso": peso, "codigo": codigo, "texto": texto})
+
+    if vinculo["valor"] == "INQUILINO":
+        soma("TOTAL", 2, "INQUILINO", f"se o imóvel ficar inabitável, você continua pagando {brl(r.valor_aluguel_recorrente)} de aluguel")
+    if vinculo["valor"] == "PROPRIETARIO_LOCADOR":
+        soma("TOTAL", 2, "RECEBE_ALUGUEL", f"o imóvel rende cerca de {brl(r.valor_medio_credito_recorrente)}/mês de aluguel, que pode parar após um sinistro")
+    if tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO"):
+        soma("TOTAL", 1, "VIZINHOS", "em prédio ou condomínio, um vazamento ou incêndio pode atingir o vizinho")
+    if bens["min"] >= P.BENS_RELEVANTES:
+        soma("PRATICO", 2, "BENS_ALTOS", f"seus bens comprovados somam pelo menos {brl(bens['min'])}, acima da maioria dos clientes")
+    if bens["portateis"]["min"] >= P.PORTATEIS_RELEVANTES:
+        soma("PRATICO", 1, "ELETRONICOS", f"eletrônicos de pelo menos {brl(bens['portateis']['min'])}, os mais visados num arrombamento")
     if tipo["valor"] == "CASA":
-        pratico += 1
-        motivos.append({"plano": "PRATICO", "peso": 1, "codigo": "CASA_SEM_CONDOMINIO",
-                        "texto": "casa fora de condomínio tem mais exposição a arrombamento"})
-    if uso["valor"] == "LAZER_VERANEIO":
-        pratico += 1
-        motivos.append({"plano": "PRATICO", "peso": 1, "codigo": "IMOVEL_DESOCUPADO",
-                        "texto": "imóvel de veraneio fica vazio boa parte do tempo"})
+        soma("PRATICO", 1, "CASA_SEM_CONDOMINIO", "casa fora de condomínio tem mais exposição a arrombamento")
     if r.gastos_vidracaria_24m > 0:
-        pratico += 1
-        motivos.append({"plano": "PRATICO", "peso": 1, "codigo": "VIDROS",
-                        "texto": f"gastos recentes com vidraçaria ({brl(r.gastos_vidracaria_24m)}) indicam vidros relevantes no imóvel"})
+        soma("PRATICO", 1, "VIDROS", f"gastos recentes de {brl(r.gastos_vidracaria_24m)} com vidraçaria")
+    if uso["valor"] == "LAZER_VERANEIO":
+        soma("PRATICO", 1, "VERANEIO", "imóvel de veraneio fica vazio parte do tempo")
 
-    if vinculo["valor"] == "INQUILINO":
-        total += 2
-        motivos.append({"plano": "TOTAL", "peso": 2, "codigo": "INQUILINO",
-                        "texto": f"se o imóvel ficar inabitável, você continua pagando {brl(r.valor_aluguel_recorrente)} de aluguel"})
-    elif vinculo["valor"] == "PROPRIETARIO_LOCADOR":
-        total += 2
-        motivos.append({"plano": "TOTAL", "peso": 2, "codigo": "RENDA_ALUGUEL",
-                        "texto": f"o imóvel gera cerca de {brl(r.valor_medio_credito_recorrente)}/mês de aluguel, que pode ser perdido após um sinistro"})
-    elif vinculo["valor"] == "FINANCIADO":
-        total += 1
-        motivos.append({"plano": "TOTAL", "peso": 1, "codigo": "FINANCIADO",
-                        "texto": f"a parcela de {brl(r.parcela_financiamento_imobiliario)} continua mesmo se precisar morar em outro lugar"})
-    if r.quantidade_dependentes > 0:
-        total += 1
-        motivos.append({"plano": "TOTAL", "peso": 1, "codigo": "DEPENDENTES",
-                        "texto": f"{r.quantidade_dependentes} dependente(s): responsabilidade civil familiar cobre danos causados a terceiros"})
-    if r.possui_pet_informado == "SIM":
-        total += 1
-        motivos.append({"plano": "TOTAL", "peso": 1, "codigo": "PET",
-                        "texto": "pet informado: responsabilidade civil cobre danos que ele cause a vizinhos"})
+    total = sum(m["peso"] for m in motivos if m["plano"] == "TOTAL")
+    pratico = sum(m["peso"] for m in motivos if m["plano"] == "PRATICO")
+    # Total: dependência de aluguel ou exposição a terceiros com reforço. Prático: sinais de roubo/vidros.
+    # Um sinal de Total sozinho não leva ao Prático, porque o Prático não cobre terceiros nem aluguel.
+    plano = "TOTAL" if total >= 2 else "PRATICO" if (pratico >= 2 or (pratico >= 1 and total >= 1)) else "ESSENCIAL"
 
-    plano = "ESSENCIAL"
-    if pratico >= 2 or total >= 2:
-        plano = "PRATICO"
-    if total >= 2:
-        plano = "TOTAL"
-    ideal = plano
-    adicionais = []
-
-    alternativa = _alternativa(plano, ideal)
-    return plano, motivos, {"pratico": pratico, "total": total}, adicionais, alternativa
+    a_favor = sorted([m for m in motivos if ORDEM_PLANO[m["plano"]] <= ORDEM_PLANO[plano]],
+                     key=lambda m: (-ORDEM_PLANO[m["plano"]], -m["peso"]))[:2]
+    if not a_favor:
+        a_favor = [{"plano": "ESSENCIAL", "peso": 0, "codigo": "BASE",
+                    "texto": "as coberturas básicas protegem estrutura e bens contra fogo, água, vento e danos elétricos, e não há sinais fortes de roubo ou de dano a terceiros"}]
+    abaixo = {"ESSENCIAL": None, "PRATICO": "ESSENCIAL", "TOTAL": "PRATICO"}[plano]
+    acima = {"ESSENCIAL": "PRATICO", "PRATICO": "TOTAL", "TOTAL": None}[plano]
+    pontos_de = {"PRATICO": pratico, "TOTAL": total}
+    por_que_nao_abaixo = f"o {NOME_PLANO[abaixo]} não cobre {O_QUE_ACRESCENTA[plano]}" if abaixo else ""
+    por_que_nao_acima = ""
+    if acima:
+        por_que_nao_acima = (f"o {NOME_PLANO[acima]} acrescenta {O_QUE_ACRESCENTA[acima]}, mas "
+                             + ("não há sinais que peçam isso" if pontos_de[acima] == 0 else "os sinais ainda são fracos para isso"))
+    alt = acima if acima and pontos_de[acima] > 0 else (abaixo or acima)
+    if ORDEM_PLANO[alt] > ORDEM_PLANO[plano]:
+        texto_alt = f"{NOME_PLANO[alt]}: acrescenta {O_QUE_ACRESCENTA[alt]}"
+    else:
+        texto_alt = f"{NOME_PLANO[alt]}: mais barato, sem {O_QUE_ACRESCENTA[plano]}"
+    return {"plano": plano, "motivos": motivos, "motivos_plano": a_favor,
+            "pontos": {"pratico": pratico, "total": total},
+            "alternativa": {"plano": alt, "texto": texto_alt},
+            "por_que_nao_abaixo": por_que_nao_abaixo, "por_que_nao_acima": por_que_nao_acima}
 
 
-def _alternativa(plano, ideal):
-    if ideal != plano:
-        nome = {"PRATICO": "Prático", "TOTAL": "Total"}[ideal]
-        return {"plano": ideal, "texto": f"{nome}: proteção mais completa, indicada pelo seu perfil, se o orçamento permitir"}
-    return {
-        "ESSENCIAL": {"plano": "PRATICO", "texto": "Prático: acrescenta roubo/furto e quebra de vidros"},
-        "PRATICO": {"plano": "TOTAL", "texto": "Total: acrescenta perda de aluguel, responsabilidade civil e despesas emergenciais"},
-        "TOTAL": {"plano": "PRATICO", "texto": "Prático: mais barato, sem perda de aluguel nem responsabilidade civil"},
-    }[plano]
+# --- Coberturas: maior perda provável (CG cl. 15.1, primeiro risco absoluto) ---
+
+def faixa_bruta_incendio(ctx):
+    rec, bens, im = ctx["imovel"]["reconstrucao"], ctx["bens"], ctx["imovel"]
+    if im["segundo_risco"]:
+        a, b = P.FRACAO_ACABAMENTOS
+        return rec[0] * a + bens["min"], rec[1] * b + bens["max"]
+    return rec[0] + bens["min"], rec[1] + bens["max"]
 
 
-# --- Coberturas ----------------------------------------------------------------
+def dimensionar(cob, ctx):
+    """Faixa mín/máx de uma cobertura + dados, regra, justificativa, o que confirmar e observação."""
+    r, tipo, vinculo, uso, area, bens, im = (ctx[k] for k in ("r", "tipo", "vinculo", "uso", "area", "bens", "imovel"))
+    casa = tipo["valor"] in ("CASA", "CASA_EM_CONDOMINIO")
+    rec = im["reconstrucao"]
+    conf_base = pior(area["confianca"], bens["confianca"], "ALTA" if im["fonte_disponivel"] else "BAIXA")
+    obs_aluguel = ("Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo)."
+                   if vinculo["valor"] == "INQUILINO" else "")
 
-def dimensionar(cob, r, tipo, vinculo, area, conteudo, imovel):
-    apto = tipo["valor"] == "APARTAMENTO"
-    inc_lo = imovel["segurado"][0] + conteudo["min"]
-    inc_hi = imovel["segurado"][1] + conteudo["max"]
-    c_area, c_cont = area["confianca"], conteudo["confianca"]
-    obs = ""
-    if vinculo["valor"] == "INQUILINO":
-        obs = "Imóvel alugado: indicar beneficiários distintos (locador para o imóvel, locatário para o conteúdo)."
+    def saida(lo, hi, conf, dados_u, regra, just, confirmar="", obs=""):
+        lo, hi = faixa(lo, hi, cob)
+        return {"min": lo, "max": hi, "confianca": conf, "dados_utilizados": dados_u, "regra": regra,
+                "justificativa": just, "confirmar": confirmar, "observacao": obs}
 
-    def prop(chave):
-        _, a, b = P.PROP[chave]
-        return inc_lo * a, inc_hi * b
-
+    custo = f"{brl(im['custo_m2'][0])}–{brl(im['custo_m2'][1])}/m² (SINAPI–CUB {r.uf_real})"
     if cob == "INCENDIO_RAIO_EXPLOSAO_FUMACA":
-        lo, hi = faixa(inc_lo, inc_hi, cob)
-        regra = (f"área ({area['min']:.0f}–{area['max']:.0f} m²) × custo de reconstrução {brl(imovel['cub_m2'])}/m²"
-                 + (" × fração da estrutura do apartamento" if apto else "") + " + conteúdo estimado")
-        return lo, hi, pior(c_area, c_cont), "área, IPTU, energia, UF, padrão, bens, compras 36m", regra, \
-            "Cobertura principal: reconstruir o imóvel e repor os bens.", "Área do imóvel e valor dos bens", obs
+        lo, hi = faixa_bruta_incendio(ctx)
+        if im["segundo_risco"]:
+            regra = f"área {area['min']:.0f}–{area['max']:.0f} m² × {custo} × 25%–40% (acabamentos) + bens"
+            obs = "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento. " + obs_aluguel
+            just = "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio."
+        else:
+            regra = f"área {area['min']:.0f}–{area['max']:.0f} m² × {custo} + bens"
+            obs = "Limite único prédio + conteúdo, com prioridade do prédio (CG cl. 5.5–5.6). " + obs_aluguel
+            just = "Reconstruir o imóvel e repor os bens; com limite único, o prédio é pago primeiro."
+        return saida(lo, hi, conf_base, "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA", regra, just,
+                     "Área do imóvel e valor dos bens", obs.strip())
     if cob == "DANOS_POR_AGUA":
-        lo, hi = faixa(*prop("DANOS_POR_AGUA"), cob)
-        return lo, hi, pior(c_area, c_cont), "faixa de incêndio", "5% a 15% da faixa de incêndio", \
-            "Vazamentos e rompimentos danificam acabamentos e bens, não o imóvel inteiro.", "", ""
+        m = bens["molhaveis"]
+        return saida(0.5 * m["min"] + 0.03 * rec[0], m["max"] + 0.08 * rec[1], conf_base, "bens molháveis, reconstrução",
+                     "50%–100% dos bens molháveis + 3%–8% da reconstrução (pisos e acabamentos)",
+                     "Paga danos aos bens e ao imóvel por chuva, alagamento ou cano rompido.")
     if cob == "VENDAVAL_GRANIZO":
-        lo, hi = faixa(*prop("VENDAVAL_GRANIZO_APTO" if apto else "VENDAVAL_GRANIZO_CASA"), cob)
-        return lo, hi, pior(c_area, c_cont), "faixa de incêndio, tipo do imóvel", \
-            ("5% a 15%" if apto else "15% a 30%") + " da faixa de incêndio", \
-            "Casa expõe telhado e fachada; apartamento expõe sobretudo janelas.", "", ""
+        a, b = (0.10, 0.20) if casa else (0.02, 0.05)
+        return saida(rec[0] * a, rec[1] * b, conf_base, "tipo, reconstrução",
+                     f"{a:.0%}–{b:.0%} da reconstrução", "Casa expõe telhado; apartamento expõe sobretudo janelas.")
     if cob == "IMPACTO_VEICULOS_TERRESTRES":
-        lo, hi = faixa(*prop("IMPACTO_VEICULOS_APTO" if apto else "IMPACTO_VEICULOS_CASA"), cob)
-        return lo, hi, pior(c_area, c_cont), "faixa de incêndio, tipo do imóvel", \
-            ("2% a 6%" if apto else "5% a 15%") + " da faixa de incêndio", \
-            "Impacto atinge muro, portão e fachada; menor em apartamento.", "", ""
+        return saida(10000, 20000 if casa else 10000, "MEDIA", "tipo do imóvel",
+                     "padrão do produto (casa até R$ 20 mil)", "Impacto atinge muro, portão e fachada; baixa exposição em apartamento.")
     if cob == "QUEDA_AERONAVE":
-        lo, hi = faixa(*prop("QUEDA_AERONAVE"), cob)
-        return lo, hi, pior(c_area, c_cont), "faixa de incêndio", "10% a 25% da faixa de incêndio", \
-            "Evento raro; faixa proporcional ao valor protegido.", "", ""
+        return saida(10000, 10000, "MEDIA", "padrão do produto", "padrão do produto", "Evento raro; valor padrão do produto.")
     if cob == "DANOS_ELETRICOS":
-        lo, hi = faixa(conteudo["eletro_min"], conteudo["eletro_max"], cob)
-        return lo, hi, c_cont, "bens eletrônicos/eletrodomésticos, compras 36m", \
-            "valor ponderado de eletrônicos e eletrodomésticos vs. compras dessas categorias", \
-            "Picos de energia atingem eletrônicos e eletrodomésticos.", "Principais aparelhos da casa", ""
+        e = bens["eletricos"]
+        return saida(e["min"], e["max"], bens["confianca"], "compras de eletrônicos e eletrodomésticos (36m), bens vinculados; IPCA",
+                     "eletrônicos + eletrodomésticos: comprovado → estoque, a preço de hoje",
+                     "Picos de energia atingem o que liga na tomada; dano mecânico não é coberto.", "Principais aparelhos da casa")
     if cob == "ROUBO_FURTO_ARROMBAMENTO":
-        lo, hi = faixa(conteudo["min"] * 0.6, conteudo["max"], cob)
-        return lo, hi, c_cont, "bens vinculados, compras 36m", "60% do conteúdo mínimo a 100% do conteúdo máximo", \
-            "Repor bens levados em arrombamento, a valor de reposição.", "Bens de maior valor (notebook, TV, bicicleta)", ""
+        p = bens["portateis"]
+        obs = "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1)."
+        if uso["valor"] == "LAZER_VERANEIO":
+            obs += " Residência desocupada não é coberta."
+        return saida(p["min"], p["max"], bens["confianca"], "compras de eletrônicos (36m), bens vinculados; IPCA",
+                     "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
+                     "Repor o que costuma ser levado num arrombamento, a valor de reposição.", "Bens portáteis de maior valor", obs)
     if cob == "QUEBRA_DE_VIDROS":
-        base = (2000, 5000) if apto else (3000, 8000)
-        hi = max(base[1], r.gastos_vidracaria_24m * 1.2)
-        lo, hi = faixa(base[0], hi, cob)
-        return lo, hi, "MEDIA" if r.gastos_vidracaria_24m > 0 else "BAIXA", "tipo do imóvel, gastos com vidraçaria 24m", \
-            "faixa de referência por tipo, ampliada pelos gastos com vidraçaria", \
-            "Janelas, box e tampos de vidro.", "Há vidros grandes (sacada, box, fachada)?", ""
+        base = (3000, 8000) if casa else (2000, 5000)
+        return saida(base[0], max(base[1], r.gastos_vidracaria_24m * 1.2), "MEDIA" if r.gastos_vidracaria_24m > 0 else "BAIXA",
+                     "tipo do imóvel, gastos com vidraçaria 24m", "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
+                     "Janelas, box e tampos de vidro.", "Há vidros grandes (sacada, box, fachada)?")
     if cob == "RESPONSABILIDADE_CIVIL_FAMILIAR":
-        base = 30000 + 15000 * r.quantidade_dependentes + (10000 if r.possui_pet_informado == "SIM" else 0)
-        lo, hi = faixa(base, base * 2, cob)
-        return lo, hi, "MEDIA", "dependentes, pet", "R$ 30 mil + R$ 15 mil por dependente + R$ 10 mil se pet; máximo = 2 × mínimo", \
-            "Danos que a família ou o pet causem a terceiros.", "", ""
+        if tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO"):
+            lo, hi = 70 * im["custo_m2"][0] * 0.30, 70 * im["custo_m2"][1] * 0.60
+            regra = f"reparo de uma unidade vizinha: 70 m² × {custo} × 30%–60%"
+        else:
+            lo, hi, regra = 30000, 60000, "casa: faixa de referência de danos a terceiros"
+        return saida(lo, hi, "MEDIA", "tipo do imóvel; SINAPI, CUB", regra,
+                     "Paga danos que você cause a terceiros, como água descendo para o vizinho. Não usa dados da família.")
     if cob == "PERDA_PAGAMENTO_ALUGUEL":
         m_lo, m_hi = P.MESES_PERDA_ALUGUEL
+        aluguel_m2 = P.aluguel_m2(r.uf_real)
         if vinculo["valor"] == "INQUILINO":
-            mensal, conf, fonte = (r.valor_aluguel_recorrente,) * 2, "ALTA", "aluguel pago"
+            mensal, conf, fonte = (r.valor_aluguel_recorrente,) * 2, "ALTA", "aluguel pago (transações)"
         elif vinculo["valor"] == "PROPRIETARIO_LOCADOR":
-            mensal, conf, fonte = (r.valor_medio_credito_recorrente,) * 2, "MEDIA", "aluguel recebido"
+            mensal, conf, fonte = (r.valor_medio_credito_recorrente,) * 2, "MEDIA", "aluguel recebido (transações)"
+        elif aluguel_m2:
+            mensal = (aluguel_m2 * area["min"], aluguel_m2 * area["max"])
+            conf, fonte = "MEDIA", f"FipeZAP set/2026: {brl(aluguel_m2)}/m² × área"
+            ctx["fontes"].add("FipeZAP Locação set/2026 (Fipe)")
         else:
-            mensal = (imovel["cheio"][0] * P.ALUGUEL_ESTIMADO_MES[0], imovel["cheio"][1] * P.ALUGUEL_ESTIMADO_MES[1])
-            conf, fonte = "BAIXA", "aluguel estimado em 0,4%–0,5% do valor do imóvel"
-        lo, hi = faixa(mensal[0] * m_lo, mensal[1] * m_hi, cob)
-        return lo, hi, conf, fonte, f"aluguel mensal × {m_lo} a {m_hi} meses", \
-            "Pagar moradia provisória (ou repor o aluguel perdido) enquanto o imóvel é reparado.", \
-            "" if conf == "ALTA" else "Valor de aluguel de um imóvel equivalente", ""
+            mensal, conf, fonte = (rec[0] * 0.004, rec[1] * 0.005), "BAIXA", "0,4%–0,5% do valor do imóvel"
+        return saida(mensal[0] * m_lo, mensal[1] * m_hi, conf, fonte, f"aluguel mensal × {m_lo} a {m_hi} meses",
+                     "Paga a moradia provisória, ou repõe o aluguel perdido, enquanto o imóvel é reparado.",
+                     "" if conf == "ALTA" else "Valor de aluguel de um imóvel equivalente")
     if cob == "DESPESAS_EMERGENCIAIS":
-        lo, hi = faixa(*prop("DESPESAS_EMERGENCIAIS"), cob)
-        return lo, hi, pior(c_area, c_cont), "faixa de incêndio", "3% a 8% da faixa de incêndio", \
-            "Medidas urgentes para evitar que o dano aumente.", "", ""
+        lo, hi = faixa_bruta_incendio(ctx)
+        return saida(lo * 0.02, hi * 0.05, conf_base, "faixa de incêndio", "2%–5% da faixa de incêndio",
+                     "Medidas urgentes para evitar que o dano aumente.")
     raise ValueError(cob)
 
 
 # --- Perguntas e confiança -----------------------------------------------------
 
-def montar_perguntas(r, pendencias, uso, vinculo, area, conteudo):
-    cand = [(100, p["pergunta"], p["codigo"]) for p in pendencias]
+def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens):
+    """Até 3 perguntas, das que mais mudam o resultado (PLANO_UNIFICADO §7)."""
+    cand = [(p["prioridade"], p["pergunta"], p["codigo"]) for p in pendencias if p.get("pergunta")]
     if uso["confianca"] == "BAIXA":
         cand.append((70, "Este imóvel é onde você mora, uma casa de veraneio ou está alugado para outra pessoa?", "USO"))
     if r.credito_recorrente_compativel_aluguel == "SIM" and vinculo["valor"] != "PROPRIETARIO_LOCADOR":
         cand.append((60, "Você recebe aluguel referente a este imóvel?", "RECEBE_ALUGUEL"))
+    cand.append((55, f"Seus móveis, eletrodomésticos e eletrônicos ficam entre {brl(arred(bens['min']))} e {brl(arred(bens['max']))}?", "BENS"))
     if area["natureza"] == "ESTIMADO":
         cand.append((50, f"Estimamos que o imóvel tem cerca de {area['valor']} m². Confere?", "AREA"))
-    if conteudo["confianca"] == "BAIXA":
-        cand.append((40, f"Seus móveis e eletrônicos valem por volta de {brl(conteudo['valor'])}?", "CONTEUDO"))
+    if tipo.get("diverge"):
+        cand.append((40, "O imóvel é um apartamento ou uma casa?", "TIPO"))
     if vinculo["valor"] == "PROPRIETARIO":
         cand.append((30, "O imóvel é seu e já está quitado?", "VINCULO"))
     cand.sort(key=lambda x: -x[0])
     return [{"prioridade": p, "texto": t, "codigo": c} for p, t, c in cand[:P.MAX_PERGUNTAS]], len(cand)
 
 
-def confianca_geral(campos, elegibilidade):
-    pesos = {"tipo": 1, "vinculo": 1, "uso": 1, "area": 2, "conteudo": 2}
+def confianca_geral(campos, elegibilidade, pendencias):
+    pesos = {"tipo": 1, "vinculo": 1, "uso": 1, "area": 2, "bens": 2}
     score = sum(pesos[k] * P.PESO_CONFIANCA[campos[k]["confianca"]] for k in pesos) / sum(pesos.values())
     score = round(score * 100)
     nivel = "ALTA" if score >= 80 else "MEDIA" if score >= 55 else "BAIXA"
-    if elegibilidade != "SIM" and nivel == "ALTA":
+    if (pendencias or elegibilidade != "SIM") and nivel == "ALTA":
         nivel = "MEDIA"
     return nivel, score
 
 
 # --- Orquestração --------------------------------------------------------------
+
+FONTES_SEMPRE = ["SINAPI ago/2026 (IBGE)", "CUB R8-N (Sinduscon)", "IPCA 12m, série 433 (Banco Central)",
+                 "Condições Gerais BB Seguro Residencial v1.4"]
+
+
+def _limpo(v):
+    """Converte tipos do numpy para tipos nativos (para o JSON)."""
+    if isinstance(v, (np.floating, np.integer)):
+        return float(v)
+    if isinstance(v, np.bool_):
+        return bool(v)
+    if isinstance(v, dict):
+        return {k: _limpo(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_limpo(x) for x in v]
+    return v
+
+
+def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False):
+    """A ficha de um cliente-imóvel. Usada pelo processar() e pelos testes."""
+    tipo, vinculo = inferir_tipo(r), inferir_vinculo(r)
+    uso, area = inferir_uso(r, outro_principal), inferir_area(r, cal)
+    bens = estimar_bens(r, bens_imovel)
+    imovel = valor_imovel(r, tipo, vinculo, area)
+    eleg, pendencias, avisos = avaliar_elegibilidade(r, uso)
+    rec = escolher_plano(r, tipo, vinculo, uso, bens)
+    ctx = {"r": r, "tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens,
+           "imovel": imovel, "fontes": set()}
+    coberturas = [{"cobertura": cob, "tipo": "FIXA", **dimensionar(cob, ctx)} for cob in catalogo[rec["plano"]]]
+    perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens)
+    campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens}
+    nivel, score = confianca_geral(campos, eleg, pendencias)
+    one_click = (r.usuario_app == "SIM" and r.indice_maturidade_digital >= P.MATURIDADE_MIN_ONE_CLICK
+                 and eleg == "SIM" and not pendencias and nivel != "BAIXA")
+    return _limpo({
+        "cliente_id": r.cliente_id, "imovel_id": r.imovel_id,
+        "local": f"{r.municipio_real}/{r.uf_real}", "complemento": r.complemento,
+        "canal_digital": {"usuario_app": r.usuario_app, "maturidade_digital": int(r.indice_maturidade_digital)},
+        "campos": campos,
+        "valor_imovel": {"custo_m2": [round(x, 2) for x in imovel["custo_m2"]],
+                         "reconstrucao_min": arred(imovel["reconstrucao"][0]), "reconstrucao_max": arred(imovel["reconstrucao"][1]),
+                         "segundo_risco": imovel["segundo_risco"]},
+        "elegibilidade": eleg, "pendencias": pendencias, "avisos": avisos,
+        **rec,
+        "coberturas": coberturas, "perguntas": perguntas, "perguntas_candidatas": n_cand,
+        "confianca": nivel, "confianca_score": score,
+        "canal": "ONE_CLICK" if one_click else "GERENTE",
+        "fontes": FONTES_SEMPRE + sorted(ctx["fontes"]),
+    })
+
 
 def processar(dados, cal):
     c, e, s, b = dados["clientes"], dados["enderecos_imoveis"], dados["sinais_imobiliarios"], dados["bens_compras"]
@@ -453,67 +526,20 @@ def processar(dados, cal):
     fichas = []
     for r in m.itertuples(index=False):
         outro_principal = bool(principais.get(r.cliente_id, set()) - {r.imovel_id})
-        tipo, vinculo = inferir_tipo(r), inferir_vinculo(r)
-        uso, area = inferir_uso(r, outro_principal), inferir_area(r, cal)
-        conteudo = inferir_conteudo(r, bens_por_imovel.get(r.imovel_id, vazio))
-        imovel = valor_imovel(r, tipo, area)
-        eleg, pendencias = avaliar_elegibilidade(r)
-        plano, motivos, pontos, adicionais, alternativa = escolher_plano(r, tipo, vinculo, uso, conteudo)
-
-        coberturas = []
-        for cob in catalogo[plano] + adicionais:
-            lo, hi, conf, dados_u, regra, just, confirmar, obs = dimensionar(cob, r, tipo, vinculo, area, conteudo, imovel)
-            coberturas.append({"cobertura": cob, "tipo": "ADICIONAL" if cob in adicionais else "FIXA",
-                               "min": lo, "max": hi, "confianca": conf, "dados_utilizados": dados_u,
-                               "regra": regra, "justificativa": just, "confirmar": confirmar, "observacao": obs})
-
-        perguntas, n_cand = montar_perguntas(r, pendencias, uso, vinculo, area, conteudo)
-        campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "conteudo": conteudo}
-        nivel, score = confianca_geral(campos, eleg)
-        one_click = (r.usuario_app == "SIM" and r.indice_maturidade_digital >= P.MATURIDADE_MIN_ONE_CLICK
-                     and eleg == "SIM" and nivel != "BAIXA")
-        fichas.append({
-            "cliente_id": r.cliente_id, "imovel_id": r.imovel_id,
-            "local": f"{r.municipio_real}/{r.uf_real}", "complemento": r.complemento,
-            "perfil": {"idade": int(r.idade), "renda": int(r.renda_mensal), "origem_renda": r.origem_renda,
-                       "dependentes": int(r.quantidade_dependentes), "pet": r.possui_pet_informado,
-                       "usuario_app": r.usuario_app, "maturidade_digital": int(r.indice_maturidade_digital)},
-            "campos": {k: {kk: (float(vv) if isinstance(vv, (np.floating, np.integer)) else vv) for kk, vv in v.items()}
-                       for k, v in campos.items()},
-            "valor_imovel": {"cub_m2": round(imovel["cub_m2"]), "min": arred(imovel["cheio"][0]), "max": arred(imovel["cheio"][1])},
-            "elegibilidade": eleg, "pendencias": pendencias,
-            "plano": plano, "motivos": motivos, "pontos": pontos, "alternativa": alternativa,
-            "motivos_plano": separar_motivos(plano, motivos)[0], "motivos_acima": separar_motivos(plano, motivos)[1],
-            "coberturas": coberturas, "perguntas": perguntas, "perguntas_candidatas": n_cand,
-            "confianca": nivel, "confianca_score": score,
-            "canal": "ONE_CLICK" if one_click else "GERENTE",
-        })
+        fichas.append(processar_caso(r, bens_por_imovel.get(r.imovel_id, vazio), cal, catalogo, outro_principal))
     return fichas
-
-
-ORDEM_PLANO = {"ESSENCIAL": 0, "PRATICO": 1, "TOTAL": 2}
-NOME_PLANO = {"ESSENCIAL": "Essencial", "PRATICO": "Prático", "TOTAL": "Total"}
-
-
-def separar_motivos(plano, motivos):
-    """Motivos que sustentam o plano escolhido vs. sinais que puxariam para um plano acima."""
-    a_favor = sorted([m for m in motivos if m["peso"] > 0 and ORDEM_PLANO[m["plano"]] <= ORDEM_PLANO[plano]],
-                     key=lambda m: (-ORDEM_PLANO[m["plano"]], -m["peso"]))[:3]
-    a_favor += [m for m in motivos if m["codigo"] == "ORCAMENTO"]
-    if not a_favor:
-        a_favor = [m for m in motivos if m["codigo"] == "BASE"]
-    acima = [m for m in motivos if m["peso"] > 0 and ORDEM_PLANO[m["plano"]] > ORDEM_PLANO[plano]][:2]
-    return a_favor, acima
 
 
 def justificativa(f):
     texto = f"Plano {NOME_PLANO[f['plano']]} porque " + "; ".join(m["texto"] for m in f["motivos_plano"]) + "."
-    texto += f" Alternativa: {f['alternativa']['texto']}"
-    if f["motivos_acima"]:
-        texto += " (pesaria a favor: " + "; ".join(m["texto"] for m in f["motivos_acima"]) + ")"
-    texto += "."
-    if f["pendencias"]:
-        texto += " Elegibilidade a confirmar: " + "; ".join(p["texto"] for p in f["pendencias"]) + "."
+    if f["por_que_nao_abaixo"]:
+        texto += f" Por que não um plano mais barato: {f['por_que_nao_abaixo']}."
+    if f["por_que_nao_acima"]:
+        texto += f" Por que não um plano mais caro: {f['por_que_nao_acima']}."
+    if f["pendencias"] and f["elegibilidade"] == "SIM":
+        texto += " A confirmar antes de contratar: " + "; ".join(p["texto"] for p in f["pendencias"]) + "."
+    if f["avisos"]:
+        texto += " Atenção: " + "; ".join(f["avisos"]) + "."
     return texto
 
 
@@ -525,7 +551,7 @@ def para_templates(fichas, template):
         linhas.append({
             "cliente_id": f["cliente_id"], "imovel_id": f["imovel_id"],
             "elegivel": f["elegibilidade"],
-            "motivo_inelegibilidade": "; ".join(p["texto"] for p in f["pendencias"]),
+            "motivo_inelegibilidade": "; ".join(p["texto"] for p in f["pendencias"]) if f["elegibilidade"] == "NAO" else "",
             "tipo_imovel_sugerido": f["campos"]["tipo"]["valor"],
             "uso_imovel_sugerido": f["campos"]["uso"]["valor"],
             "tipo_vinculo_sugerido": f["campos"]["vinculo"]["valor"],
@@ -534,7 +560,7 @@ def para_templates(fichas, template):
             "confianca_geral": f["confianca"],
             "justificativa_recomendacao": justificativa(f),
             "perguntas_confirmacao": " | ".join(p["texto"] for p in f["perguntas"]),
-            "fontes_publicas_adicionais": "Custo de reconstrução por m² por UF (aproximação do CUB/Sinduscon, tabela local em parametros.py)",
+            "fontes_publicas_adicionais": "; ".join(f["fontes"]),
         })
     resultado = pd.DataFrame(linhas, columns=template.columns)
     cob = pd.DataFrame([{
@@ -542,6 +568,6 @@ def para_templates(fichas, template):
         "faixa_valor_min": c["min"], "faixa_valor_max": c["max"], "confianca_estimativa": c["confianca"],
         "dados_utilizados": c["dados_utilizados"], "regra_calculo_utilizada": c["regra"],
         "justificativa": c["justificativa"], "informacao_a_confirmar": c["confirmar"],
-        "observacao": ("Cobertura adicional. " if c["tipo"] == "ADICIONAL" else "") + c["observacao"],
+        "observacao": c["observacao"],
     } for f in fichas for c in f["coberturas"]])
     return resultado, cob

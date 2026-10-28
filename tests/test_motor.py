@@ -59,3 +59,56 @@ def test_tipo_complemento_diverge(linha):
 def test_tipo_complemento_confirma(linha):
     d = motor.inferir_tipo(linha(possui_termo_apartamento="SIM", complemento="BLOCO B APTO 305"))
     assert d["confianca"] == "ALTA" and not d["diverge"]
+
+
+# --- T3: elegibilidade, plano e coberturas ---------------------------------------
+APTO_CURITIBA = "IMO_CASO_00005_01"   # apartamento financiado, 110 m², Curitiba
+
+
+def _cob(f, nome):
+    return next(c for c in f["coberturas"] if c["cobertura"] == nome)
+
+
+def test_obra_vira_sim_com_pergunta(ficha):
+    f = ficha(APTO_CURITIBA, gastos_material_construcao_24m=40000)
+    assert f["elegibilidade"] == "SIM"
+    assert f["perguntas"][0]["prioridade"] == 100 and "reforma" in f["perguntas"][0]["texto"]
+    assert f["canal"] == "GERENTE"
+
+
+def test_situacao_irregular_vira_nao(ficha):
+    f = ficha(APTO_CURITIBA, situacao_imovel_cadastral="TOMBADO")
+    assert f["elegibilidade"] == "NAO"
+
+
+def test_incendio_apto_financiado_segundo_risco(ficha):
+    inc = _cob(ficha(APTO_CURITIBA), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    assert 100000 <= inc["min"] and inc["max"] <= 200000
+    assert "15.2" in inc["observacao"]
+
+
+def test_casa_quitada_soma_reconstrucao(ficha):
+    f = ficha(APTO_CURITIBA, possui_termo_apartamento="NAO", possui_termo_casa="SIM", possui_termo_condominio="NAO",
+              complemento="CASA", parcela_financiamento_imobiliario=0)
+    inc = _cob(f, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    assert inc["min"] >= 110 * 2287.42 and "5.5" in inc["observacao"]
+
+
+def test_plano_e_coberturas_ignoram_atributos_pessoais(ficha):
+    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19, quantidade_dependentes=0, possui_pet_informado="NAO")
+    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85, quantidade_dependentes=3, possui_pet_informado="SIM")
+    assert a["plano"] == b["plano"]
+    assert [(c["min"], c["max"]) for c in a["coberturas"]] == [(c["min"], c["max"]) for c in b["coberturas"]]
+
+
+def test_inquilino_vai_para_total_com_aluguel(ficha):
+    f = ficha(APTO_CURITIBA, pagamento_aluguel_recorrente="SIM", valor_aluguel_recorrente=2000, parcela_financiamento_imobiliario=0)
+    assert f["plano"] == "TOTAL"
+    alug = _cob(f, "PERDA_PAGAMENTO_ALUGUEL")
+    assert (alug["min"], alug["max"]) == (12000, 24000)
+
+
+def test_justificativa_tem_alternativas(ficha):
+    import motor
+    texto = motor.justificativa(ficha(APTO_CURITIBA))
+    assert "Por que não um plano mais barato" in texto and "Por que não um plano mais caro" in texto

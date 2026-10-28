@@ -58,3 +58,15 @@ def caso(teste):
 @pytest.fixture(scope="session")
 def vazio(teste):
     return teste["bens_compras"].iloc[0:0]
+
+
+@pytest.fixture(scope="session")
+def ficha(teste, cal, caso):
+    """ficha(imovel_id, **campos): ficha de um caso da base de teste, com campos sobrescritos."""
+    catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
+
+    def _f(imovel_id, **campos):
+        r, b = caso(imovel_id)
+        r = SimpleNamespace(**{**vars(r), **campos})
+        return motor.processar_caso(r, b, cal, catalogo)
+    return _f

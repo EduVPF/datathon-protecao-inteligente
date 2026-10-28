@@ -106,8 +106,8 @@ MESES_PERDA_ALUGUEL = (6, 12)
 
 # --- Elegibilidade, plano e canal ----------------------------------------------
 OBRA_LIMIAR_CONFIRMAR = 15000   # gasto em material de construção (24 meses) que pede confirmação
-BENS_RELEVANTES = 25000         # bens totais a partir dos quais roubo pesa (Prático +2)
-PORTATEIS_RELEVANTES = 8000     # eletrônicos a partir dos quais roubo pesa (Prático +1)
+BENS_RELEVANTES = 36000         # bens comprovados acima da mediana da base de desenvolvimento (Prático +2)
+PORTATEIS_RELEVANTES = 10000    # eletrônicos comprovados acima da mediana da base de desenvolvimento (Prático +1)
 MATURIDADE_MIN_ONE_CLICK = 40   # comportamento digital, não atributo pessoal
 
 # --- Confiança e perguntas ------------------------------------------------------

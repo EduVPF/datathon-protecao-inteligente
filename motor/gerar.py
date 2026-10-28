@@ -13,7 +13,6 @@ from collections import Counter
 from pathlib import Path
 
 import motor
-from demo import gerar_demo
 
 DADOS = Path(__file__).resolve().parent.parent / "dados"
 SAIDA = Path(__file__).resolve().parent / "saida"
@@ -60,5 +59,4 @@ if __name__ == "__main__":
     (SAIDA / "calibracao.json").write_text(json.dumps(cal, ensure_ascii=False, indent=1), encoding="utf-8")
     m = metricas(fichas, resultado, cob, time.time() - inicio)
     (SAIDA / "metricas.json").write_text(json.dumps(m, ensure_ascii=False, indent=1), encoding="utf-8")
-    gerar_demo(fichas, SAIDA / "demo.html")
     print(json.dumps(m, ensure_ascii=False, indent=1))
