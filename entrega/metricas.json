@@ -114,7 +114,7 @@
  "familia_declarada_muda_valor_ou_confianca": 0,
  "sensibilidade_area_10pct_incendio_media_pct": 4.65,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.68,
+ "tempo_segundos": 0.67,
  "backtest_fora_da_amostra": {
   "metodo": "2 metades da base de desenvolvimento (calibra numa, mede na outra)",
   "area_casos": 1016,
@@ -177,6 +177,13 @@
   "padrao_estimado_pelo_iptu": 25,
   "padrao_faixa_aberta_com_pergunta": 73,
   "bens_pela_media_da_regiao": 0,
+  "bens_pela_regiao_e_renda": 0,
+  "backtest_bens_sem_compras": {
+   "metodo": "2 metades da base de desenvolvimento, imóveis com compras tratados como se não tivessem",
+   "casos": 2578,
+   "erro_mediano_so_regiao_pct": 40.5,
+   "erro_mediano_regiao_e_renda_pct": 22.7
+  },
   "teste_cep_da_base": {
    "r2_cep": 0.215,
    "r2_cep_embaralhado": 0.223

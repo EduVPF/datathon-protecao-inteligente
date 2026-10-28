@@ -7,7 +7,8 @@ O que diferencia a recomendação é o porquê. Todo motivo segue o mesmo roteir
 4. o que fica descoberto se escolher menos;
 5. o que ainda falta confirmar, em linguagem simples.
 
-Regras: só fatos do imóvel e das transações, nunca renda ou idade (RN-07); estimativa
+Regras: só fatos do imóvel e das transações, nunca idade (RN-07); a renda só aparece
+quando entrou na estimativa dos bens, e então o texto diz isso; estimativa
 sempre dita como estimativa (RN-09); nada inventado, todo número tem origem (RN-53).
 Este módulo só escreve texto: não decide plano, valor, canal nem confiança.
 """
@@ -128,7 +129,10 @@ def _confianca(f):
         return "Confiança alta: os dados vêm do seu cadastro e das suas contas."
     for chave in [(k, c) for c in ("PRESUMIDO", "ESTIMADO") for k in ("uso", "area", "bens", "tipo", "vinculo")]:
         if f["campos"][chave[0]].get("classe") == chave[1] and chave in EXPLICA_CAMPO:
-            return f"Confiança {NIVEL[f['confianca']]}: {EXPLICA_CAMPO[chave]}."
+            texto = EXPLICA_CAMPO[chave]
+            if chave == ("bens", "PRESUMIDO") and f["campos"]["bens"].get("usou_renda"):
+                texto += " e a sua renda"
+            return f"Confiança {NIVEL[f['confianca']]}: {texto}."
     return f"Confiança {NIVEL[f['confianca']]} até a sua resposta."
 
 

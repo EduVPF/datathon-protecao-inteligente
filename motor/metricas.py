@@ -24,7 +24,8 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
     catalogo = dados["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
     por_id = {f["imovel_id"]: f for f in fichas}
 
-    # Justiça: trocar renda e idade não pode mudar nada.
+    # Justiça: trocar renda e idade não pode mudar nada em quem tem compras ou bens (a renda só
+    # entra nos bens de quem não tem nenhum dos dois; na base comum, nenhum caso).
     # Necessidade declarada: trocar dependentes e pet pode mudar só o plano, os motivos e as
     # perguntas; nunca a faixa de uma cobertura em comum, a elegibilidade, o canal ou a confiança.
     # Sensibilidade: área 10% maior deve aumentar (ou manter) o incêndio.
@@ -160,6 +161,8 @@ def dados_faltantes(fichas, cal):
         "padrao_estimado_pelo_iptu": origem.get("estimado pelo IPTU/m²", 0),
         "padrao_faixa_aberta_com_pergunta": origem.get("não cadastrado", 0),
         "bens_pela_media_da_regiao": sum(bool(f["campos"]["bens"].get("regional")) for f in fichas),
+        "bens_pela_regiao_e_renda": sum(bool(f["campos"]["bens"].get("usou_renda")) for f in fichas),
+        "backtest_bens_sem_compras": cal.get("backtest_bens_sem_compras", {}),
         "teste_cep_da_base": cal.get("teste_cep", {}),
     }
 

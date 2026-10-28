@@ -54,10 +54,11 @@ Tudo por regras escritas, sem machine learning. Cada regra tem fonte e teste.
 | `possui_seguro_residencial` | Elegibilidade: um imóvel só → NAO (já segurado) |
 | `usuario_app`, `indice_maturidade_digital` | **Canal**: 1 toque no app ou gerente. Pelo comportamento digital, nunca pela idade |
 | `quantidade_dependentes`, `possui_pet_informado` | **Só necessidade de RC familiar**, informada pelo cliente. Nunca valor, risco, canal ou confiança |
-| `renda_mensal`, `idade`, `origem_renda` | **Não usados.** Teste automático prova: trocar esses campos não muda nada |
+| `renda_mensal` | **Reforço dos bens de quem não tem compras nem bens ligados ao imóvel**, combinada com a média da região (liberada na mentoria do BB, 28/10). Quem tem compras segue pelas compras |
+| `idade`, `origem_renda` | **Não usados.** Teste automático prova: trocar esses campos não muda nada |
 
 ### O que descartamos e por quê
-- **Renda:** correlação de 0,87 com os bens. É a armadilha: usar renda seria estimar patrimônio por atributo pessoal (proibido no guia). Usamos as compras, que são o bem de verdade.
+- **Renda como atalho:** correlação de 0,88 com os bens. Depois da mentoria (o BB confirmou que renda não é dado sensível), ela entra **só onde falta prova**: para quem não tem compras, região + renda erra 22,7% contra 40,5% só da região (teste fora da amostra). Quem tem compras segue pelas compras, que são o bem de verdade.
 - **Idade:** não diz nada sobre o imóvel.
 - **Coordenadas e CEP:** são fictícios na base.
 - **Ranking de raios do INPE:** desatualizado.
@@ -118,8 +119,8 @@ Não há rótulo (não sabemos qual plano era o certo nem sinistros). Um modelo 
 **"Como estimam a área se 67% não têm?"**
 Pelo IPTU e pela luz, comparados com imóveis da mesma cidade com área conhecida. A faixa usa o erro real medido. E a área vira a primeira pergunta quando é ela que mais aperta a faixa.
 
-**"A renda tem 0,87 de correlação com os bens. Vocês não estão usando renda por tabela?"**
-Usamos as compras, que são o próprio bem. Mostramos por faixa de renda: o Prático cresce com a renda porque os bens crescem, mas o Total não segue a renda, e a elegibilidade fica igual em todas as faixas (regra dos 80%: 0,91). Trocar a renda de um cliente não muda nada (teste automático, 0 casos).
+**"Vocês usam a renda? O guia fala em atributos pessoais."**
+Na mentoria, o BB confirmou que renda não é dado sensível, e a LGPD também não a lista como sensível. Mesmo assim, ela nunca decide sozinha: só reforça a estimativa dos bens de quem não tem compras, junto com a média da região (o erro cai de 40,5% para 22,7% fora da amostra), e o cliente lê isso no motivo. Quem tem compras segue pelas compras. Elegibilidade, canal e confiança não usam renda, e a elegibilidade fica igual em todas as faixas de renda (regra dos 80%: 0,85). A idade continua fora de tudo.
 
 **"Por que usam crianças e pets se é atributo pessoal?"**
 Não usamos como risco nem como valor. O slide 14 aponta "casa familiar → RC familiar": é uma necessidade que o próprio cliente informou. Provamos que isso nunca muda faixa, elegibilidade, canal ou confiança (0 casos).
@@ -152,14 +153,14 @@ Calibrar as proporções com dados de sinistro da Brasilseg, enriquecer com risc
 | 1:20–2:30 | **Demo:** protótipo do gerente, botões A, B e C. Mostrar plano, faixas, motivo e perguntas mudando entre os 3 perfis | |
 | 2:30–3:20 | **Código:** `parametros.py` (premissas com fonte), `escolher_plano` (pontos), `confianca_geral` (regra). Rodar `python -m pytest -q` (49 passando) e `python motor/gerar.py --entrega` | |
 | 3:20–4:10 | Evidências: tabela de métricas do README (justiça 0, estabilidade, confiança, regra dos 80%) | |
-| 4:10–5:00 | Limitações e próximos passos; responsabilidade (renda e idade fora, controle humano, IA declarada) | |
+| 4:10–5:00 | Limitações e próximos passos; responsabilidade (idade fora, renda só como reforço e avisada ao cliente, controle humano, IA declarada) | |
 
 **Dica:** gravem a tela rodando os testes ao vivo. "49 passed" na tela vale mais que um slide.
 
 ---
 
 ## 6. O que cada um precisa saber explicar (mínimo)
-- **Todos:** o fluxo dos 5 passos, por que não usamos renda, o que é a confiança.
+- **Todos:** o fluxo dos 5 passos, onde a renda entra (só reforço dos bens sem compras, liberada na mentoria) e onde não entra, o que é a confiança.
 - **Quem mostra o código:** onde está cada regra (`motor.py`), onde mudar um número (`parametros.py`), como rodar.
 - **Quem faz o pitch:** os 3 perfis e por que cada um tem um plano diferente; a tabela de métricas.
 - **Quem responde perguntas:** seção 4 deste guia.
