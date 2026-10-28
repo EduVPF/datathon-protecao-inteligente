@@ -25,6 +25,7 @@ _bens = dict(tuple(_teste["bens_compras"].groupby("imovel_id_referencia")))
 _vazio = _teste["bens_compras"].iloc[0:0]
 _catalogo = _teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
 _principais = _linhas[_linhas.endereco_principal_compativel == "SIM"].groupby("cliente_id").imovel_id.apply(set).to_dict()
+_n_imoveis = _linhas.groupby("cliente_id").imovel_id.nunique().to_dict()
 FATOR_BENS = {"menos": 0.75, "isso": 1.0, "mais": 1.3}
 
 
@@ -39,7 +40,8 @@ def _ficha(imovel_id, campos_extra=None, confirmados=()):
         raise HTTPException(status_code=404, detail=f"imóvel {imovel_id} não está na base de teste")
     r = SimpleNamespace(**{**_linhas.loc[imovel_id].to_dict(), **(campos_extra or {})})
     outro = bool(_principais.get(r.cliente_id, set()) - {imovel_id})
-    return motor.processar_caso(r, _bens.get(imovel_id, _vazio), _cal, _catalogo, outro, confirmados)
+    return motor.processar_caso(r, _bens.get(imovel_id, _vazio), _cal, _catalogo, outro, confirmados,
+                                n_imoveis=_n_imoveis.get(r.cliente_id))
 
 
 @app.get("/saude")

@@ -3,8 +3,15 @@ import parametros as P
 
 
 # --- T1: parâmetros e fontes ----------------------------------------------------
-def test_custo_m2_pr():
-    assert P.custo_m2("PR") == (2287.42, 2738.93)
+def test_custo_m2_pr_sem_cub_oficial_usa_razao():
+    # CUB-PR veio de agregador: o máximo é SINAPI-PR × mediana CUB/SINAPI das UFs com CUB oficial
+    lo, hi = P.custo_m2("PR")
+    assert lo == 2287.42 and hi == round(2287.42 * P._tabela_custo()[2], 2)
+    assert 1.0 < P._tabela_custo()[2] < 1.2 and "razão" in P.fonte_custo("PR")
+
+
+def test_custo_m2_sp_usa_cub_oficial():
+    assert P.custo_m2("SP") == (2209.93, 2238.58) and P.fonte_custo("SP") == "CUB SP oficial"
 
 
 def test_custo_m2_uf_desconhecida_usa_neutro():
@@ -82,23 +89,133 @@ def test_situacao_irregular_vira_nao(ficha):
 
 
 def test_incendio_apto_financiado_segundo_risco(ficha):
-    inc = _cob(ficha(APTO_CURITIBA), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    inc = _cob(ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL"), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
     assert 100000 <= inc["min"] and inc["max"] <= 200000
     assert "15.2" in inc["observacao"]
 
 
 def test_casa_quitada_soma_reconstrucao(ficha):
     f = ficha(APTO_CURITIBA, possui_termo_apartamento="NAO", possui_termo_casa="SIM", possui_termo_condominio="NAO",
-              complemento="CASA", parcela_financiamento_imobiliario=0)
+              complemento="CASA", parcela_financiamento_imobiliario=0, padrao_construtivo_cadastrado="NORMAL")
     inc = _cob(f, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
     assert inc["min"] >= 110 * 2287.42 and "5.5" in inc["observacao"]
 
 
-def test_plano_e_coberturas_ignoram_atributos_pessoais(ficha):
-    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19, quantidade_dependentes=0, possui_pet_informado="NAO")
-    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85, quantidade_dependentes=3, possui_pet_informado="SIM")
+def test_plano_e_coberturas_ignoram_renda_e_idade(ficha):
+    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19)
+    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85)
     assert a["plano"] == b["plano"]
     assert [(c["min"], c["max"]) for c in a["coberturas"]] == [(c["min"], c["max"]) for c in b["coberturas"]]
+
+
+def test_criancas_e_pet_pesam_so_no_plano(ficha):
+    sem = ficha(APTO_CURITIBA, quantidade_dependentes=0, possui_pet_informado="NAO")
+    com = ficha(APTO_CURITIBA, quantidade_dependentes=2, possui_pet_informado="SIM")
+    assert any(m["codigo"] == "FAMILIA_DECLARADA" for m in com["motivos"])
+    assert not any(m["codigo"] == "FAMILIA_DECLARADA" for m in sem["motivos"])
+    assert com["pontos"]["total"] == sem["pontos"]["total"] + 1
+    faixa = lambda f: {c["cobertura"]: (c["min"], c["max"]) for c in f["coberturas"]}
+    fs, fc = faixa(sem), faixa(com)
+    assert all(fs[k] == fc[k] for k in fs.keys() & fc.keys())
+    for k in ("elegibilidade", "confianca", "confianca_score", "canal", "campos"):
+        assert sem[k] == com[k]
+
+
+def test_crianca_em_apartamento_ganha_rc_adicional(ficha):
+    f = ficha(APTO_CURITIBA, quantidade_dependentes=1, possui_pet_informado="NAO", gastos_vidracaria_24m=0,
+              compras_eletronicos_36m=0)
+    assert not any(m["codigo"] == "FAMILIA_DECLARADA" for m in f["motivos"])
+    assert f["plano"] != "TOTAL"
+    rc = [c for c in f["coberturas"] if c["cobertura"] == "RESPONSABILIDADE_CIVIL_FAMILIAR"]
+    assert len(rc) == 1 and rc[0]["tipo"] == "ADICIONAL" and "adicional" in rc[0]["observacao"].lower()
+
+
+def test_casa_com_pet_recebe_pergunta_e_nao_adicional(ficha):
+    f = ficha(APTO_CURITIBA, possui_termo_apartamento="NAO", possui_termo_condominio="NAO", complemento="CASA",
+              quantidade_dependentes=0, possui_pet_informado="SIM", pagamento_aluguel_recorrente="NAO")
+    if f["plano"] != "TOTAL":
+        assert not f["adicionais"] and f["perguntas_candidatas"] >= 1
+
+
+def test_veraneio_nao_puxa_o_pratico(linha, cal, vazio):
+    r = linha(possui_termo_apartamento="SIM", possui_termo_condominio="NAO", complemento="APTO 12",
+              pagamento_aluguel_recorrente="NAO", parcela_financiamento_imobiliario=0, credito_recorrente_compativel_aluguel="NAO",
+              endereco_principal_compativel="NAO", gastos_vidracaria_24m=0, compras_eletronicos_36m=0,
+              compras_eletrodomesticos_36m=0, compras_moveis_36m=0, quantidade_dependentes=0, possui_pet_informado="NAO")
+    uso = motor.inferir_uso(r, True)
+    rec = motor.escolher_plano(r, motor.inferir_tipo(r), motor.inferir_vinculo(r), uso, motor.estimar_bens(r, vazio))
+    assert uso["valor"] == "LAZER_VERANEIO" and rec["plano"] == "ESSENCIAL"
+    assert "desocupada" in rec["motivos_plano"][0]["texto"]
+
+
+def test_familia_nao_empurra_para_o_pratico(linha, cal, vazio):
+    # casa sem sinais de roubo além de ser casa: a família pede RC (Total), não o Prático
+    r = linha(possui_termo_apartamento="NAO", possui_termo_condominio="NAO", pagamento_aluguel_recorrente="NAO",
+              parcela_financiamento_imobiliario=0, credito_recorrente_compativel_aluguel="NAO", gastos_vidracaria_24m=0,
+              compras_eletronicos_36m=0, compras_eletrodomesticos_36m=0, compras_moveis_36m=0,
+              quantidade_dependentes=2, possui_pet_informado="SIM", endereco_principal_compativel="SIM", complemento="CASA")
+    tipo, vinc = motor.inferir_tipo(r), motor.inferir_vinculo(r)
+    rec = motor.escolher_plano(r, tipo, vinc, motor.inferir_uso(r, False), motor.estimar_bens(r, vazio))
+    assert rec["pontos"] == {"pratico": 1, "total": 1} and rec["plano"] == "ESSENCIAL"
+
+
+def test_seguro_existente_um_imovel_nao_elegivel(caso, cal, teste):
+    import motor
+    r, b = caso(APTO_CURITIBA)
+    r.possui_seguro_residencial = "SIM"
+    catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
+    f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=1)
+    assert f["elegibilidade"] == "NAO" and f["pendencias"][0]["codigo"] == "SEGURO_EXISTENTE"
+    assert motor.justificativa(f).startswith("Não elegível para nova proposta")
+
+
+def test_seguro_existente_dois_imoveis_pergunta_qual(caso, cal, teste):
+    import motor
+    r, b = caso(APTO_CURITIBA)
+    r.possui_seguro_residencial = "SIM"
+    catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
+    f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=2)
+    assert f["elegibilidade"] == "SIM" and f["confianca"] != "ALTA"
+    assert any("Qual dos seus imóveis" in p["texto"] for p in f["perguntas"])
+
+
+def test_padrao_desconhecido_abre_a_faixa(ficha):
+    normal = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL")
+    nao_sei = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL")
+    a, b = _cob(normal, "INCENDIO_RAIO_EXPLOSAO_FUMACA"), _cob(nao_sei, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    assert b["min"] <= a["min"] and b["max"] >= a["max"] and nao_sei["valor_imovel"]["fator_padrao"] == [0.85, 1.3]
+    assert any(p["codigo"] == "PADRAO" for p in nao_sei["perguntas"]) or nao_sei["perguntas_candidatas"] > 3
+
+
+def test_perguntas_de_valor_seguem_o_valor_da_informacao(ficha):
+    f = ficha(APTO_CURITIBA, area_cadastrada_m2=0, padrao_construtivo_cadastrado="NAO_DISPONIVEL")
+    valor = [p["reduz_faixa_ate"] for p in f["perguntas"] if "reduz_faixa_ate" in p]
+    assert len(valor) >= 2 and valor == sorted(valor, reverse=True)
+
+
+def test_confianca_area_presumida_e_baixa(ficha):
+    f = ficha(APTO_CURITIBA, area_cadastrada_m2=0, pagamento_iptu_anual=0, energia_media_mensal_6m=0)
+    assert f["confianca"] == "BAIXA" and "presumido: área" in f["confianca_motivo"]
+
+
+def test_confianca_dado_estimado_nao_e_alta(ficha):
+    f = ficha(APTO_CURITIBA, area_cadastrada_m2=0)
+    assert f["confianca"] == "MEDIA" and "estimado: área" in f["confianca_motivo"]
+
+
+def test_confianca_motivo_na_justificativa(ficha):
+    import motor
+    f = ficha(APTO_CURITIBA)
+    assert f"Confiança {motor.NIVEL_TEXTO[f['confianca']]} (" in motor.justificativa(f)
+
+
+def test_campo_vazio_baixa_a_confianca(ficha):
+    cheio = ficha(APTO_CURITIBA, area_cadastrada_m2=110, padrao_construtivo_cadastrado="NORMAL",
+                  material_parede_externa_cadastrado="ALVENARIA")
+    vazio_ = ficha(APTO_CURITIBA, area_cadastrada_m2=110, padrao_construtivo_cadastrado="NAO_DISPONIVEL",
+                   material_parede_externa_cadastrado="NAO_DISPONIVEL")
+    assert cheio["completude"]["pct"] == 100 and vazio_["completude"]["pct"] < 100
+    assert vazio_["confianca_score"] < cheio["confianca_score"]
 
 
 def test_inquilino_vai_para_total_com_aluguel(ficha):
@@ -110,8 +227,13 @@ def test_inquilino_vai_para_total_com_aluguel(ficha):
 
 def test_justificativa_tem_alternativas(ficha):
     import motor
-    texto = motor.justificativa(ficha(APTO_CURITIBA))
-    assert "Por que não um plano mais barato" in texto and "Por que não um plano mais caro" in texto
+    f = ficha(APTO_CURITIBA)
+    texto = motor.justificativa(f)
+    assert texto.startswith("Recomendamos o plano")
+    if f["plano"] != "ESSENCIAL":
+        assert "Se você escolher menos" in texto and "ficarão descobertas" in texto
+    if f["plano"] != "TOTAL":
+        assert "Por que não um plano mais caro" in texto
 
 
 # --- T4: validação e planilhas ----------------------------------------------------
@@ -169,8 +291,8 @@ def test_pendencia_impede_confianca_alta(ficha):
 
 
 def test_justica_ficha_inteira_igual(ficha):
-    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19, quantidade_dependentes=0, possui_pet_informado="NAO", origem_renda="INFORMADA")
-    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85, quantidade_dependentes=3, possui_pet_informado="SIM", origem_renda="PRESUMIDA")
+    a = ficha(APTO_CURITIBA, renda_mensal=1800, idade=19, origem_renda="INFORMADA")
+    b = ficha(APTO_CURITIBA, renda_mensal=34000, idade=85, origem_renda="PRESUMIDA")
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
     texto = json.dumps(a)
     for chave in ['"renda', '"origem_renda"', '"idade"', '"quantidade_dependentes"', '"possui_pet', '"dependentes"']:
@@ -212,5 +334,13 @@ def test_metricas_e_casos(tmp_path):
     info = gerar.gerar(tmp_path)
     met = json.loads((tmp_path / "metricas.json").read_text(encoding="utf-8"))
     assert met["teste_justica_casos_alterados"] == 0
+    assert met["familia_declarada_muda_valor_ou_confianca"] == 0
+    assert met["elegibilidade"].get("NAO", 0) > 0 and met["confianca"].get("BAIXA", 0) > 0
+    assert met["confianca_estabilidade_casos_que_mudam_com_pesos_20pct"] == 0
+    assert met["casos_com_falha"] == 0 and met["estabilidade_plano_casos_que_mudam_com_valores_5pct"] <= 5
+    assert met["elegibilidade_por_regra"]["NAO_ELEGIVEL"] == met["elegibilidade"]["NAO"]
+    assert met["justica_por_quinto_de_renda"]["razao_elegibilidade_menor_maior"] >= 0.8
+    larg = met["confianca_largura_incendio_mediana"]
+    assert larg["ALTA"] <= larg["MEDIA"] <= larg["BAIXA"]
     assert met["completude_coberturas_fixas_pct"] == 100.0 and met["sensibilidade_area_casos_com_queda"] == 0
     assert all(info["casos_contrastantes"].values())

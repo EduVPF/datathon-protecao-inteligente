@@ -18,10 +18,10 @@
 **Os números principais** (de `entrega/metricas.json`):
 - **Cobertura da entrega:** 138 casos · 100% com justificativa · 100% das coberturas fixas.
 - **Faixas:** 0 vazias, 0 invertidas.
-- **Planos:** Prático 69 · Total 38 · Essencial 31.
-- **Canal:** 1 toque 78 · gerente 60.
-- **Perguntas:** 2,4 por caso.
-- **Teste de justiça:** **0 casos mudam** ao trocar renda, idade, dependentes e pet.
+- **Planos:** Prático 60 · Total 49 · Essencial 29 (depois da revisão QA).
+- **Canal:** 1 toque 67 · gerente 71.
+- **Perguntas:** 2,5 por caso.
+- **Teste de justiça:** **0 casos mudam** ao trocar renda e idade. Crianças e pets só pesam no plano (ver 17-revisao-qa.md).
 - **Sensibilidade:** área +10% → incêndio +4,8%, sem nenhuma queda.
 
 ## 2. Como cada um revisa (≈ 30 min)
@@ -42,7 +42,7 @@ Todas estão num lugar só. Mudar um número e rodar `python motor/gerar.py --en
 | Bens e eletrônicos "relevantes" (mediana da base de desenvolvimento) | R$ 36 mil · R$ 10 mil | `parametros.BENS_RELEVANTES`, `PORTATEIS_RELEVANTES` |
 | Segundo risco: acabamentos em apto, condomínio ou financiado | 25%–40% da reconstrução | `parametros.FRACAO_ACABAMENTOS` (para desligar: `(1.0, 1.0)`) |
 | Danos por água · vendaval · responsabilidade civil · despesas | proporções da reconstrução e dos bens | `motor.dimensionar()` |
-| Limiares de confiança | ALTA ≥ 0,75 · MÉDIA ≥ 0,55 | `parametros.CONF_ALTA`, `CONF_MEDIA` |
+| Regra da confiança | classe de cada dado crítico (observado, estimado, presumido) | `motor.confianca_geral()`, `parametros.CLASSE_FONTE` |
 | Limites máximos das coberturas sem print do app | ex.: perda de aluguel até R$ 30 mil | `parametros.LIMITES_PRODUTO` |
 
 ## 4. Pendências
