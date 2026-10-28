@@ -14,7 +14,7 @@ Requer Python 3.11.
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 45 testes
+python -m pytest -q                 # 47 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -29,6 +29,9 @@ O motor lê `dados/desenvolvimento` (calibração) e `dados/teste_comum` (os 138
 - **Seguro BB já existente:** cliente com seguro residencial e um imóvel só sai como `NAO` (o endereço já está segurado e o guia proíbe duas propostas). Com dois imóveis, fica `SIM` e o motor pergunta qual deles já tem seguro.
 - **Crianças e pets:** entram só como necessidade informada pelo cliente (slide 14, "casa familiar → RC familiar"). Crianças e pet juntos somam 1 ponto ao Total; só um dos dois vira pergunta. Nunca mudam faixa, elegibilidade, canal ou confiança, e a métrica `familia_declarada_muda_valor_ou_confianca` prova isso (0 casos). Renda e idade continuam fora de tudo.
 - **Confiança por regra:** cada dado crítico (área, bens, uso, vínculo, tipo) é observado, estimado ou presumido. BAIXA se área ou bens forem presumidos, ou se houver um presumido junto com um estimado; ALTA se os 5 forem observados e não houver pendência; MÉDIA no resto. Antes era um corte numa nota, e 101 dos 138 casos ficavam a 3 pontos de mudar de nível. Mexendo 20% nos pesos, 0 casos mudam. Detalhes em `documentos/contexto/17-revisao-qa.md`.
+- **Padrão construtivo vazio:** em vez de supor "normal", a faixa vai do econômico ao superior (fator 0,85 a 1,30), e o motor pergunta o acabamento.
+- **Perguntas pelo valor da informação:** as perguntas de valor (área, padrão, bens) saem na ordem de quanto cada resposta pode apertar a faixa de incêndio, e a ficha mostra esse valor (`reduz_faixa_ate`).
+- **Justiça por faixa de renda:** `metricas.json` traz, por quinto de renda, o plano, a elegibilidade e os bens comprovados. A regra dos 80% do crédito, aplicada à elegibilidade, dá 0,91.
 - **CUB:** só entra o CUB oficial (SP, DF, GO, BA). Nas outras UFs o máximo é SINAPI × a razão CUB/SINAPI das UFs oficiais. Ver `motor/externos/FONTES.md`.
 - **Casos contrastantes:** os 3 perfis do slide 14 (apartamento urbano, casa familiar, casa de lazer) mais um caso não elegível, em `entrega/casos_contrastantes.json`.
 - **Justificativa** na linguagem do slide 23: "Recomendamos o plano X porque... Se você escolher menos: ..., e essas necessidades ficarão descobertas."

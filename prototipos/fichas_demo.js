@@ -104,11 +104,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     2287.42,
-     2502.45
+     1944.31,
+     3253.18
     ],
-    "reconstrucao_min": 252000,
-    "reconstrucao_max": 275000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 214000,
+    "reconstrucao_max": 358000,
     "segundo_risco": true
    },
    "elegibilidade": "SIM",
@@ -152,10 +156,10 @@ window.FICHAS_DEMO = {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
      "min": 100000,
-     "max": 170000,
+     "max": 203000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 110–110 m² × R$ 2.287–R$ 2.502/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial)) × 25%–40% (acabamentos) + bens",
+     "regra": "área 110–110 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
@@ -163,7 +167,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 18500,
+     "min": 17500,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -175,8 +179,8 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 5000,
-     "max": 14000,
+     "min": 4500,
+     "max": 18000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
@@ -247,9 +251,16 @@ window.FICHAS_DEMO = {
    ],
    "perguntas": [
     {
-     "prioridade": 55,
+     "prioridade": 58,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 50000
+    },
+    {
+     "prioridade": 56,
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 22.000 e R$ 60.000?",
-     "codigo": "BENS"
+     "codigo": "BENS",
+     "reduz_faixa_ate": 38000
     },
     {
      "prioridade": 45,
@@ -257,7 +268,7 @@ window.FICHAS_DEMO = {
      "codigo": "RC_FAMILIA"
     }
    ],
-   "perguntas_candidatas": 2,
+   "perguntas_candidatas": 3,
    "confianca": "ALTA",
    "confianca_score": 76,
    "confianca_motivo": "todos os dados críticos observados",
@@ -376,11 +387,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     2151.68,
-     2423.72
+     1828.93,
+     3150.84
     ],
-    "reconstrucao_min": 262000,
-    "reconstrucao_max": 514000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 223000,
+    "reconstrucao_max": 668000,
     "segundo_risco": true
    },
    "elegibilidade": "SIM",
@@ -441,11 +456,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
-     "min": 143000,
-     "max": 414000,
+     "min": 133000,
+     "max": 476000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 122–212 m² × R$ 2.152–R$ 2.424/m² (SINAPI DF até CUB DF oficial) × 25%–40% (acabamentos) + bens",
+     "regra": "área 122–212 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
@@ -453,7 +468,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 47000,
+     "min": 45000,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -465,7 +480,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 26000,
+     "min": 22000,
      "max": 60000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
@@ -537,11 +552,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
-     "min": 45000,
-     "max": 102000,
+     "min": 38000,
+     "max": 132000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 2.152–R$ 2.424/m² (SINAPI DF até CUB DF oficial) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
      "confirmar": "",
      "observacao": ""
@@ -561,7 +576,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
      "tipo": "FIXA",
-     "min": 3000,
+     "min": 2500,
      "max": 15000,
      "confianca": "MEDIA",
      "dados_utilizados": "faixa de incêndio",
@@ -573,22 +588,25 @@ window.FICHAS_DEMO = {
    ],
    "perguntas": [
     {
-     "prioridade": 55,
+     "prioridade": 58,
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 77.000 e R$ 209.000?",
-     "codigo": "BENS"
+     "codigo": "BENS",
+     "reduz_faixa_ate": 131000
     },
     {
-     "prioridade": 50,
+     "prioridade": 56,
      "texto": "Estimamos que o imóvel tem cerca de 165 m². Confere?",
-     "codigo": "AREA"
+     "codigo": "AREA",
+     "reduz_faixa_ate": 114000
     },
     {
-     "prioridade": 30,
-     "texto": "O imóvel é seu e já está quitado?",
-     "codigo": "VINCULO"
+     "prioridade": 54,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 93000
     }
    ],
-   "perguntas_candidatas": 3,
+   "perguntas_candidatas": 4,
    "confianca": "MEDIA",
    "confianca_score": 57,
    "confianca_motivo": "estimado: área, vínculo",
@@ -709,11 +727,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1969.6,
-     2243.22
+     1674.16,
+     2916.19
     ],
-    "reconstrucao_min": 151000,
-    "reconstrucao_max": 300000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 128000,
+    "reconstrucao_max": 390000,
     "segundo_risco": true
    },
    "elegibilidade": "SIM",
@@ -759,10 +781,10 @@ window.FICHAS_DEMO = {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
      "min": 100000,
-     "max": 172000,
+     "max": 208000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 77–134 m² × R$ 1.970–R$ 2.243/m² (SINAPI BA até CUB BA oficial) × 25%–40% (acabamentos) + bens",
+     "regra": "área 77–134 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
@@ -770,7 +792,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 14000,
+     "min": 13500,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -782,8 +804,8 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 3000,
-     "max": 15000,
+     "min": 2500,
+     "max": 19500,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
@@ -859,17 +881,19 @@ window.FICHAS_DEMO = {
      "codigo": "USO"
     },
     {
-     "prioridade": 55,
-     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 19.500 e R$ 52.000?",
-     "codigo": "BENS"
+     "prioridade": 58,
+     "texto": "Estimamos que o imóvel tem cerca de 104 m². Confere?",
+     "codigo": "AREA",
+     "reduz_faixa_ate": 66000
     },
     {
-     "prioridade": 50,
-     "texto": "Estimamos que o imóvel tem cerca de 104 m². Confere?",
-     "codigo": "AREA"
+     "prioridade": 56,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 54000
     }
    ],
-   "perguntas_candidatas": 5,
+   "perguntas_candidatas": 6,
    "confianca": "BAIXA",
    "confianca_score": 52,
    "confianca_motivo": "presumido: uso do imóvel; estimado: área, vínculo",
@@ -989,11 +1013,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1881.36,
-     2058.22
+     1599.16,
+     2675.69
     ],
-    "reconstrucao_min": 368000,
-    "reconstrucao_max": 701000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 312000,
+    "reconstrucao_max": 911000,
     "segundo_risco": true
    },
    "elegibilidade": "NAO",
@@ -1055,11 +1083,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
-     "min": 140000,
-     "max": 411000,
+     "min": 127000,
+     "max": 495000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 195–340 m² × R$ 1.881–R$ 2.058/m² (SINAPI PE até SINAPI PE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial)) × 25%–40% (acabamentos) + bens",
+     "regra": "área 195–340 m² × R$ 1.599–R$ 2.676/m² (SINAPI PE até SINAPI PE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento."
@@ -1067,7 +1095,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 35000,
+     "min": 34000,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -1079,7 +1107,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 37000,
+     "min": 31000,
      "max": 60000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
@@ -1151,22 +1179,25 @@ window.FICHAS_DEMO = {
    ],
    "perguntas": [
     {
-     "prioridade": 55,
-     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 49.000 e R$ 131.000?",
-     "codigo": "BENS"
-    },
-    {
-     "prioridade": 50,
+     "prioridade": 58,
      "texto": "Estimamos que o imóvel tem cerca de 265 m². Confere?",
-     "codigo": "AREA"
+     "codigo": "AREA",
+     "reduz_faixa_ate": 155000
     },
     {
-     "prioridade": 45,
-     "texto": "Você informou crianças ou pets em casa. Quer proteção para danos que eles causem a terceiros? Ela vem no plano Total.",
-     "codigo": "RC_FAMILIA"
+     "prioridade": 56,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 126000
+    },
+    {
+     "prioridade": 54,
+     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 49.000 e R$ 131.000?",
+     "codigo": "BENS",
+     "reduz_faixa_ate": 83000
     }
    ],
-   "perguntas_candidatas": 4,
+   "perguntas_candidatas": 5,
    "confianca": "MEDIA",
    "confianca_score": 57,
    "confianca_motivo": "estimado: área, vínculo",
@@ -1286,11 +1317,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1974.41,
-     2160.02
+     1678.25,
+     2808.03
     ],
-    "reconstrucao_min": 247000,
-    "reconstrucao_max": 270000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 210000,
+    "reconstrucao_max": 351000,
     "segundo_risco": true
    },
    "elegibilidade": "SIM",
@@ -1346,10 +1381,10 @@ window.FICHAS_DEMO = {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
      "min": 100000,
-     "max": 162000,
+     "max": 194000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 125–125 m² × R$ 1.974–R$ 2.160/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial)) × 25%–40% (acabamentos) + bens",
+     "regra": "área 125–125 m² × R$ 1.678–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "Repor acabamentos e bens; a estrutura do prédio ou do financiamento tem seguro próprio.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento. Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo)."
@@ -1357,7 +1392,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 17500,
+     "min": 16000,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -1369,8 +1404,8 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 5000,
-     "max": 13500,
+     "min": 4000,
+     "max": 17500,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
      "regra": "2%–5% da reconstrução",
@@ -1441,11 +1476,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
-     "min": 41000,
-     "max": 91000,
+     "min": 35000,
+     "max": 118000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.974–R$ 2.160/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial)) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.678–R$ 2.808/m² (SINAPI CE até SINAPI CE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
      "confirmar": "",
      "observacao": ""
@@ -1466,7 +1501,7 @@ window.FICHAS_DEMO = {
      "cobertura": "DESPESAS_EMERGENCIAIS",
      "tipo": "FIXA",
      "min": 2000,
-     "max": 8000,
+     "max": 9500,
      "confianca": "MEDIA",
      "dados_utilizados": "faixa de incêndio",
      "regra": "2%–5% da faixa de incêndio",
@@ -1477,12 +1512,19 @@ window.FICHAS_DEMO = {
    ],
    "perguntas": [
     {
-     "prioridade": 55,
+     "prioridade": 58,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 49000
+    },
+    {
+     "prioridade": 56,
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 20.000 e R$ 54.000?",
-     "codigo": "BENS"
+     "codigo": "BENS",
+     "reduz_faixa_ate": 34000
     }
    ],
-   "perguntas_candidatas": 1,
+   "perguntas_candidatas": 2,
    "confianca": "ALTA",
    "confianca_score": 76,
    "confianca_motivo": "todos os dados críticos observados",
@@ -1600,11 +1642,15 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     2287.42,
-     2502.45
+     1944.31,
+     3253.18
     ],
-    "reconstrucao_min": 279000,
-    "reconstrucao_max": 532000,
+    "fator_padrao": [
+     0.85,
+     1.3
+    ],
+    "reconstrucao_min": 237000,
+    "reconstrucao_max": 691000,
     "segundo_risco": false
    },
    "elegibilidade": "SIM",
@@ -1666,11 +1712,11 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
      "tipo": "FIXA",
-     "min": 321000,
+     "min": 279000,
      "max": 600000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 122–213 m² × R$ 2.287–R$ 2.502/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial)) + bens",
+     "regra": "área 122–213 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) + bens",
      "justificativa": "Reconstruir o imóvel e repor os bens; com limite único, o prédio é pago primeiro.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Limite único prédio + conteúdo, com prioridade do prédio (CG cl. 5.5–5.6)."
@@ -1678,7 +1724,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DANOS_POR_AGUA",
      "tipo": "FIXA",
-     "min": 29000,
+     "min": 28000,
      "max": 50000,
      "confianca": "MEDIA",
      "dados_utilizados": "bens molháveis, reconstrução",
@@ -1690,7 +1736,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "VENDAVAL_GRANIZO",
      "tipo": "FIXA",
-     "min": 28000,
+     "min": 24000,
      "max": 60000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo, reconstrução",
@@ -1786,7 +1832,7 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "DESPESAS_EMERGENCIAIS",
      "tipo": "FIXA",
-     "min": 6500,
+     "min": 5500,
      "max": 15000,
      "confianca": "MEDIA",
      "dados_utilizados": "faixa de incêndio",
@@ -1803,17 +1849,19 @@ window.FICHAS_DEMO = {
      "codigo": "POSSIVEL_REFORMA"
     },
     {
-     "prioridade": 55,
-     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 42.000 e R$ 113.000?",
-     "codigo": "BENS"
+     "prioridade": 58,
+     "texto": "Estimamos que o imóvel tem cerca de 166 m². Confere?",
+     "codigo": "AREA",
+     "reduz_faixa_ate": 295000
     },
     {
-     "prioridade": 50,
-     "texto": "Estimamos que o imóvel tem cerca de 166 m². Confere?",
-     "codigo": "AREA"
+     "prioridade": 56,
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
+     "reduz_faixa_ate": 239000
     }
    ],
-   "perguntas_candidatas": 3,
+   "perguntas_candidatas": 4,
    "confianca": "MEDIA",
    "confianca_score": 56,
    "confianca_motivo": "estimado: área; elegibilidade a confirmar",
