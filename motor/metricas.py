@@ -127,6 +127,11 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "confianca_estabilidade_casos_que_mudam_com_pesos_20pct": int(mudou_nivel),
         "confianca_largura_incendio_mediana": largura,
         "canal": dict(Counter(f["canal"] for f in fichas)),
+        "jornada": dict(Counter(f["jornada"] for f in fichas)),
+        "gerente_pct_dos_elegiveis": round(100 * sum(f["jornada"] == "GERENTE" for f in fichas)
+                                           / max(1, sum(f["elegibilidade"] == "SIM" for f in fichas)), 1),
+        "gerente_motivos": dict(Counter(r for f in fichas if f["jornada"] == "GERENTE"
+                                        for r in f["motivo_jornada"].split("; "))),
         "perguntas_media": round(sum(len(f["perguntas"]) for f in fichas) / n, 2),
         "perguntas_candidatas_media": round(sum(f["perguntas_candidatas"] for f in fichas) / n, 2),
         "teste_justica_casos_alterados": mudou_justica,

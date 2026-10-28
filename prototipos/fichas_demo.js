@@ -304,6 +304,8 @@ window.FICHAS_DEMO = {
     "pct": 33
    },
    "canal": "ONE_CLICK",
+   "jornada": "UM_TOQUE",
+   "motivo_jornada": "elegível, sem pendência e com confiança suficiente",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
@@ -665,7 +667,9 @@ window.FICHAS_DEMO = {
     ],
     "pct": 0
    },
-   "canal": "GERENTE",
+   "canal": "ONE_CLICK",
+   "jornada": "APP_COM_PERGUNTAS",
+   "motivo_jornada": "pouca familiaridade com o app: modo simples e ajuda contextual",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
@@ -957,6 +961,8 @@ window.FICHAS_DEMO = {
     "pct": 0
    },
    "canal": "GERENTE",
+   "jornada": "GERENTE",
+   "motivo_jornada": "confiança baixa: não sabemos se o cliente mora no imóvel",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
@@ -1317,6 +1323,8 @@ window.FICHAS_DEMO = {
     "pct": 67
    },
    "canal": "GERENTE",
+   "jornada": "SEM_NOVA_PROPOSTA",
+   "motivo_jornada": "não elegível para nova proposta: o app informa e a ficha serve para revisar a apólice atual",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
@@ -1660,6 +1668,8 @@ window.FICHAS_DEMO = {
     "pct": 67
    },
    "canal": "ONE_CLICK",
+   "jornada": "UM_TOQUE",
+   "motivo_jornada": "elegível, sem pendência e com confiança suficiente",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
@@ -2016,6 +2026,8 @@ window.FICHAS_DEMO = {
     "pct": 0
    },
    "canal": "GERENTE",
+   "jornada": "GERENTE",
+   "motivo_jornada": "sinal de obra ou reforma, que impede a contratação e pede conversa",
    "fontes": [
     "SINAPI ago/2026 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",

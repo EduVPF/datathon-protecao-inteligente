@@ -889,8 +889,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
         campos[k]["natureza"] = "CONFIRMADO"
     faltantes = [c for c in campos_faltantes(r) if not (c == "area_cadastrada_m2" and "area" in confirmados)]
     nivel, score, motivo_conf = confianca_geral(campos, eleg, pendencias, faltantes)
-    one_click = (r.usuario_app == "SIM" and r.indice_maturidade_digital >= P.MATURIDADE_MIN_ONE_CLICK
-                 and eleg == "SIM" and not pendencias and nivel != "BAIXA")
+    jornada, motivo_jornada = escolher_jornada(r, eleg, pendencias, nivel, uso)
     return _limpo({
         "cliente_id": r.cliente_id, "imovel_id": r.imovel_id,
         "local": f"{r.municipio_real}/{r.uf_real}", "complemento": r.complemento,
@@ -906,9 +905,38 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
         "coberturas": coberturas, "perguntas": perguntas, "perguntas_candidatas": n_cand,
         "confianca": nivel, "confianca_score": score, "confianca_motivo": motivo_conf,
         "completude": {"faltantes": faltantes, "pct": round(100 * (1 - len(faltantes) / len(P.CAMPOS_COMPLETUDE)))},
-        "canal": "ONE_CLICK" if one_click else "GERENTE",
+        # canal: o que o protótipo lê (1 toque × gerente); jornada: o caminho detalhado
+        "canal": "ONE_CLICK" if jornada in ("UM_TOQUE", "APP_COM_PERGUNTAS") else "GERENTE",
+        "jornada": jornada, "motivo_jornada": motivo_jornada,
         "fontes": FONTES_SEMPRE + sorted(ctx["fontes"]),
     })
+
+
+def escolher_jornada(r, eleg, pendencias, nivel, uso):
+    """Gerente é o último recurso, porque custa caro (mentoria de 28/10). Ordem:
+    - SEM_NOVA_PROPOSTA: não elegível; o app só informa e a ficha serve para revisar a apólice;
+    - GERENTE: o app não resolve com uma pergunta de sim/não: confiança baixa (não se sabe se a
+      pessoa mora lá), sinal de obra ou cliente sem o app;
+    - APP_COM_PERGUNTAS: pendência que o app resolve ("seu seguro atual é da BB?") ou pouca
+      familiaridade com o app (modo simples, D-03);
+    - UM_TOQUE: o resto. O relatório do gerente (a ficha) existe para todos os casos."""
+    if eleg != "SIM":
+        return "SEM_NOVA_PROPOSTA", "não elegível para nova proposta: o app informa e a ficha serve para revisar a apólice atual"
+    obra = any(p["codigo"] == "POSSIVEL_REFORMA" for p in pendencias)
+    razoes = []
+    if nivel == "BAIXA":
+        razoes.append("confiança baixa: " + ("não sabemos se o cliente mora no imóvel"
+                                             if uso["classe"] == "PRESUMIDO" else "dados críticos presumidos"))
+    if obra:
+        razoes.append("sinal de obra ou reforma, que impede a contratação e pede conversa")
+    if r.usuario_app != "SIM":
+        razoes.append("o cliente não usa o app")
+    if razoes:
+        return "GERENTE", "; ".join(razoes)
+    if pendencias or r.indice_maturidade_digital < P.MATURIDADE_MIN_ONE_CLICK:
+        return "APP_COM_PERGUNTAS", ("o app confirma " + ", ".join(p["codigo"].lower().replace("_", " ") for p in pendencias)
+                                     if pendencias else "pouca familiaridade com o app: modo simples e ajuda contextual")
+    return "UM_TOQUE", "elegível, sem pendência e com confiança suficiente"
 
 
 def processar(dados, cal):

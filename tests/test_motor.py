@@ -185,7 +185,7 @@ def test_seguro_existente_sem_produto_bb_vira_pergunta(caso, cal, teste):
     r.possui_seguro_residencial, r.qtd_produtos_seguridade = "SIM", 0
     catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
     f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=1)
-    assert f["elegibilidade"] == "SIM" and f["canal"] == "GERENTE"
+    assert f["elegibilidade"] == "SIM" and f["jornada"] == "APP_COM_PERGUNTAS"   # o app resolve; gerente é último recurso
     assert f["perguntas"][0]["prioridade"] == 100 and "BB Seguros" in f["perguntas"][0]["texto"]
 
 
@@ -540,3 +540,30 @@ def test_bens_sem_compras_usam_a_media_da_regiao(linha, cal, vazio):
 def test_cep_da_base_nao_tem_sinal(cal):
     t = cal["teste_cep"]   # RN-10: CEP agregado fictício; o degrau de CEP fica desligado
     assert abs(t["r2_cep"] - t["r2_cep_embaralhado"]) < 0.05 and not P.USAR_CEP
+
+
+# --- F3: gerente como último recurso (mentoria 28/10) ---------------------------
+def test_gerente_so_no_ultimo_caso(todas):
+    for f in todas:
+        if f["jornada"] == "GERENTE":
+            obra = any(p["codigo"] == "POSSIVEL_REFORMA" for p in f["pendencias"])
+            assert f["confianca"] == "BAIXA" or obra or f["canal_digital"]["usuario_app"] != "SIM", f["imovel_id"]
+            assert f["motivo_jornada"]
+    gerente = sum(f["jornada"] == "GERENTE" for f in todas)
+    assert gerente <= 0.3 * sum(f["elegibilidade"] == "SIM" for f in todas)
+
+
+def test_pergunta_simples_fica_no_app(ficha):
+    f = ficha(APTO_CURITIBA, possui_seguro_residencial="SIM", qtd_produtos_seguridade=0)
+    assert f["pendencias"] and f["jornada"] == "APP_COM_PERGUNTAS" and f["canal"] == "ONE_CLICK"
+
+
+def test_sinal_de_obra_vai_ao_gerente(ficha):
+    f = ficha(APTO_CURITIBA, gastos_material_construcao_24m=40000)
+    assert f["jornada"] == "GERENTE" and "obra" in f["motivo_jornada"]
+
+
+def test_nao_elegivel_nao_conta_como_venda(todas):
+    for f in todas:
+        if f["elegibilidade"] == "NAO":
+            assert f["jornada"] == "SEM_NOVA_PROPOSTA"
