@@ -1,0 +1,97 @@
+/* Cores do projeto: cada pasta tem a mesma cor no explorador e no grafo.
+   Funciona abrindo o vault pela pasta obsidian/ ou pela pasta "BB Datathon". */
+
+:root {
+  --bb-amarelo: #fcd116;
+  --bb-azul: #465eff;
+  --c01: #4cc9f0; --c02: #4895ef; --c03: #7b61ff; --c04: #6a4cff; --c05: #9d4edd;
+  --c06: #b5179e; --c07: #f72585; --c08: #ff8fab; --c09: #2ec4b6; --c10: #56cfe1;
+  --c11: #48bfe3; --c12: #c77dff; --c13: #e0aaff; --c14: #ff4d9d; --c15: #06d6a0;
+}
+
+/* ---------- Explorador: uma cor por pasta ---------- */
+.nav-folder-title { border-left: 3px solid transparent; border-radius: 4px; }
+.nav-folder-title[data-path$="01 - Briefing"]          { --pasta: var(--c01); }
+.nav-folder-title[data-path$="02 - Dados"]             { --pasta: var(--c02); }
+.nav-folder-title[data-path$="03 - Solução"]           { --pasta: var(--c03); }
+.nav-folder-title[data-path$="04 - Tecnologia"]        { --pasta: var(--c04); }
+.nav-folder-title[data-path$="05 - Pesquisa"]          { --pasta: var(--c05); }
+.nav-folder-title[data-path$="06 - Git e Entregas"]    { --pasta: var(--c06); }
+.nav-folder-title[data-path$="07 - Equipe e Tarefas"]  { --pasta: var(--c07); }
+.nav-folder-title[data-path$="08 - Pitch"]             { --pasta: var(--c08); }
+.nav-folder-title[data-path$="09 - Conceitos"]         { --pasta: var(--c09); }
+.nav-folder-title[data-path$="10 - Coberturas"]        { --pasta: var(--c10); }
+.nav-folder-title[data-path$="11 - Fontes externas"]   { --pasta: var(--c11); }
+.nav-folder-title[data-path$="12 - Inovação"]          { --pasta: var(--c12); }
+.nav-folder-title[data-path$="13 - Design"]            { --pasta: var(--c13); }
+.nav-folder-title[data-path$="14 - App v2"]            { --pasta: var(--c14); }
+.nav-folder-title[data-path$="15 - Código"]            { --pasta: var(--c15); }
+.nav-folder-title[data-path$=" - Briefing"], .nav-folder-title[data-path$=" - Dados"],
+.nav-folder-title[data-path$=" - Solução"], .nav-folder-title[data-path$=" - Tecnologia"],
+.nav-folder-title[data-path$=" - Pesquisa"], .nav-folder-title[data-path$=" - Git e Entregas"],
+.nav-folder-title[data-path$=" - Equipe e Tarefas"], .nav-folder-title[data-path$=" - Pitch"],
+.nav-folder-title[data-path$=" - Conceitos"], .nav-folder-title[data-path$=" - Coberturas"],
+.nav-folder-title[data-path$=" - Fontes externas"], .nav-folder-title[data-path$=" - Inovação"],
+.nav-folder-title[data-path$=" - Design"], .nav-folder-title[data-path$=" - App v2"],
+.nav-folder-title[data-path$=" - Código"] {
+  border-left-color: var(--pasta);
+  background: color-mix(in srgb, var(--pasta) 10%, transparent);
+  font-weight: 600;
+}
+.nav-folder-title[data-path$=" - Briefing"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Dados"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Solução"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Tecnologia"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Pesquisa"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Git e Entregas"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Equipe e Tarefas"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Pitch"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Conceitos"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Coberturas"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Fontes externas"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Inovação"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Design"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - App v2"] .nav-folder-title-content::before,
+.nav-folder-title[data-path$=" - Código"] .nav-folder-title-content::before {
+  content: "●  "; color: var(--pasta);
+}
+/* Notas-chave na raiz em amarelo BB */
+.nav-file-title[data-path$="00 - Painel.md"],
+.nav-file-title[data-path$="HANDOFF_CONTEXTO.md"],
+.nav-file-title[data-path$="Regras de negócio.md"],
+.nav-file-title[data-path$="Regras e contexto.md"] {
+  color: var(--bb-amarelo); font-weight: 700;
+}
+
+/* ---------- Títulos ---------- */
+.markdown-rendered h1, .cm-header-1 {
+  color: var(--bb-amarelo);
+  border-bottom: 2px solid color-mix(in srgb, var(--bb-amarelo) 50%, transparent);
+  padding-bottom: .2em;
+}
+.markdown-rendered h2, .cm-header-2 { color: #7ea1ff; }
+.theme-light .markdown-rendered h1, .theme-light .cm-header-1 { color: #2f3fbf; border-bottom-color: var(--bb-amarelo); }
+.theme-light .markdown-rendered h2, .theme-light .cm-header-2 { color: #3557e0; }
+.markdown-rendered h3, .cm-header-3 { color: #2ec4b6; }
+
+/* ---------- Tabelas ---------- */
+.markdown-rendered table { border-radius: 8px; overflow: hidden; }
+.markdown-rendered thead th {
+  background: color-mix(in srgb, var(--bb-azul) 28%, transparent);
+  border-bottom: 2px solid var(--bb-amarelo);
+}
+.markdown-rendered tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bb-azul) 7%, transparent); }
+
+/* ---------- Tags como pílulas ---------- */
+a.tag { border-radius: 999px; padding: 1px 8px;
+  background: color-mix(in srgb, var(--bb-azul) 22%, transparent); color: var(--text-normal); }
+
+/* ---------- Callouts do projeto ---------- */
+/* Uso:  > [!regra] RN-07   |  > [!metrica]  |  > [!codigo]  |  > [!fonte]  |  > [!bug]  |  > [!decisao] */
+.callout[data-callout="regra"]   { --callout-color: 252, 209, 22;  --callout-icon: lucide-shield-check; }
+.callout[data-callout="metrica"] { --callout-color: 6, 214, 160;   --callout-icon: lucide-bar-chart-3; }
+.callout[data-callout="codigo"]  { --callout-color: 106, 76, 255;  --callout-icon: lucide-code-2; }
+.callout[data-callout="fonte"]   { --callout-color: 72, 191, 227;  --callout-icon: lucide-book-open; }
+.callout[data-callout="bug"]     { --callout-color: 239, 71, 111;  --callout-icon: lucide-bug; }
+.callout[data-callout="decisao"] { --callout-color: 247, 37, 133;  --callout-icon: lucide-git-branch; }
+.callout { border-radius: 10px; }

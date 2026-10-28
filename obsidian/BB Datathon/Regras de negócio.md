@@ -17,6 +17,8 @@ Tudo o que o [[Guia oficial do datathon]] e o LEIA-ME dos dados pedem, em forma 
 ## B. Dados
 - **RN-06** Usar só os dados fornecidos e fontes externas **públicas ou autorizadas**.
 - **RN-07** **Proibido usar dado sensível ou atributo pessoal como atalho para risco ou patrimônio.** Idade e renda não definem valor de bens, risco, plano ou faixa.
+> [!decisao] RN-07 × código (28/10)
+> Desde o PR #13, dependentes **e** pet somam 1 ponto ao Total (slide 14 da Brasilseg, "casa familiar"), e isso muda o plano em **18 casos**. Valor, elegibilidade, canal e confiança não mudam. Isso conflita com a RN-07 do [[Regras de negócio - arquivo para as IAs do grupo|arquivo das IAs]]. Decidir na mentoria: ver [[Auditoria do código - 28-10]].
 - **RN-08** Combinar vários sinais. Nenhuma decisão depende de uma variável só.
 - **RN-09** Estimativa **nunca** aparece como fato confirmado. Todo dado é marcado como observado, estimado ou confirmado.
 - **RN-10** Coordenadas e endereços são fictícios ou perturbados: não tratar como localização real. Só município, UF e código IBGE são reais.

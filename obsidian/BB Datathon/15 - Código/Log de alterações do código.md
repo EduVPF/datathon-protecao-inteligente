@@ -1,0 +1,49 @@
+---
+tags: [codigo, log, git]
+atualizado: 2026-10-28
+---
+# 📝 Log de alterações do código
+
+Toda mudança no motor, do mais novo para o mais antigo. Repositório: [pedroiaan/datathon-protecao-inteligente](https://github.com/pedroiaan/datathon-protecao-inteligente) · histórico completo: `git log --oneline`.
+
+> [!info] Como registrar
+> A cada commit que mexe em `motor/`, `tests/` ou `entrega/`, acrescente uma linha aqui: **o que mudou, por quê e qual regra atende**. Os detalhes ficam no commit e na nota da etapa em `documentos/contexto/`.
+
+## 28/10 · noite: auditoria do código ([[Auditoria do código - 28-10]])
+| Arquivo | O que mudou | Por quê |
+|---|---|---|
+| `motor.py` · `_area_estimada` | Usa só os sinais que existem (IPTU ou energia zerados não encolhem a área) | RN-14, valores extremos |
+| `motor.py` · `calibrar`, `_calibrar_area`, `backtest` | Calibração separada + **backtest fora da amostra** (área e padrão) | Validação de modelo, RN-47 |
+| `motor.py` · `iptu_relativo`, `valor_imovel` | Padrão vazio + área cadastrada → IPTU/m² estreita o fator do padrão | Precisão das faixas, RN-08 |
+| `motor.py` · `dimensionar` | Aviso de **subseguro** quando a estimativa passa do limite; RN-27 para o locador; despesas emergenciais sobre a faixa de incêndio já limitada; motivo cita os **sinistros reais da BB** | D-07, RN-27, RN-49 |
+| `motor.py` · `valor_da_informacao`, `montar_perguntas` | A pergunta não promete mais que a faixa entregue; corta as que mudam menos de R$ 5 mil | RN-36, RN-51 |
+| `parametros.py` | `fator_padrao_pelo_iptu`, `sinistros_pct`, `VALOR_MINIMO_PERGUNTA` | Premissas com origem |
+| `externos/sinistros_residencial_bb.csv` + `FONTES.md` | Mix de acionamentos do residencial BB (jan/2023–mai/2026) | Dado real da própria BB, só no texto |
+| `metricas.py` | `processados_pct` calculado de verdade; `metricas_de_mercado` (STP, esforço, ITV, faixas no limite, aderência aos sinistros); backtest | Guia §8 + mercado |
+| `templates.py` | Confere RN-33, confiança válida, linhas repetidas e valores negativos | RN-33 |
+| `api.py` | Área 0, negativa ou acima de 10.000 m² é recusada | Robustez da API |
+| `tests/` | +10 testes (61 no total) | Cada correção com prova |
+
+## 28/10 · tarde
+| Hora | Quem | Commit | O que mudou |
+|---|---|---|---|
+| 15:20 | Pedro | `5bac480` | Seguro BB só com produto de seguridade; frescor de volta na confiança; "dependentes" em vez de "crianças" |
+| 15:13 | Pedro | `3830400` | Merge do PR #13 (revisão QA + vault) |
+| 15:07 | Matheus | `3ee7095` | Vault do Obsidian no repositório |
+| 14:09 | Matheus | `03c4e67` | Veraneio não puxa o Prático; RC familiar como adicional; métricas de estabilidade, falhas e elegibilidade |
+| 13:59 | Matheus | `9404798` | Faixa aberta sem padrão construtivo; perguntas pelo valor da informação; justiça por quinto de renda |
+| 13:53 | Matheus | `66e3326` | Perfis do slide 14; confiança por regra; CUB só oficial |
+
+## 28/10 · madrugada (primeira versão)
+| Hora | Commit | Tarefa |
+|---|---|---|
+| 00:59 | `69378a9` | T9 · API de demonstração |
+| 00:57 | `53eeeca` | T7 · protótipo do gerente lê as fichas do motor |
+| 00:53 | `2a0311d` | T5, T6 · confiança, justiça, métricas, casos contrastantes |
+| 00:50 | `d6e3c77` | T4 · validação das planilhas |
+| 00:49 | `33fb8ea` | T3 · elegibilidade, plano e coberturas |
+| 00:44 | `ab211aa` | T2 · bens pelas três âncoras com IPCA |
+| 00:42 | `f87a8a0` | T1 · parâmetros com fontes oficiais |
+| 00:39 | `752993d` | Estrutura inicial |
+
+Ligações: [[Mapa do código]] · [[Log de commits]] · [[Correções P1-P5 no motor]]

@@ -20,6 +20,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | 16 | T9 · API para agentes | [16-t9-api.md](16-t9-api.md) | ✅ |
 | 17 | Revisão QA: elegibilidade, perfis do slide 14 e confiança por regra | [17-revisao-qa.md](17-revisao-qa.md) | ✅ |
 | 18 | PR #13 aceito, ajustes e o vault do Obsidian | [18-analise-pr13.md](18-analise-pr13.md) | ✅ |
+| 19 | Auditoria do código, métricas de mercado e backtest | [19-auditoria-codigo.md](19-auditoria-codigo.md) | ✅ |
 | 90 | Revisão do time (comece por aqui amanhã) | [90-revisao.md](90-revisao.md) | 📋 para revisar |
 
 ## Onde está cada coisa

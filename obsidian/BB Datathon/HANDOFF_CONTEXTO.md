@@ -2,6 +2,9 @@
 
 Cole este arquivo no início de uma conversa nova com qualquer assistente (Claude Code, claude.ai ou outro). Ele resume tudo o que foi feito e decidido até a noite de 28/10/2026.
 
+> [!codigo] Código (atualizado 28/10 à noite)
+> Mapa de cada arquivo e função: [[Mapa do código]]. O que foi corrigido e o que falta decidir: [[Auditoria do código - 28-10]]. Repositório oficial (público): https://github.com/pedroiaan/datathon-protecao-inteligente
+
 ## 1. Quem e o quê
 - **Usuário:** Matheus (GitHub `matfsouza`), time de 5 pessoas (4 amigos + 1 integrante novo), pouca experiência em dados.
 - **Evento:** Datathon Proteção Inteligente, Banco do Brasil / Brasilseg (com IBMEC). Desafio escolhido: **Seguro Residencial**.

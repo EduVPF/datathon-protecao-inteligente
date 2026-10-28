@@ -4,6 +4,9 @@ atualizado: 2026-10-27
 ---
 # Métricas de bancos e seguradoras
 
+> [!metrica] Atualização 28/10
+> As métricas calculadas de verdade (STP, esforço, ITV, backtest e sinistros reais da BB) estão em [[Métricas do mercado x as nossas]].
+
 O que o mercado acompanha e o que a gente consegue medir agora (na base comum) ou só num piloto.
 
 ## 1. Métricas que o guia pede (medir no MVP)
@@ -33,7 +36,7 @@ O que o mercado acompanha e o que a gente consegue medir agora (na base comum) o
 ## 3. Métricas de bancassurance (venda de seguro pelo banco)
 | Métrica | O que é | Na nossa base |
 |---|---|---|
-| **Penetração** | % de clientes do banco com o seguro | 366 de 2.200 já têm residencial BB = **16,6%** |
+| **Penetração** | % de clientes do banco com o seguro | 366 de 2.200 têm seguro residencial = **16,6%** (o campo não diz se é da BB) |
 | **Cross-sell ratio** | produtos de seguro por cliente | média de **0,97** produto de seguridade por cliente |
 | Conversão | ofertas aceitas ÷ ofertas | só no piloto (BCG relata conversão 4 a 5 vezes maior com ofertas digitais pré-calculadas) |
 | **Persistência** | apólices renovadas ÷ apólices | só no piloto; venda mal explicada derruba a persistência |

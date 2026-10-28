@@ -1,6 +1,7 @@
 {
   "theme": "obsidian",
   "enabledCssSnippets": [
-    "cerebro-grafo"
+    "cerebro-grafo",
+    "cores-do-projeto"
   ]
 }

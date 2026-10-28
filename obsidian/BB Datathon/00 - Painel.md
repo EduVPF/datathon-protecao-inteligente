@@ -3,13 +3,20 @@ tags: [painel, datathon-bb]
 ---
 # 🏠 Datathon BB: Seguro Residencial
 
-Novo assistente? Leia [[HANDOFF_CONTEXTO]] primeiro, depois [[Trajetória do projeto]]. **Próxima tarefa:** [[Especificação do app v2 - ligado ao motor]]. Motor: [[Correções P1-P5 no motor]] · PR [#13](https://github.com/pedroiaan/datathon-protecao-inteligente/pull/13).
+> [!tip] Comece por aqui
+> Novo assistente? Leia [[HANDOFF_CONTEXTO]] e depois [[Trajetória do projeto]]. Regras: [[Regras e contexto]] e [[Regras de negócio]].
+> **Próxima tarefa:** [[Especificação do app v2 - ligado ao motor]].
 
-Comece por [[Regras e contexto]] e [[Regras de negócio]]. Lá ficam o que a banca pediu e as regras do grupo, sempre atualizadas.
+> [!codigo] Código do motor (atualizado 28/10 à noite)
+> [[Mapa do código]] (cada arquivo e função) · [[Auditoria do código - 28-10]] (erros e correções) · [[Métricas do mercado x as nossas]] · [[Log de alterações do código]]
+> **61 testes** · 0 erros nas planilhas · Prático 59 · Total 49 · Essencial 30 · elegível 122 · 2,7 perguntas por caso (86% menos esforço que uma cotação tradicional)
 
-**Entrega:** 29/10 às 10h · **Mentoria:** 28/10 às 14h · **Equipe:** 5 · **Concorrência:** 5 equipes, top 3 premiado
+> [!warning] Para o time decidir
+> Família mudando o plano em 18 casos (RN-07) · limites de danos elétricos e água que são premissa · "valor sugerido" no meio da faixa. Detalhes na [[Auditoria do código - 28-10]].
 
-**Links:** [Repositório](https://github.com/matfsouza/datathon-bb-seguro-residencial) · [Quadro de tarefas](https://github.com/users/matfsouza/projects/1) · Drive: *colar link* · [[Reuniões]]
+> [!info] Datas e links
+> **Entrega:** 29/10 às 10h · **Mentoria:** 28/10 às 14h · **Equipe:** 5 · **Concorrência:** 5 equipes, top 3 premiado
+> [Repositório oficial (público)](https://github.com/pedroiaan/datathon-protecao-inteligente) · [Repositório antigo do Matheus](https://github.com/matfsouza/datathon-bb-seguro-residencial) · [Quadro de tarefas](https://github.com/users/matfsouza/projects/1) · [[Reuniões]]
 
 ## Mapa do vault
 - **01 - Briefing:** [[Entenda a entrega (explicação simples)]] (comece aqui), [[Desafio - resumo]], [[Guia oficial do datathon]], [[Critérios de avaliação]], [[Elegibilidade residencial]], [[Templates de entrega]], [[Transcrição da apresentação]], [[Perguntas para a mentoria]]
@@ -24,19 +31,20 @@ Comece por [[Regras e contexto]] e [[Regras de negócio]]. Lá ficam o que a ban
 - **10 - Coberturas:** [[Reconstrução]], [[Conteúdo]], [[Danos elétricos]], [[Perda de aluguel]], [[Responsabilidade civil familiar]], [[Sexta cobertura]]
 - **11 - Fontes externas:** [[SINAPI]], [[Atlas Digital de Desastres]], [[INPE ELAT]], [[SINESP]], [[SGB setorização de risco]], [[Imagem de satélite]]
 - **12 - Inovação:** [[Ideias v2 - proposta para o time]] (atual), [[Ideias descartadas ou adiadas]], [[Ideias de equilíbrio]], [[Ideias de inovação]], [[Referências de mercado]]
+- **15 - Código:** [[Mapa do código]], [[Auditoria do código - 28-10]], [[Métricas do mercado x as nossas]], [[Log de alterações do código]]
 - **14 - App v2:** [[Especificação do app v2 - ligado ao motor]] (próxima tarefa), [[Trajetória do projeto]]
 - **13 - Design:** [[App atual - falhas e nosso fluxo]] (protótipo), [[Regras de design BB]], [[Análise do visual do BB]], [[Catálogo do Seguro Residencial BB]]
 
 Para abrir o grafo, use `Ctrl+G`. As cores separam as pastas.
 
 ## Status
-- [x] Repositório privado no GitHub
+- [x] Repositório no GitHub (público: pedroiaan/datathon-protecao-inteligente)
 - [x] Áudio da apresentação transcrito
 - [x] Quadro de tarefas criado (vazio até ter o plano)
 - [ ] Convidar a equipe no repositório e no quadro
 - [ ] Pasta compartilhada no Google Drive
 - [x] Dados e guia oficial recebidos, no repositório e no [[Dicionário de dados]]
 - [x] Declaração curta de uso de IA no README
-- [ ] Definir o MVP e o modelo
+- [x] Definir o MVP e o modelo (motor de regras, ver [[Mapa do código]])
 - [ ] Mentoria com as [[Perguntas para a mentoria|perguntas]]
 - [ ] Template + código + vídeo de 5 min

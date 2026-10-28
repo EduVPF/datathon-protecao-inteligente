@@ -18,7 +18,7 @@ Python 3.11 (registrado em `.python-version`).
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 51 testes
+python -m pytest -q                 # 61 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -92,16 +92,26 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 | Coberturas adicionais | 41 (RC familiar em prédio ou condomínio com dependentes ou pet) |
 | Elegibilidade | SIM 122 · NAO 16 (provável seguro BB no endereço: seguro residencial + produto de seguridade BB + um imóvel) · 21 com confirmação pendente |
 | Confiança | ALTA 17 · MÉDIA 101 · BAIXA 20 (14%) |
-| Perguntas por caso | 2,73 (de 3,51 possíveis) |
+| Perguntas por caso | 2,70 (de 3,43 possíveis); nenhuma pergunta de valor que mude menos de R$ 5 mil |
 | Teste de justiça (troca renda e idade) | 0 casos mudam |
-| Crianças e pets mudando valor ou confiança | 0 casos |
+| Dependentes e pet mudando valor ou confiança | 0 casos (mudam o plano em 18, pela RC familiar) |
 | Estabilidade do plano (valores ±5%) | 1 caso muda (perto do limiar de eletrônicos) |
 | Estabilidade da confiança (pesos ±20%) | 0 casos mudam |
-| Faixa de incêndio por confiança (máx ÷ mín) | ALTA 1,92 · MÉDIA 2,35 · BAIXA 2,64 |
-| Sensibilidade (área +10%) | incêndio +4,8% em média, 0 quedas |
+| Faixa de incêndio por confiança (máx ÷ mín) | ALTA 1,89 · MÉDIA 2,25 · BAIXA 2,48 |
+| Sensibilidade (área +10%) | incêndio +4,7% em média, 0 quedas |
 | Regra dos 80% na elegibilidade por faixa de renda | 0,85 |
 | Reprodutibilidade | duas rodadas geram arquivos idênticos |
 | Tempo | ~0,5 s para os 138 casos |
+
+### Métricas de mercado e validação
+| Métrica | Resultado | Como |
+|---|---|---|
+| STP (vai direto ao 1 toque) | 48,6% | Elegível, sem pendência, confiança não baixa, usuário do app |
+| Esforço | 2,7 perguntas × 19,9 campos de uma cotação tradicional (86,5% menos) | 5 dados do imóvel + 6 declarações de elegibilidade + 1 valor por cobertura |
+| Aderência aos sinistros reais | 100% das recomendações têm danos elétricos, água e vendaval, que somam 79,4% dos acionamentos do residencial BB | `motor/externos/sinistros_residencial_bb.csv` |
+| ITV do incêndio (segurado ÷ valor em risco) | máximo da faixa 1,46 · mínimo 0,61 | O app deve sugerir o meio da faixa, não o mínimo |
+| Backtest fora da amostra: área | erro mediano 15%; a faixa contém a área real em 78% (meta 80%) | Calibra em metade da base de desenvolvimento, mede na outra |
+| Backtest fora da amostra: padrão pelo IPTU/m² | intervalo certo em 97,8% dos 180 estreitados | Mesmo método |
 
 Tudo em `entrega/metricas.json`.
 
@@ -111,10 +121,10 @@ Tudo em `entrega/metricas.json`.
 | A · Apartamento urbano | `IMO_CASO_00005_01` | Prático + RC | Gasto recente com vidraçaria e vizinhos de parede; dependentes ou pet → RC adicional |
 | B · Casa familiar | `IMO_CASO_00031_01` | Total | Casa em condomínio, dependentes e pet, bens e eletrônicos altos |
 | C · Imóvel de lazer | `IMO_CASO_00010_01` | Essencial + RC | Apartamento de veraneio que fica vazio: o roubo do Prático não cobre residência desocupada |
-| Não elegível | `IMO_CASO_00001_01` | — | Endereço já segurado na BB Seguros |
+| Não elegível | `IMO_CASO_00014_01` | — | Provável seguro BB no endereço (seguro residencial + produto de seguridade BB + um imóvel) |
 
 ## Fontes externas
-SINAPI (IBGE), CUB oficial (Sinduscons de SP, DF, GO e BA), IPCA (Banco Central, API SGS 433), FipeZAP Locação (Fipe) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
+SINAPI (IBGE), CUB oficial (Sinduscons de SP, DF, GO e BA), IPCA (Banco Central, API SGS 433), FipeZAP Locação (Fipe), acionamentos do Seguro Residencial BB jan/2023–mai/2026 (só no texto do motivo) e Condições Gerais BB Seguro Residencial v1.4. Detalhes, licença e limitações em `motor/externos/FONTES.md`.
 
 ## Privacidade e responsabilidade
 - Só dados do pacote e fontes públicas. Os dados do pacote são fictícios.
