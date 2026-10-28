@@ -3,31 +3,41 @@
  "processados_pct": 100.0,
  "com_justificativa_pct": 100.0,
  "completude_coberturas_fixas_pct": 100.0,
- "linhas_de_cobertura": 1156,
+ "linhas_de_cobertura": 1193,
  "faixas_vazias": 0,
  "faixas_invertidas": 0,
  "planos": {
-  "PRATICO": 69,
-  "ESSENCIAL": 31,
-  "TOTAL": 38
+  "PRATICO": 60,
+  "ESSENCIAL": 29,
+  "TOTAL": 49
  },
  "elegibilidade": {
-  "SIM": 138
+  "NAO": 24,
+  "SIM": 114
  },
  "casos_com_confirmacao_de_elegibilidade": 37,
  "confianca": {
-  "MEDIA": 123,
-  "ALTA": 15
+  "MEDIA": 101,
+  "BAIXA": 20,
+  "ALTA": 17
  },
- "confianca_baixa_pct": 0.0,
+ "confianca_baixa_pct": 14.5,
+ "confianca_estabilidade_casos_que_mudam_com_pesos_20pct": 0,
+ "confianca_largura_incendio_mediana": {
+  "ALTA": 1.62,
+  "MEDIA": 1.99,
+  "BAIXA": 2.07
+ },
  "canal": {
-  "GERENTE": 60,
-  "ONE_CLICK": 78
+  "GERENTE": 71,
+  "ONE_CLICK": 67
  },
- "perguntas_media": 2.43,
- "perguntas_candidatas_media": 2.67,
+ "perguntas_media": 2.54,
+ "perguntas_candidatas_media": 3.02,
  "teste_justica_casos_alterados": 0,
- "sensibilidade_area_10pct_incendio_media_pct": 4.79,
+ "familia_declarada_muda_plano": 18,
+ "familia_declarada_muda_valor_ou_confianca": 0,
+ "sensibilidade_area_10pct_incendio_media_pct": 4.8,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.3
+ "tempo_segundos": 0.58
 }
