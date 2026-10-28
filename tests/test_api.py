@@ -37,3 +37,8 @@ def test_area_zero_ou_negativa_e_recusada():
     for area in (0, -50):
         r = cliente.post("/recomendar", json={"imovel_id": "IMO_CASO_00005_01", "area_m2": area})
         assert r.status_code == 422
+
+
+def test_fontes_com_data():
+    f = cliente.get("/fontes").json()
+    assert f["sinapi"].startswith("20") and f["ipca_ultimo_mes"]

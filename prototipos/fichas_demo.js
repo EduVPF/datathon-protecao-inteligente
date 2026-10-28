@@ -104,7 +104,7 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     2287.42,
+     2287.43,
      3560.61
     ],
     "fator_padrao": [
@@ -307,9 +307,9 @@ window.FICHAS_DEMO = {
    "jornada": "UM_TOQUE",
    "motivo_jornada": "elegível, sem pendência e com confiança suficiente",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",
@@ -416,7 +416,7 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1828.93,
+     1833.05,
      3150.84
     ],
     "fator_padrao": [
@@ -497,7 +497,7 @@ window.FICHAS_DEMO = {
      "max": 476000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 122–212 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 122–212 m² × R$ 1.833–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "A estrutura tem seguro próprio (condomínio ou financiamento); o seu paga os acabamentos, estimados em de R$ 56 mil a R$ 267 mil, e repõe o que você comprou para a casa, de R$ 77 mil a R$ 209 mil.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
@@ -602,7 +602,7 @@ window.FICHAS_DEMO = {
      "max": 132000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.829–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.833–R$ 3.151/m² (SINAPI DF até CUB DF oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 38 mil a R$ 132 mil, e a cobertura paga isso no seu lugar.",
      "confirmar": "",
      "observacao": "",
@@ -671,9 +671,9 @@ window.FICHAS_DEMO = {
    "jornada": "APP_COM_PERGUNTAS",
    "motivo_jornada": "pouca familiaridade com o app: modo simples e ajuda contextual",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",
@@ -781,7 +781,7 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1674.16,
+     1678.15,
      2916.19
     ],
     "fator_padrao": [
@@ -789,7 +789,7 @@ window.FICHAS_DEMO = {
      1.3
     ],
     "origem_padrao": "não cadastrado",
-    "reconstrucao_min": 128000,
+    "reconstrucao_min": 129000,
     "reconstrucao_max": 390000,
     "segundo_risco": true
    },
@@ -843,7 +843,7 @@ window.FICHAS_DEMO = {
      "max": 208000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 77–134 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 77–134 m² × R$ 1.678–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "A estrutura tem seguro próprio (condomínio ou financiamento); o seu paga os acabamentos, estimados em de R$ 32 mil a R$ 156 mil, e repõe o que você comprou para a casa, de R$ 19 mil a R$ 52 mil.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
@@ -922,7 +922,7 @@ window.FICHAS_DEMO = {
      "max": 122000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.678–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
      "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 35 mil a R$ 122 mil, e a cobertura paga isso no seu lugar.",
      "confirmar": "",
      "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): há dependentes ou pet na casa e vizinhos por perto; a RC familiar paga danos que eles causem a terceiros.",
@@ -964,9 +964,9 @@ window.FICHAS_DEMO = {
    "jornada": "GERENTE",
    "motivo_jornada": "confiança baixa: não sabemos se o cliente mora no imóvel",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",
@@ -1073,7 +1073,7 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1878.44,
+     1881.47,
      2238.58
     ],
     "fator_padrao": [
@@ -1155,7 +1155,7 @@ window.FICHAS_DEMO = {
      "max": 167000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 90–90 m² × R$ 1.878–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 25%–40% (acabamentos) + bens",
+     "regra": "área 90–90 m² × R$ 1.881–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 25%–40% (acabamentos) + bens",
      "justificativa": "A estrutura tem seguro próprio (condomínio ou financiamento); o seu paga os acabamentos, estimados em de R$ 42 mil a R$ 81 mil, e repõe o que você comprou para a casa, de R$ 32 mil a R$ 86 mil.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento.",
@@ -1256,12 +1256,12 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
-     "min": 39000,
+     "min": 40000,
      "max": 94000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.878–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 30%–60%",
-     "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 39 mil a R$ 94 mil, e a cobertura paga isso no seu lugar.",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.881–R$ 2.239/m² (SINAPI SP até CUB SP oficial, padrão estimado pelo IPTU/m²: fator 0,85 a 1,00) × 30%–60%",
+     "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 40 mil a R$ 94 mil, e a cobertura paga isso no seu lugar.",
      "confirmar": "",
      "observacao": "",
      "limitada_pelo_produto": false
@@ -1326,9 +1326,9 @@ window.FICHAS_DEMO = {
    "jornada": "SEM_NOVA_PROPOSTA",
    "motivo_jornada": "não elegível para nova proposta: o app informa e a ficha serve para revisar a apólice atual",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",
@@ -1436,8 +1436,8 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1974.41,
-     2923.31
+     1976.96,
+     2920.12
     ],
     "fator_padrao": [
      1.0,
@@ -1505,7 +1505,7 @@ window.FICHAS_DEMO = {
      "max": 200000,
      "confianca": "MEDIA",
      "dados_utilizados": "área, tipo, vínculo, UF, padrão, compras 36m, bens; SINAPI, CUB, IPCA",
-     "regra": "área 125–125 m² × R$ 1.974–R$ 2.923/m² (SINAPI CE até SINAPI CE × 1.139 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 25%–40% (acabamentos) + bens",
+     "regra": "área 125–125 m² × R$ 1.977–R$ 2.920/m² (SINAPI CE até SINAPI CE × 1.136 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 25%–40% (acabamentos) + bens",
      "justificativa": "A estrutura tem seguro próprio (condomínio ou financiamento); o seu paga os acabamentos, estimados em de R$ 62 mil a R$ 146 mil, e repõe o que você comprou para a casa, de R$ 20 mil a R$ 54 mil.",
      "confirmar": "Área do imóvel e valor dos bens",
      "observacao": "Segundo risco (CG cl. 15.2): a estrutura é paga primeiro pelo seguro do condomínio ou do financiamento. Imóvel alugado: beneficiários distintos (locador para o imóvel, locatário para o conteúdo).",
@@ -1606,12 +1606,12 @@ window.FICHAS_DEMO = {
     {
      "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
      "tipo": "FIXA",
-     "min": 41000,
+     "min": 42000,
      "max": 123000,
      "confianca": "MEDIA",
      "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
-     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.974–R$ 2.923/m² (SINAPI CE até SINAPI CE × 1.139 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 30%–60%",
-     "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 41 mil a R$ 123 mil, e a cobertura paga isso no seu lugar.",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.977–R$ 2.920/m² (SINAPI CE até SINAPI CE × 1.136 (razão CUB/SINAPI das UFs com CUB oficial), padrão estimado pelo IPTU/m²: fator 1,00 a 1,30) × 30%–60%",
+     "justificativa": "Um vazamento ou incêndio no seu imóvel pode estragar a unidade do vizinho: reparar 70 m² custa de R$ 42 mil a R$ 123 mil, e a cobertura paga isso no seu lugar.",
      "confirmar": "",
      "observacao": "",
      "limitada_pelo_produto": false
@@ -1646,14 +1646,14 @@ window.FICHAS_DEMO = {
    "perguntas": [
     {
      "prioridade": 58,
-     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
-     "codigo": "PADRAO",
+     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 20.000 e R$ 54.000?",
+     "codigo": "BENS",
      "reduz_faixa_ate": 34000
     },
     {
      "prioridade": 56,
-     "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 20.000 e R$ 54.000?",
-     "codigo": "BENS",
+     "texto": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+     "codigo": "PADRAO",
      "reduz_faixa_ate": 34000
     }
    ],
@@ -1671,9 +1671,9 @@ window.FICHAS_DEMO = {
    "jornada": "UM_TOQUE",
    "motivo_jornada": "elegível, sem pendência e com confiança suficiente",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",
@@ -1780,7 +1780,7 @@ window.FICHAS_DEMO = {
    },
    "valor_imovel": {
     "custo_m2": [
-     1944.31,
+     1944.32,
      3560.61
     ],
     "fator_padrao": [
@@ -2029,9 +2029,9 @@ window.FICHAS_DEMO = {
    "jornada": "GERENTE",
    "motivo_jornada": "sinal de obra ou reforma, que impede a contratação e pede conversa",
    "fontes": [
-    "SINAPI ago/2026 (IBGE)",
+    "SINAPI 2026-09 (IBGE)",
     "CUB R8-N oficial dos Sinduscons",
-    "IPCA 12m, série 433 (Banco Central)",
+    "IPCA 12m até 09/2026, série 433 (Banco Central)",
     "Condições Gerais BB Seguro Residencial v1.4",
     "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)",
     "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025",

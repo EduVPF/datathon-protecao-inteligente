@@ -49,6 +49,18 @@ def saude():
     return {"ok": True, "casos": len(_linhas)}
 
 
+@app.get("/fontes")
+def fontes():
+    """De quando é cada fonte externa salva. O motor não depende de nenhuma delas para rodar;
+    `python motor/externos/coletar.py --ao-vivo` renova SINAPI e IPCA pelas APIs oficiais."""
+    P = motor.P
+    return {"sinapi": P.referencia("sinapi_uf.csv", "mes_referencia"),
+            "ipca_ultimo_mes": P.referencia("ipca_mensal.csv", "data"),
+            "cub": P.referencia("cub_uf.csv", "mes_referencia"),
+            "fipezap": P.referencia("fipezap_aluguel.csv", "mes_referencia") or "set/2026",
+            "desastres_s2id": "1991-2025 (base de 06/08/2026)", "aneel_continuidade": "2025"}
+
+
 @app.get("/fichas/{imovel_id}")
 def ficha(imovel_id: str):
     """A ficha completa: dados com origem e confiança, plano, motivo, coberturas, perguntas e canal."""

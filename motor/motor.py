@@ -839,7 +839,8 @@ def confianca_geral(campos, elegibilidade, pendencias, faltantes=()):
 
 # --- Orquestração --------------------------------------------------------------
 
-FONTES_SEMPRE = ["SINAPI ago/2026 (IBGE)", "CUB R8-N oficial dos Sinduscons", "IPCA 12m, série 433 (Banco Central)",
+FONTES_SEMPRE = [f"SINAPI {P.referencia('sinapi_uf.csv', 'mes_referencia')} (IBGE)", "CUB R8-N oficial dos Sinduscons",
+                 f"IPCA 12m até {P.referencia('ipca_mensal.csv', 'data')[3:]}, série 433 (Banco Central)",
                  "Condições Gerais BB Seguro Residencial v1.4"]
 
 

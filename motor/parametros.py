@@ -31,6 +31,12 @@ def _ler_csv(nome):
 CUSTO_M2_NEUTRO = (2100.0, 2500.0)  # usado se a UF não estiver nas tabelas
 
 
+def referencia(nome_csv, coluna):
+    """Último valor de `coluna` no CSV (ex.: mês de referência), para citar a fonte com a data certa."""
+    linhas = _ler_csv(nome_csv)
+    return linhas[-1].get(coluna, "") if linhas else ""
+
+
 @lru_cache(maxsize=None)
 def _tabela_custo():
     sinapi = {l["uf"]: float(l["sinapi_m2_sem_desoneracao"]) for l in _ler_csv("sinapi_uf.csv")}

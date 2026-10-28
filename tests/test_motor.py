@@ -18,7 +18,7 @@ def test_cub_oficial_de_sete_ufs():
 
 
 def test_custo_m2_sp_usa_cub_oficial():
-    assert P.custo_m2("SP") == (2209.93, 2238.58) and P.fonte_custo("SP") == "CUB SP oficial"
+    assert P.custo_m2("SP") == (P._tabela_custo()[0]["SP"], 2238.58) and P.fonte_custo("SP") == "CUB SP oficial"
 
 
 def test_custo_m2_uf_desconhecida_usa_neutro():
