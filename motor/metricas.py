@@ -28,11 +28,12 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
     # perguntas; nunca a faixa de uma cobertura em comum, a elegibilidade, o canal ou a confiança.
     # Sensibilidade: área 10% maior deve aumentar (ou manter) o incêndio.
     mudou_justica, familia_fora_do_lugar, familia_muda_plano, variacoes, quedas = 0, 0, 0, [], 0
-    base_nivel = {}
+    base_nivel, base_nivel_plano = {}, {}
     for r in m.itertuples(index=False):
         b = bens.get(r.imovel_id, vazio)
         base = motor.processar_caso(r, b, cal, catalogo)
         base_nivel[r.imovel_id] = base["confianca"]
+        base_nivel_plano[r.imovel_id] = base["plano"]
         trocado = SimpleNamespace(**{**r._asdict(), "renda_mensal": 99999, "idade": 99,
                                      "origem_renda": "PRESUMIDA", "confianca_renda": "BAIXA"})
         if motor.processar_caso(trocado, b, cal, catalogo) != base:
@@ -72,6 +73,24 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         P.PESO_FONTE.update(peso_orig)
         P.PENALIDADE_COMPLETUDE.update(pen_orig)
 
+    # Estabilidade do plano (guia §8): ±5% nos valores (compras, bens, IPTU, energia, vidraçaria)
+    # não deveria trocar o plano; quem troca está perto de um limiar e é listado.
+    colunas = ["compras_moveis_36m", "compras_eletrodomesticos_36m", "compras_eletronicos_36m",
+               "pagamento_iptu_anual", "energia_media_mensal_6m", "gastos_vidracaria_24m"]
+    instaveis = []
+    for r in m.itertuples(index=False):
+        b = bens.get(r.imovel_id, vazio)
+        for fator in (0.95, 1.05):
+            x = SimpleNamespace(**{**r._asdict(), **{c: getattr(r, c) * fator for c in colunas}})
+            b2 = b.assign(valor_bem_ponderado_referencia=b.valor_bem_ponderado_referencia * fator)
+            if motor.processar_caso(x, b2, cal, catalogo)["plano"] != base_nivel_plano[r.imovel_id]:
+                instaveis.append(r.imovel_id)
+                break
+
+    # Cumprimento da elegibilidade: cada regra do guia 9.1 e quantos casos ela pegou.
+    regras_eleg = Counter(p["codigo"] for f in fichas for p in f["pendencias"])
+    regras_eleg["NAO_ELEGIVEL"] = sum(f["elegibilidade"] == "NAO" for f in fichas)
+
     # Justiça por faixa de renda (como os testes de "impacto desigual" de crédito): a renda não entra
     # no motor, mas pode chegar por tabela via bens (correlação 0,87 na base). A tabela mostra, por
     # quinto de renda, o plano e os bens comprovados, para provar que o plano segue os bens.
@@ -96,6 +115,11 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "planos": dict(Counter(f["plano"] for f in fichas)),
         "elegibilidade": dict(Counter(f["elegibilidade"] for f in fichas)),
         "casos_com_confirmacao_de_elegibilidade": sum(bool(f["pendencias"]) for f in fichas),
+        "elegibilidade_por_regra": dict(regras_eleg),
+        "coberturas_adicionais": dict(Counter(a["cobertura"] for f in fichas for a in f.get("adicionais", []))),
+        "estabilidade_plano_casos_que_mudam_com_valores_5pct": len(instaveis),
+        "estabilidade_plano_casos_instaveis": instaveis,
+        "casos_com_falha": n - len({f["imovel_id"] for f in fichas}),
         "confianca": dict(conf),
         "confianca_baixa_pct": round(100 * conf.get("BAIXA", 0) / n, 1),
         "confianca_estabilidade_casos_que_mudam_com_pesos_20pct": int(mudou_nivel),
@@ -158,6 +182,7 @@ def casos_contrastantes(fichas):
             lambda f: eleg(f) and tipo(f).startswith("CASA") and f["plano"] == "TOTAL" and motivo(f, "FAMILIA_DECLARADA"),
             lambda f: eleg(f) and tipo(f).startswith("CASA") and f["plano"] == "TOTAL"),
         "perfil_C_casa_lazer": primeiro(
+            lambda f: eleg(f) and uso(f) == "LAZER_VERANEIO" and f["plano"] == "ESSENCIAL",
             lambda f: eleg(f) and uso(f) == "LAZER_VERANEIO",
             lambda f: eleg(f) and uso(f) == "RESIDENCIAL_LOCADO_A_TERCEIROS"),
         "nao_elegivel_seguro_existente": primeiro(lambda f: any(p["codigo"] == "SEGURO_EXISTENTE" for p in f["pendencias"])

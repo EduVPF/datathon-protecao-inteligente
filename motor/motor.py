@@ -314,8 +314,8 @@ def escolher_plano(r, tipo, vinculo, uso, bens):
         soma("PRATICO", 1, "CASA_SEM_CONDOMINIO", "a casa fica fora de condomínio, com mais exposição a arrombamento")
     if r.gastos_vidracaria_24m > 0:
         soma("PRATICO", 1, "VIDROS", f"há gastos recentes de {brl(r.gastos_vidracaria_24m)} com vidraçaria")
-    if uso["valor"] == "LAZER_VERANEIO":
-        soma("PRATICO", 1, "VERANEIO", "o imóvel é de veraneio e fica vazio parte do tempo")
+    # Veraneio não soma ponto para o Prático: o roubo não cobre residência desocupada
+    # (CG, Roubo 2.1 c), então recomendar o Prático por o imóvel ficar vazio seria incoerente.
     if all(familia_declarada(r)):
         soma("TOTAL", 1, "FAMILIA_DECLARADA",
              "você informou que mora com crianças e pets, e um acidente com eles pode causar dano a terceiros, que só o Total cobre")
@@ -330,6 +330,10 @@ def escolher_plano(r, tipo, vinculo, uso, bens):
 
     a_favor = sorted([m for m in motivos if ORDEM_PLANO[m["plano"]] <= ORDEM_PLANO[plano]],
                      key=lambda m: (-ORDEM_PLANO[m["plano"]], -m["peso"]))[:2]
+    if not a_favor and uso["valor"] == "LAZER_VERANEIO":
+        a_favor = [{"plano": "ESSENCIAL", "peso": 0, "codigo": "VERANEIO",
+                    "texto": "o imóvel é de lazer e fica vazio parte do tempo: fogo, vento, água e danos elétricos continuam cobertos, "
+                             "mas o roubo do Prático não cobre residência desocupada (CG, Roubo 2.1 c)"}]
     if not a_favor:
         a_favor = [{"plano": "ESSENCIAL", "peso": 0, "codigo": "BASE",
                     "texto": "as coberturas básicas protegem estrutura e bens contra fogo, água, vento e danos elétricos, e não há sinais fortes de roubo ou de dano a terceiros"}]
@@ -470,6 +474,17 @@ def valor_da_informacao(area, bens, imovel):
     return valor
 
 
+def coberturas_adicionais(r, tipo, plano):
+    """Coberturas de planos acima que entram como adicional (guia 9.2: as coberturas do Prático
+    e do Total podem ser incluídas ou excluídas). Hoje uma regra: crianças ou pets informados +
+    imóvel em prédio ou condomínio → RC familiar, sem levar o cliente ao Total inteiro."""
+    adicionais = []
+    if plano != "TOTAL" and any(familia_declarada(r)) and tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO"):
+        adicionais.append(("RESPONSABILIDADE_CIVIL_FAMILIAR",
+                           "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"))
+    return adicionais
+
+
 def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, imovel=None):
     """Até 3 perguntas, das que mais mudam o resultado (PLANO_UNIFICADO §7).
     Ordem: elegibilidade (95-100), as que mudam o plano (60-70) e depois as que mudam o
@@ -491,7 +506,7 @@ def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, 
         cand.append((40, "O imóvel é um apartamento ou uma casa?", "TIPO"))
     if vinculo["valor"] == "PROPRIETARIO":
         cand.append((30, "O imóvel é seu e já está quitado?", "VINCULO"))
-    if plano and plano != "TOTAL" and any(familia_declarada(r)):
+    if plano and plano != "TOTAL" and any(familia_declarada(r)) and not coberturas_adicionais(r, tipo, plano):
         cand.append((45, "Você informou crianças ou pets em casa. Quer proteção para danos que eles causem a terceiros? "
                          "Ela vem no plano Total.", "RC_FAMILIA"))
     cand.sort(key=lambda x: -x[0])
@@ -598,6 +613,18 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
     ctx = {"r": r, "tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens,
            "imovel": imovel, "fontes": set()}
     coberturas = [{"cobertura": cob, "tipo": "FIXA", **dimensionar(cob, ctx)} for cob in catalogo[rec["plano"]]]
+    rec["adicionais"] = []
+    for cob, motivo in coberturas_adicionais(r, tipo, rec["plano"]):
+        c = {"cobertura": cob, "tipo": "ADICIONAL", **dimensionar(cob, ctx)}
+        c["observacao"] = (f"Cobertura adicional ao plano {NOME_PLANO[rec['plano']]} (guia 9.2): {motivo}. " + c["observacao"]).strip()
+        coberturas.append(c)
+        rec["adicionais"].append({"cobertura": cob, "motivo": motivo})
+    if any(a["cobertura"] == "RESPONSABILIDADE_CIVIL_FAMILIAR" for a in rec["adicionais"]) and rec["por_que_nao_acima"]:
+        rec["por_que_nao_acima"] = rec["por_que_nao_acima"].replace(
+            "o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais",
+            "a perda de aluguel e as despesas emergenciais (a RC familiar já entra como adicional)")
+    if rec["plano"] == "ESSENCIAL":   # sem roubo no plano, o aviso sobre roubo não se aplica
+        avisos = [a for a in avisos if "roubo" not in a]
     perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, rec["plano"], imovel)
     campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens}
     for k in confirmados:
@@ -653,6 +680,8 @@ def justificativa(f):
         texto = ("Não elegível para nova proposta: " + "; ".join(p["texto"] for p in f["pendencias"])
                  + ". A recomendação abaixo serve de referência para revisar a apólice atual. ")
     texto += f"Recomendamos o plano {NOME_PLANO[f['plano']]} porque " + "; ".join(m["texto"] for m in f["motivos_plano"]) + "."
+    for a in f.get("adicionais", []):
+        texto += f" Adicional: {a['cobertura'].replace('_', ' ').lower()}, porque {a['motivo']}."
     if f["por_que_nao_abaixo"]:
         texto += f" Se você escolher menos: {f['por_que_nao_abaixo']}, e essas necessidades ficarão descobertas."
     if f["por_que_nao_acima"]:

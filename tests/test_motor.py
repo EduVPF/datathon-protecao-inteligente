@@ -121,12 +121,31 @@ def test_criancas_e_pet_pesam_so_no_plano(ficha):
         assert sem[k] == com[k]
 
 
-def test_so_crianca_ou_so_pet_vira_pergunta(ficha):
+def test_crianca_em_apartamento_ganha_rc_adicional(ficha):
     f = ficha(APTO_CURITIBA, quantidade_dependentes=1, possui_pet_informado="NAO", gastos_vidracaria_24m=0,
               compras_eletronicos_36m=0)
     assert not any(m["codigo"] == "FAMILIA_DECLARADA" for m in f["motivos"])
+    assert f["plano"] != "TOTAL"
+    rc = [c for c in f["coberturas"] if c["cobertura"] == "RESPONSABILIDADE_CIVIL_FAMILIAR"]
+    assert len(rc) == 1 and rc[0]["tipo"] == "ADICIONAL" and "adicional" in rc[0]["observacao"].lower()
+
+
+def test_casa_com_pet_recebe_pergunta_e_nao_adicional(ficha):
+    f = ficha(APTO_CURITIBA, possui_termo_apartamento="NAO", possui_termo_condominio="NAO", complemento="CASA",
+              quantidade_dependentes=0, possui_pet_informado="SIM", pagamento_aluguel_recorrente="NAO")
     if f["plano"] != "TOTAL":
-        assert f["perguntas_candidatas"] >= 1
+        assert not f["adicionais"] and f["perguntas_candidatas"] >= 1
+
+
+def test_veraneio_nao_puxa_o_pratico(linha, cal, vazio):
+    r = linha(possui_termo_apartamento="SIM", possui_termo_condominio="NAO", complemento="APTO 12",
+              pagamento_aluguel_recorrente="NAO", parcela_financiamento_imobiliario=0, credito_recorrente_compativel_aluguel="NAO",
+              endereco_principal_compativel="NAO", gastos_vidracaria_24m=0, compras_eletronicos_36m=0,
+              compras_eletrodomesticos_36m=0, compras_moveis_36m=0, quantidade_dependentes=0, possui_pet_informado="NAO")
+    uso = motor.inferir_uso(r, True)
+    rec = motor.escolher_plano(r, motor.inferir_tipo(r), motor.inferir_vinculo(r), uso, motor.estimar_bens(r, vazio))
+    assert uso["valor"] == "LAZER_VERANEIO" and rec["plano"] == "ESSENCIAL"
+    assert "desocupada" in rec["motivos_plano"][0]["texto"]
 
 
 def test_familia_nao_empurra_para_o_pratico(linha, cal, vazio):
@@ -318,6 +337,8 @@ def test_metricas_e_casos(tmp_path):
     assert met["familia_declarada_muda_valor_ou_confianca"] == 0
     assert met["elegibilidade"].get("NAO", 0) > 0 and met["confianca"].get("BAIXA", 0) > 0
     assert met["confianca_estabilidade_casos_que_mudam_com_pesos_20pct"] == 0
+    assert met["casos_com_falha"] == 0 and met["estabilidade_plano_casos_que_mudam_com_valores_5pct"] <= 5
+    assert met["elegibilidade_por_regra"]["NAO_ELEGIVEL"] == met["elegibilidade"]["NAO"]
     assert met["justica_por_quinto_de_renda"]["razao_elegibilidade_menor_maior"] >= 0.8
     larg = met["confianca_largura_incendio_mediana"]
     assert larg["ALTA"] <= larg["MEDIA"] <= larg["BAIXA"]
