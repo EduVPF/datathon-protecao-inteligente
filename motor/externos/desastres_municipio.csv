@@ -1,0 +1,11 @@
+codigo_ibge_municipio,municipio,uf,agua_registros_1991_2025,agua_registros_2016_2025,agua_ultimo_ano,agua_moradias_atingidas,vento_registros_1991_2025,vento_registros_2016_2025,vento_ultimo_ano,vento_moradias_atingidas,fonte,acesso
+2304400,Fortaleza,CE,3,0,2004,6462,0,0,,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+2611606,Recife,PE,8,1,2022,2079,0,0,,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+2927408,Salvador,BA,8,2,2022,971,1,0,1995,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+3106200,Belo Horizonte,MG,18,11,2022,4715,1,1,2017,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+3304557,Rio de Janeiro,RJ,18,16,2024,328,1,1,2020,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+3550308,Sao Paulo,SP,40,4,2020,11320,3,0,2012,1,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+4106902,Curitiba,PR,17,10,2025,9768,10,7,2025,3087,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+4314902,Porto Alegre,RS,9,8,2024,663,3,2,2019,1088,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+5208707,Goiania,GO,8,8,2024,78,0,0,,0,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026
+5300108,Brasilia,DF,2,2,2024,60,3,1,2016,1382,"Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), base 1991-2025 v1.1 de 06/08/2026",28/10/2026

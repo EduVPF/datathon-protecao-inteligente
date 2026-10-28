@@ -145,6 +145,32 @@ def sinistros_pct(cobertura):
 FONTE_SINISTROS = "Acionamentos do Seguro Residencial BB Seguros, jan/2023 a mai/2026 (Monitor Mercantil, 22/07/2026)"
 
 
+# --- Território: desastres (Atlas/S2iD) e quedas de energia (ANEEL), por município ---
+# Mesma regra dos sinistros: só reforçam o TEXTO do motivo; sem o arquivo, a frase some.
+@lru_cache(maxsize=None)
+def _tabela_desastres():
+    return {l["codigo_ibge_municipio"]: l for l in _ler_csv("desastres_municipio.csv")}
+
+
+def desastres(codigo_ibge):
+    """Registros oficiais de chuva/alagamento/enxurrada e de vendaval/granizo no município, ou None."""
+    return _tabela_desastres().get(str(codigo_ibge))
+
+
+@lru_cache(maxsize=None)
+def _tabela_energia():
+    return {l["codigo_ibge_municipio"]: l for l in _ler_csv("aneel_continuidade.csv")}
+
+
+def continuidade_energia(codigo_ibge):
+    """Distribuidora do município e posição no ranking de continuidade da ANEEL 2025, ou None."""
+    return _tabela_energia().get(str(codigo_ibge))
+
+
+FONTE_DESASTRES = "Atlas Digital de Desastres no Brasil / S2iD (Sedec/MIDR), registros de 1991 a 2025"
+FONTE_ANEEL = "Ranking de Continuidade do Fornecimento 2025 (ANEEL)"
+
+
 # --- Bens (três âncoras) -------------------------------------------------------
 FATOR_ESTOQUE = 2.7   # estoque ≈ compras/ano × vida útil (~8 anos) = 2,7 × compras de 36 meses (premissa)
 BENS_PISO = 15000     # cesta mínima de uma casa quando não há compras nem bens (premissa)

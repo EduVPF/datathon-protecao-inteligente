@@ -3,11 +3,18 @@ import parametros as P
 
 
 # --- T1: parâmetros e fontes ----------------------------------------------------
-def test_custo_m2_pr_sem_cub_oficial_usa_razao():
-    # CUB-PR veio de agregador: o máximo é SINAPI-PR × mediana CUB/SINAPI das UFs com CUB oficial
-    lo, hi = P.custo_m2("PR")
-    assert lo == 2287.42 and hi == round(2287.42 * P._tabela_custo()[2], 2)
-    assert 1.0 < P._tabela_custo()[2] < 1.2 and "razão" in P.fonte_custo("PR")
+def test_custo_m2_rj_sem_cub_oficial_usa_razao():
+    # CUB-RJ veio de agregador: o máximo é SINAPI-RJ × mediana CUB/SINAPI das UFs com CUB oficial
+    sinapi = P._tabela_custo()[0]["RJ"]
+    lo, hi = P.custo_m2("RJ")
+    assert lo == sinapi and hi == round(sinapi * P._tabela_custo()[2], 2)
+    assert 1.0 < P._tabela_custo()[2] < 1.3 and "razão" in P.fonte_custo("RJ")
+
+
+def test_cub_oficial_de_sete_ufs():
+    oficiais = P._tabela_custo()[1]
+    assert set(oficiais) == {"SP", "DF", "GO", "BA", "MG", "RS", "PR"}
+    assert P.custo_m2("PR")[1] == 2738.93 and "oficial" in P.fonte_custo("PR")
 
 
 def test_custo_m2_sp_usa_cub_oficial():
@@ -266,6 +273,26 @@ def test_motivo_cita_sinistros_reais_sem_mudar_valor(ficha, monkeypatch):
     sem = ficha(APTO_CURITIBA)
     assert [(c["min"], c["max"]) for c in com["coberturas"]] == [(c["min"], c["max"]) for c in sem["coberturas"]]
     assert "acionamentos" not in _cob(sem, "DANOS_ELETRICOS")["justificativa"]
+
+
+def test_territorio_entra_so_no_texto(ficha, monkeypatch):
+    # Curitiba: registros da Defesa Civil (Atlas/S2iD) e ranking da ANEEL citados no motivo
+    com = ficha(APTO_CURITIBA)
+    assert "Defesa Civil registrou" in _cob(com, "VENDAVAL_GRANIZO")["justificativa"]
+    assert "ranking de continuidade da ANEEL" in _cob(com, "DANOS_ELETRICOS")["justificativa"]
+    assert any("S2iD" in f for f in com["fontes"]) and any("ANEEL" in f for f in com["fontes"])
+    monkeypatch.setattr(motor.P, "desastres", lambda cod: None)              # sem os arquivos externos
+    monkeypatch.setattr(motor.P, "continuidade_energia", lambda cod: None)
+    sem = ficha(APTO_CURITIBA)
+    assert [(c["min"], c["max"]) for c in com["coberturas"]] == [(c["min"], c["max"]) for c in sem["coberturas"]]
+    assert com["plano"] == sem["plano"] and com["confianca"] == sem["confianca"]
+    assert "Defesa Civil" not in _cob(sem, "VENDAVAL_GRANIZO")["justificativa"]
+
+
+def test_municipio_sem_registro_nao_ganha_frase(linha):
+    r = linha(codigo_ibge_municipio=2304400, municipio_real="Fortaleza")   # 0 registros de vento
+    assert motor.contexto_territorio("VENDAVAL_GRANIZO", r) == ""
+    assert "Fortaleza" in motor.contexto_territorio("DANOS_POR_AGUA", r)
 
 
 def test_perguntas_de_valor_seguem_o_valor_da_informacao(ficha):

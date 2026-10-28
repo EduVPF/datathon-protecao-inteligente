@@ -38,15 +38,15 @@
  "confianca_estabilidade_casos_que_mudam_com_pesos_20pct": 0,
  "confianca_largura_incendio_mediana": {
   "ALTA": 1.89,
-  "MEDIA": 2.25,
-  "BAIXA": 2.48
+  "MEDIA": 2.33,
+  "BAIXA": 2.56
  },
  "canal": {
   "GERENTE": 71,
   "ONE_CLICK": 67
  },
  "perguntas_media": 2.7,
- "perguntas_candidatas_media": 3.43,
+ "perguntas_candidatas_media": 3.44,
  "teste_justica_casos_alterados": 0,
  "justica_por_quinto_de_renda": {
   "quintos": {
@@ -100,9 +100,9 @@
  },
  "familia_declarada_muda_plano": 18,
  "familia_declarada_muda_valor_ou_confianca": 0,
- "sensibilidade_area_10pct_incendio_media_pct": 4.73,
+ "sensibilidade_area_10pct_incendio_media_pct": 4.64,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.72,
+ "tempo_segundos": 0.67,
  "backtest_fora_da_amostra": {
   "metodo": "2 metades da base de desenvolvimento (calibra numa, mede na outra)",
   "area_casos": 1016,
@@ -117,16 +117,16 @@
   "stp_one_click_pct": 48.6,
   "esforco_campos_cotacao_tradicional_media": 19.93,
   "esforco_perguntas_nossa_jornada_media": 2.7,
-  "esforco_reducao_pct": 86.5,
+  "esforco_reducao_pct": 86.4,
   "itv_incendio_no_maximo_mediana": 1.46,
-  "itv_incendio_no_maximo_abaixo_de_80pct_casos": 5,
-  "itv_incendio_no_minimo_mediana": 0.61,
-  "itv_incendio_no_minimo_abaixo_de_80pct_casos": 115,
+  "itv_incendio_no_maximo_abaixo_de_80pct_casos": 6,
+  "itv_incendio_no_minimo_mediana": 0.6,
+  "itv_incendio_no_minimo_abaixo_de_80pct_casos": 117,
   "faixas_limitadas_pelo_produto": {
    "DANOS_POR_AGUA": 134,
-   "VENDAVAL_GRANIZO": 65,
+   "VENDAVAL_GRANIZO": 66,
    "DANOS_ELETRICOS": 122,
-   "INCENDIO_RAIO_EXPLOSAO_FUMACA": 27,
+   "INCENDIO_RAIO_EXPLOSAO_FUMACA": 32,
    "PERDA_PAGAMENTO_ALUGUEL": 29,
    "DESPESAS_EMERGENCIAIS": 31,
    "ROUBO_FURTO_ARROMBAMENTO": 25

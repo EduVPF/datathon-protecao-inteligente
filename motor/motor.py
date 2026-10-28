@@ -445,6 +445,31 @@ NOME_SINISTRO = {"DANOS_ELETRICOS": "danos elétricos", "DANOS_POR_AGUA": "danos
                  "VENDAVAL_GRANIZO": "vendaval e granizo", "ROUBO_FURTO_ARROMBAMENTO": "roubo ou furto com arrombamento"}
 
 
+GRUPO_DESASTRE = {"DANOS_POR_AGUA": ("agua", "chuvas intensas, alagamentos ou enxurradas"),
+                  "VENDAVAL_GRANIZO": ("vento", "vendaval, ciclone ou granizo")}
+
+
+def contexto_territorio(cob, r):
+    """Frase com dado oficial do município para o motivo da cobertura, ou "" sem dado.
+    Água e vento: registros da Defesa Civil (Atlas/S2iD). Danos elétricos: ranking da ANEEL.
+    Ausência de registro não prova ausência de risco, por isso zero registros não gera frase."""
+    mun = r.municipio_real
+    if cob in GRUPO_DESASTRE:
+        d = P.desastres(r.codigo_ibge_municipio)
+        g, nome = GRUPO_DESASTRE[cob]
+        if not d or int(d[f"{g}_registros_1991_2025"] or 0) == 0:
+            return ""
+        return (f"Em {mun}, a Defesa Civil registrou {d[f'{g}_registros_1991_2025']} ocorrências de {nome} desde 1991 "
+                f"({d[f'{g}_registros_2016_2025']} nos últimos 10 anos; a última em {d[f'{g}_ultimo_ano']}).")
+    if cob == "DANOS_ELETRICOS":
+        e = P.continuidade_energia(r.codigo_ibge_municipio)
+        if not e:
+            return ""
+        return (f"A distribuidora de {mun} ({e['distribuidora']}) ficou em {e['posicao_2025']}º de {e['total_grandes_2025']} "
+                f"no ranking de continuidade da ANEEL de 2025 (1º = menos quedas de energia).")
+    return ""
+
+
 def faixa_bruta_incendio(ctx):
     rec, bens, im = ctx["imovel"]["reconstrucao"], ctx["bens"], ctx["imovel"]
     if im["segundo_risco"]:
@@ -478,6 +503,10 @@ def dimensionar(cob, ctx):
             just = (f"{just} Na BB Seguros, {str(pct).replace('.', ',')}% dos acionamentos do residencial "
                     f"são de {NOME_SINISTRO[cob]} (jan/2023 a mai/2026).")
             ctx["fontes"].add(P.FONTE_SINISTROS)
+        frase = contexto_territorio(cob, r)
+        if frase:   # território: também só no texto
+            just = f"{just} {frase}"
+            ctx["fontes"].add(P.FONTE_ANEEL if cob == "DANOS_ELETRICOS" else P.FONTE_DESASTRES)
         return {"min": lo, "max": hi, "confianca": conf, "dados_utilizados": dados_u, "regra": regra,
                 "justificativa": just, "confirmar": confirmar, "observacao": obs,
                 "limitada_pelo_produto": bool(acima)}
