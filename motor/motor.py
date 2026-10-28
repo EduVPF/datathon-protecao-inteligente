@@ -229,10 +229,12 @@ def valor_imovel(r, tipo, vinculo, area):
     """Custo de reconstruir o imóvel: área × [SINAPI, CUB] da UF × padrão construtivo.
     Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado."""
     lo_m2, hi_m2 = P.custo_m2(r.uf_real)
-    fator = P.FATOR_PADRAO.get(r.padrao_construtivo_cadastrado, 1.0)
+    f_lo, f_hi = P.fator_padrao(r.padrao_construtivo_cadastrado)
     return {
-        "custo_m2": (lo_m2 * fator, hi_m2 * fator),
-        "reconstrucao": (area["min"] * lo_m2 * fator, area["max"] * hi_m2 * fator),
+        "custo_m2": (lo_m2 * f_lo, hi_m2 * f_hi),
+        "custo_m2_base": (lo_m2, hi_m2),
+        "fator_padrao": (f_lo, f_hi),
+        "reconstrucao": (area["min"] * lo_m2 * f_lo, area["max"] * hi_m2 * f_hi),
         "segundo_risco": tipo["valor"] in ("APARTAMENTO", "CASA_EM_CONDOMINIO") or vinculo["valor"] == "FINANCIADO",
         "fonte_disponivel": P.fonte_disponivel(r.uf_real),
     }
@@ -374,7 +376,8 @@ def dimensionar(cob, ctx):
         return {"min": lo, "max": hi, "confianca": conf, "dados_utilizados": dados_u, "regra": regra,
                 "justificativa": just, "confirmar": confirmar, "observacao": obs}
 
-    custo = f"{brl(im['custo_m2'][0])}–{brl(im['custo_m2'][1])}/m² (SINAPI {r.uf_real} até {P.fonte_custo(r.uf_real)})"
+    custo = f"{brl(im['custo_m2'][0])}–{brl(im['custo_m2'][1])}/m² (SINAPI {r.uf_real} até {P.fonte_custo(r.uf_real)}"
+    custo += (", padrão não cadastrado: fator 0,85 a 1,30)" if im["fator_padrao"][0] != im["fator_padrao"][1] else ")")
     if cob == "INCENDIO_RAIO_EXPLOSAO_FUMACA":
         lo, hi = faixa_bruta_incendio(ctx)
         if im["segundo_risco"]:
@@ -453,16 +456,37 @@ def dimensionar(cob, ctx):
 
 # --- Perguntas e confiança -----------------------------------------------------
 
-def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None):
-    """Até 3 perguntas, das que mais mudam o resultado (PLANO_UNIFICADO §7)."""
+def valor_da_informacao(area, bens, imovel):
+    """Quanto da faixa de incêndio (R$ entre mínimo e máximo) cada resposta pode eliminar.
+    É a mesma ideia das seguradoras digitais: perguntar primeiro o que mais aperta a faixa."""
+    frac = P.FRACAO_ACABAMENTOS[1] if imovel["segundo_risco"] else 1.0
+    lo_m2, hi_m2 = imovel["custo_m2_base"]
+    f_lo, f_hi = imovel["fator_padrao"]
+    valor = {"BENS": bens["max"] - bens["min"]}
+    if area["natureza"] == "ESTIMADO":
+        valor["AREA"] = (area["max"] - area["min"]) * hi_m2 * f_hi * frac
+    if f_hi > f_lo:
+        valor["PADRAO"] = area["max"] * hi_m2 * (f_hi - f_lo) * frac
+    return valor
+
+
+def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None, imovel=None):
+    """Até 3 perguntas, das que mais mudam o resultado (PLANO_UNIFICADO §7).
+    Ordem: elegibilidade (95-100), as que mudam o plano (60-70) e depois as que mudam o
+    valor, ordenadas pelo valor da informação (58, 56, 54: quem mais aperta a faixa vem antes)."""
     cand = [(p["prioridade"], p["pergunta"], p["codigo"]) for p in pendencias if p.get("pergunta")]
     if uso["confianca"] == "BAIXA":
         cand.append((70, "Este imóvel é onde você mora, uma casa de veraneio ou está alugado para outra pessoa?", "USO"))
     if r.credito_recorrente_compativel_aluguel == "SIM" and vinculo["valor"] != "PROPRIETARIO_LOCADOR":
         cand.append((60, "Você recebe aluguel referente a este imóvel?", "RECEBE_ALUGUEL"))
-    cand.append((55, f"Seus móveis, eletrodomésticos e eletrônicos ficam entre {brl(arred(bens['min']))} e {brl(arred(bens['max']))}?", "BENS"))
-    if area["natureza"] == "ESTIMADO":
-        cand.append((50, f"Estimamos que o imóvel tem cerca de {area['valor']} m². Confere?", "AREA"))
+    textos = {
+        "BENS": f"Seus móveis, eletrodomésticos e eletrônicos ficam entre {brl(arred(bens['min']))} e {brl(arred(bens['max']))}?",
+        "AREA": f"Estimamos que o imóvel tem cerca de {area['valor']} m². Confere?",
+        "PADRAO": "O acabamento do imóvel é simples, normal ou de alto padrão?",
+    }
+    vdi = valor_da_informacao(area, bens, imovel) if imovel else {"BENS": 1, **({"AREA": 0} if area["natureza"] == "ESTIMADO" else {})}
+    for i, cod in enumerate(sorted(vdi, key=lambda c: -vdi[c])):
+        cand.append((58 - 2 * i, textos[cod], cod))
     if tipo.get("diverge"):
         cand.append((40, "O imóvel é um apartamento ou uma casa?", "TIPO"))
     if vinculo["valor"] == "PROPRIETARIO":
@@ -471,7 +495,9 @@ def montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, plano=None):
         cand.append((45, "Você informou crianças ou pets em casa. Quer proteção para danos que eles causem a terceiros? "
                          "Ela vem no plano Total.", "RC_FAMILIA"))
     cand.sort(key=lambda x: -x[0])
-    return [{"prioridade": p, "texto": t, "codigo": c} for p, t, c in cand[:P.MAX_PERGUNTAS]], len(cand)
+    vdi = vdi if imovel else {}
+    return [{"prioridade": p, "texto": t, "codigo": c, **({"reduz_faixa_ate": arred(vdi[c])} if c in vdi else {})}
+            for p, t, c in cand[:P.MAX_PERGUNTAS]], len(cand)
 
 
 def peso_dado(d, campo):
@@ -572,7 +598,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
     ctx = {"r": r, "tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens,
            "imovel": imovel, "fontes": set()}
     coberturas = [{"cobertura": cob, "tipo": "FIXA", **dimensionar(cob, ctx)} for cob in catalogo[rec["plano"]]]
-    perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, rec["plano"])
+    perguntas, n_cand = montar_perguntas(r, pendencias, tipo, uso, vinculo, area, bens, rec["plano"], imovel)
     campos = {"tipo": tipo, "vinculo": vinculo, "uso": uso, "area": area, "bens": bens}
     for k in confirmados:
         campos[k]["natureza"] = "CONFIRMADO"
@@ -586,6 +612,7 @@ def processar_caso(r, bens_imovel, cal, catalogo, outro_principal=False, confirm
         "canal_digital": {"usuario_app": r.usuario_app, "maturidade_digital": int(r.indice_maturidade_digital)},
         "campos": campos,
         "valor_imovel": {"custo_m2": [round(x, 2) for x in imovel["custo_m2"]],
+                         "fator_padrao": list(imovel["fator_padrao"]),
                          "reconstrucao_min": arred(imovel["reconstrucao"][0]), "reconstrucao_max": arred(imovel["reconstrucao"][1]),
                          "segundo_risco": imovel["segundo_risco"]},
         "elegibilidade": eleg, "pendencias": pendencias, "avisos": avisos,

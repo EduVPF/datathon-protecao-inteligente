@@ -3,6 +3,8 @@ import statistics
 from collections import Counter
 from types import SimpleNamespace
 
+import pandas as pd
+
 import motor
 import parametros as P
 
@@ -70,6 +72,11 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         P.PESO_FONTE.update(peso_orig)
         P.PENALIDADE_COMPLETUDE.update(pen_orig)
 
+    # Justiça por faixa de renda (como os testes de "impacto desigual" de crédito): a renda não entra
+    # no motor, mas pode chegar por tabela via bens (correlação 0,87 na base). A tabela mostra, por
+    # quinto de renda, o plano e os bens comprovados, para provar que o plano segue os bens.
+    por_renda = renda_por_quinto(m, por_id)
+
     # Ordenação: quanto menor a confiança, mais larga a faixa de incêndio (máx ÷ mín).
     largura = {}
     for nivel in ("ALTA", "MEDIA", "BAIXA"):
@@ -97,12 +104,39 @@ def calcular_metricas(dados, cal, fichas, resultado, coberturas, segundos):
         "perguntas_media": round(sum(len(f["perguntas"]) for f in fichas) / n, 2),
         "perguntas_candidatas_media": round(sum(f["perguntas_candidatas"] for f in fichas) / n, 2),
         "teste_justica_casos_alterados": mudou_justica,
+        "justica_por_quinto_de_renda": por_renda,
         "familia_declarada_muda_plano": int(familia_muda_plano),
         "familia_declarada_muda_valor_ou_confianca": int(familia_fora_do_lugar),
         "sensibilidade_area_10pct_incendio_media_pct": round(sum(variacoes) / n, 2),
         "sensibilidade_area_casos_com_queda": int(quedas),
         "tempo_segundos": round(segundos, 2),
     }
+
+
+def renda_por_quinto(m, por_id):
+    """Por quinto de renda (Q1 = 20% de menor renda): casos, % de cada plano, % elegível e
+    mediana dos bens comprovados. A regra dos 80% do crédito vale para a decisão que nega algo,
+    aqui a elegibilidade: o menor % de elegíveis dividido pelo maior tem de ficar em 0,8 ou mais.
+    O plano não é negativa; a tabela mostra que ele acompanha os bens comprovados e o vínculo."""
+    q = m[["imovel_id", "renda_mensal"]].copy()
+    q["quinto"] = pd.qcut(q.renda_mensal.rank(method="first"), 5, labels=["Q1", "Q2", "Q3", "Q4", "Q5"])
+    tabela = {}
+    for nome, g in q.groupby("quinto", observed=True):
+        fs = [por_id[i] for i in g.imovel_id]
+        n = len(fs)
+        pct = lambda cond: round(100 * sum(cond(f) for f in fs) / n, 1)
+        tabela[str(nome)] = {
+            "casos": n,
+            "essencial_pct": pct(lambda f: f["plano"] == "ESSENCIAL"),
+            "pratico_pct": pct(lambda f: f["plano"] == "PRATICO"),
+            "total_pct": pct(lambda f: f["plano"] == "TOTAL"),
+            "elegivel_pct": pct(lambda f: f["elegibilidade"] == "SIM"),
+            "inquilino_pct": pct(lambda f: f["campos"]["vinculo"]["valor"] == "INQUILINO"),
+            "bens_comprovados_mediana": int(statistics.median(f["campos"]["bens"]["min"] for f in fs)),
+        }
+    eleg = [v["elegivel_pct"] for v in tabela.values()]
+    return {"quintos": tabela,
+            "razao_elegibilidade_menor_maior": round(min(eleg) / max(eleg), 2) if max(eleg) else 1.0}
 
 
 def casos_contrastantes(fichas):

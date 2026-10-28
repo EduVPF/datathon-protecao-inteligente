@@ -64,7 +64,16 @@ def fonte_disponivel(uf):
 
 
 # Ajuste pelo padrão construtivo cadastrado (premissa do time).
-FATOR_PADRAO = {"ECONOMICO": 0.85, "NORMAL": 1.0, "SUPERIOR": 1.30, "NAO_DISPONIVEL": 1.0}
+FATOR_PADRAO = {"ECONOMICO": 0.85, "NORMAL": 1.0, "SUPERIOR": 1.30}
+# Padrão não cadastrado (98 dos 138 casos de teste): em vez de supor "normal", a faixa vai do
+# econômico ao superior. A incerteza do dado aparece no valor, e a pergunta do padrão ganha prioridade.
+FATOR_PADRAO_DESCONHECIDO = (0.85, 1.30)
+
+
+def fator_padrao(padrao):
+    """(fator mínimo, fator máximo) do padrão construtivo cadastrado."""
+    f = FATOR_PADRAO.get(str(padrao).upper())
+    return (f, f) if f else FATOR_PADRAO_DESCONHECIDO
 
 # Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado.
 # A estrutura é paga primeiro pelo seguro do condomínio/financiamento; o residencial

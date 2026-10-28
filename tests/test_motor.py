@@ -89,14 +89,14 @@ def test_situacao_irregular_vira_nao(ficha):
 
 
 def test_incendio_apto_financiado_segundo_risco(ficha):
-    inc = _cob(ficha(APTO_CURITIBA), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    inc = _cob(ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL"), "INCENDIO_RAIO_EXPLOSAO_FUMACA")
     assert 100000 <= inc["min"] and inc["max"] <= 200000
     assert "15.2" in inc["observacao"]
 
 
 def test_casa_quitada_soma_reconstrucao(ficha):
     f = ficha(APTO_CURITIBA, possui_termo_apartamento="NAO", possui_termo_casa="SIM", possui_termo_condominio="NAO",
-              complemento="CASA", parcela_financiamento_imobiliario=0)
+              complemento="CASA", parcela_financiamento_imobiliario=0, padrao_construtivo_cadastrado="NORMAL")
     inc = _cob(f, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
     assert inc["min"] >= 110 * 2287.42 and "5.5" in inc["observacao"]
 
@@ -158,6 +158,20 @@ def test_seguro_existente_dois_imoveis_pergunta_qual(caso, cal, teste):
     f = motor.processar_caso(r, b, cal, catalogo, n_imoveis=2)
     assert f["elegibilidade"] == "SIM" and f["confianca"] != "ALTA"
     assert any("Qual dos seus imóveis" in p["texto"] for p in f["perguntas"])
+
+
+def test_padrao_desconhecido_abre_a_faixa(ficha):
+    normal = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NORMAL")
+    nao_sei = ficha(APTO_CURITIBA, padrao_construtivo_cadastrado="NAO_DISPONIVEL")
+    a, b = _cob(normal, "INCENDIO_RAIO_EXPLOSAO_FUMACA"), _cob(nao_sei, "INCENDIO_RAIO_EXPLOSAO_FUMACA")
+    assert b["min"] <= a["min"] and b["max"] >= a["max"] and nao_sei["valor_imovel"]["fator_padrao"] == [0.85, 1.3]
+    assert any(p["codigo"] == "PADRAO" for p in nao_sei["perguntas"]) or nao_sei["perguntas_candidatas"] > 3
+
+
+def test_perguntas_de_valor_seguem_o_valor_da_informacao(ficha):
+    f = ficha(APTO_CURITIBA, area_cadastrada_m2=0, padrao_construtivo_cadastrado="NAO_DISPONIVEL")
+    valor = [p["reduz_faixa_ate"] for p in f["perguntas"] if "reduz_faixa_ate" in p]
+    assert len(valor) >= 2 and valor == sorted(valor, reverse=True)
 
 
 def test_confianca_area_presumida_e_baixa(ficha):
@@ -304,6 +318,7 @@ def test_metricas_e_casos(tmp_path):
     assert met["familia_declarada_muda_valor_ou_confianca"] == 0
     assert met["elegibilidade"].get("NAO", 0) > 0 and met["confianca"].get("BAIXA", 0) > 0
     assert met["confianca_estabilidade_casos_que_mudam_com_pesos_20pct"] == 0
+    assert met["justica_por_quinto_de_renda"]["razao_elegibilidade_menor_maior"] >= 0.8
     larg = met["confianca_largura_incendio_mediana"]
     assert larg["ALTA"] <= larg["MEDIA"] <= larg["BAIXA"]
     assert met["completude_coberturas_fixas_pct"] == 100.0 and met["sensibilidade_area_casos_com_queda"] == 0
