@@ -27,10 +27,12 @@ def carregar(origem):
         with zipfile.ZipFile(origem) as z:
             dados = {t: pd.read_csv(z.open(f"{t}.csv"), encoding="utf-8-sig") for t in TABELAS}
             dados["template"] = pd.read_csv(z.open("template_resultado_times.csv"), encoding="utf-8-sig")
+            dados["template_coberturas"] = pd.read_csv(z.open("template_coberturas_times.csv"), encoding="utf-8-sig")
             dados["catalogo"] = pd.read_csv(z.open("catalogo_coberturas_fixas_planos.csv"), encoding="utf-8-sig")
         return dados
     dados = {t: pd.read_csv(origem / f"{t}.csv", encoding="utf-8-sig") for t in TABELAS}
     dados["template"] = pd.read_csv(origem / "template_resultado_times.csv", encoding="utf-8-sig")
+    dados["template_coberturas"] = pd.read_csv(origem / "template_coberturas_times.csv", encoding="utf-8-sig")
     dados["catalogo"] = pd.read_csv(origem / "catalogo_coberturas_fixas_planos.csv", encoding="utf-8-sig")
     return dados
 
@@ -222,13 +224,6 @@ def estimar_bens(r, bens):
     return d
 
 
-def inferir_conteudo(r, bens):
-    """Compatibilidade com o rascunho: mesma saída de estimar_bens, com as chaves antigas."""
-    d = estimar_bens(r, bens)
-    d["eletro_min"], d["eletro_max"] = d["eletricos"]["min"], d["eletricos"]["max"]
-    return d
-
-
 def valor_imovel(r, tipo, vinculo, area):
     """Custo de reconstruir o imóvel: área × [SINAPI, CUB] da UF × padrão construtivo.
     Segundo risco (CG cl. 15.2): apartamento, casa em condomínio ou imóvel financiado."""
@@ -295,13 +290,13 @@ def escolher_plano(r, tipo, vinculo, uso, bens):
     if bens["min"] >= P.BENS_RELEVANTES:
         soma("PRATICO", 2, "BENS_ALTOS", f"seus bens comprovados somam pelo menos {brl(bens['min'])}, acima da maioria dos clientes")
     if bens["portateis"]["min"] >= P.PORTATEIS_RELEVANTES:
-        soma("PRATICO", 1, "ELETRONICOS", f"eletrônicos de pelo menos {brl(bens['portateis']['min'])}, os mais visados num arrombamento")
+        soma("PRATICO", 1, "ELETRONICOS", f"você tem pelo menos {brl(bens['portateis']['min'])} em eletrônicos, os mais visados num arrombamento")
     if tipo["valor"] == "CASA":
-        soma("PRATICO", 1, "CASA_SEM_CONDOMINIO", "casa fora de condomínio tem mais exposição a arrombamento")
+        soma("PRATICO", 1, "CASA_SEM_CONDOMINIO", "a casa fica fora de condomínio, com mais exposição a arrombamento")
     if r.gastos_vidracaria_24m > 0:
-        soma("PRATICO", 1, "VIDROS", f"gastos recentes de {brl(r.gastos_vidracaria_24m)} com vidraçaria")
+        soma("PRATICO", 1, "VIDROS", f"há gastos recentes de {brl(r.gastos_vidracaria_24m)} com vidraçaria")
     if uso["valor"] == "LAZER_VERANEIO":
-        soma("PRATICO", 1, "VERANEIO", "imóvel de veraneio fica vazio parte do tempo")
+        soma("PRATICO", 1, "VERANEIO", "o imóvel é de veraneio e fica vazio parte do tempo")
 
     total = sum(m["peso"] for m in motivos if m["plano"] == "TOTAL")
     pratico = sum(m["peso"] for m in motivos if m["plano"] == "PRATICO")

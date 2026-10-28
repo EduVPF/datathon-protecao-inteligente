@@ -116,18 +116,5 @@ MEIA_VIDA_MESES = {"vinculo": 12, "area": 120, "bens": 36, "uso": 12, "tipo": 12
 PESO_CONFIANCA = {"ALTA": 1.0, "MEDIA": 0.6, "BAIXA": 0.3}
 MAX_PERGUNTAS = 3
 
-# --- Legado do rascunho (substituídos na T2/T3) --------------------------------
-FATOR_COMPRAS_NO_IMOVEL = (0.55, 0.85)
-CONTEUDO_MINIMO = 10000
-CONTEUDO_RELEVANTE = BENS_RELEVANTES
+# faixa() usa este nome
 LIMITES_COBERTURA = LIMITES_PRODUTO
-PROP = {
-    "DANOS_POR_AGUA": ("incendio", 0.05, 0.15),
-    "VENDAVAL_GRANIZO_CASA": ("incendio", 0.15, 0.30),
-    "VENDAVAL_GRANIZO_APTO": ("incendio", 0.05, 0.15),
-    "IMPACTO_VEICULOS_CASA": ("incendio", 0.05, 0.15),
-    "IMPACTO_VEICULOS_APTO": ("incendio", 0.02, 0.06),
-    "QUEDA_AERONAVE": ("incendio", 0.10, 0.25),
-    "DESPESAS_EMERGENCIAIS": ("incendio", 0.03, 0.08),
-}
-ALUGUEL_ESTIMADO_MES = (0.004, 0.005)

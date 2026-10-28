@@ -112,3 +112,33 @@ def test_justificativa_tem_alternativas(ficha):
     import motor
     texto = motor.justificativa(ficha(APTO_CURITIBA))
     assert "Por que não um plano mais barato" in texto and "Por que não um plano mais caro" in texto
+
+
+# --- T4: validação e planilhas ----------------------------------------------------
+import pytest  # noqa: E402
+from templates import validar_templates  # noqa: E402
+
+
+@pytest.fixture(scope="session")
+def planilhas(teste, cal):
+    fichas = motor.processar(teste, cal)
+    return motor.para_templates(fichas, teste["template"])
+
+
+def test_planilhas_validas(planilhas, teste):
+    res, cob = planilhas
+    assert validar_templates(res, cob, teste["template"], teste["template_coberturas"], teste["catalogo"]) == []
+
+
+def test_138_casos_na_ordem_do_template(planilhas, teste):
+    res, _ = planilhas
+    assert len(res) == 138 and list(res.imovel_id) == list(teste["template"].imovel_id)
+
+
+def test_validador_pega_erros(planilhas, teste):
+    res, cob = planilhas
+    cob = cob.copy()
+    cob.loc[0, ["faixa_valor_min", "faixa_valor_max"]] = [50000, 1000]   # faixa invertida
+    cob = cob[cob.cobertura != "QUEDA_AERONAVE"]                          # cobertura fixa faltando
+    erros = validar_templates(res, cob, teste["template"], teste["template_coberturas"], teste["catalogo"])
+    assert any("mínimo maior" in e for e in erros) and any("sem as fixas" in e for e in erros)
