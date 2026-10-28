@@ -14,7 +14,7 @@ Requer Python 3.11.
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 35 testes
+python -m pytest -q                 # 45 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
@@ -23,6 +23,15 @@ O motor lê `dados/desenvolvimento` (calibração) e `dados/teste_comum` (os 138
 - **Demo das jornadas:** abra `prototipos/indexprototipo_gerente.html` com dois cliques.
 - **API (opcional):** `pip install -r requirements-api.txt` e depois `uvicorn api:app --app-dir motor --port 8000`. A documentação fica em `/docs`.
 - **Premissas:** `motor/parametros.py`. **Fontes externas:** `motor/externos/` (ver `FONTES.md`).
+
+## Regras revisadas em 28/10
+
+- **Seguro BB já existente:** cliente com seguro residencial e um imóvel só sai como `NAO` (o endereço já está segurado e o guia proíbe duas propostas). Com dois imóveis, fica `SIM` e o motor pergunta qual deles já tem seguro.
+- **Crianças e pets:** entram só como necessidade informada pelo cliente (slide 14, "casa familiar → RC familiar"). Crianças e pet juntos somam 1 ponto ao Total; só um dos dois vira pergunta. Nunca mudam faixa, elegibilidade, canal ou confiança, e a métrica `familia_declarada_muda_valor_ou_confianca` prova isso (0 casos). Renda e idade continuam fora de tudo.
+- **Confiança por regra:** cada dado crítico (área, bens, uso, vínculo, tipo) é observado, estimado ou presumido. BAIXA se área ou bens forem presumidos, ou se houver um presumido junto com um estimado; ALTA se os 5 forem observados e não houver pendência; MÉDIA no resto. Antes era um corte numa nota, e 101 dos 138 casos ficavam a 3 pontos de mudar de nível. Mexendo 20% nos pesos, 0 casos mudam. Detalhes em `documentos/contexto/17-revisao-qa.md`.
+- **CUB:** só entra o CUB oficial (SP, DF, GO, BA). Nas outras UFs o máximo é SINAPI × a razão CUB/SINAPI das UFs oficiais. Ver `motor/externos/FONTES.md`.
+- **Casos contrastantes:** os 3 perfis do slide 14 (apartamento urbano, casa familiar, casa de lazer) mais um caso não elegível, em `entrega/casos_contrastantes.json`.
+- **Justificativa** na linguagem do slide 23: "Recomendamos o plano X porque... Se você escolher menos: ..., e essas necessidades ficarão descobertas."
 
 ## Pastas
 
