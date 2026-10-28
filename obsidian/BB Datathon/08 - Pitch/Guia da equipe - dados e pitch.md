@@ -66,8 +66,8 @@ Tudo por regras escritas, sem machine learning. Cada regra tem fonte e teste.
 ### Fontes externas (todas públicas)
 | Fonte | Uso |
 |---|---|
-| SINAPI ago/2026 (IBGE) | Custo mínimo do m² por estado |
-| CUB R8-N oficial (Sinduscons SP, DF, GO, BA) | Custo máximo do m². Nos outros estados: SINAPI × 1,09 |
+| SINAPI set/2026 (IBGE, API SIDRA) | Custo mínimo do m² por estado |
+| CUB R8-N oficial (Sinduscons SP, DF, GO, BA, MG, RS, PR) | Custo máximo do m². Nos outros estados (RJ, PE, CE): SINAPI × 1,14 |
 | IPCA 12 meses (Banco Central, API) | Traz as compras de 3 anos para o preço de hoje (fator 1,069) |
 | FipeZAP Locação set/2026 | Aluguel por m² de quem mora no próprio imóvel |
 | Condições Gerais BB v1.4 | Regras do produto (segundo risco, limite único, exclusões) |
@@ -107,7 +107,7 @@ Total com 2+ pontos. Prático com 2 de Prático, ou 1 de Prático + 1 de Total l
 
 **Perguntas:** primeiro elegibilidade, depois o que muda o plano, depois o que mais aperta a faixa em R$ (o motor calcula quanto cada resposta pode cortar). Máximo 3.
 
-**Canal:** 1 toque se usa o app, maturidade digital ≥ 40, elegível, sem pendência e confiança não baixa. Senão, gerente.
+**Jornada (gerente como último recurso, mentoria de 28/10):** não elegível → sem nova proposta (16). Confiança baixa, sinal de obra ou cliente sem app → gerente (35). Pendência que o app resolve com sim/não, ou maturidade digital < 40 → app com perguntas (20). O resto → 1 toque (67).
 
 ---
 
@@ -126,9 +126,9 @@ Na mentoria, o BB confirmou que renda não é dado sensível, e a LGPD também n
 Não usamos como risco nem como valor. O slide 14 aponta "casa familiar → RC familiar": é uma necessidade que o próprio cliente informou. Provamos que isso nunca muda faixa, elegibilidade, canal ou confiança (0 casos).
 
 **"Como garantem que a confiança não é chute?"**
-Ela diz qual dado foi visto, qual foi estimado e qual falta. Mexemos 20% nos pesos e nenhum caso mudou de nível. E quanto menor a confiança, mais larga a faixa (ALTA 1,92 · MÉDIA 2,35 · BAIXA 2,64).
+Ela diz qual dado foi visto, qual foi estimado e qual falta. Mexemos 20% nos pesos e nenhum caso mudou de nível. E quanto menor a confiança, mais larga a faixa (ALTA 1,89 · MÉDIA 2,33 · BAIXA 2,56).
 
-**"Por que 24 casos não elegíveis?"**
+**"Por que 16 casos não elegíveis?"**
 São clientes que já têm seguro residencial BB e um imóvel só: o seguro é desse endereço, e o guia proíbe duas propostas. Quem tem dois imóveis recebe a pergunta "qual já tem seguro?".
 
 **"E favela, área rural, MEI?"**
@@ -138,7 +138,7 @@ A base não tem esses dados. Viram declaração na contratação. Está nas limi
 O roubo do Prático não cobre residência desocupada (cláusula de roubo 2.1 c). Recomendar o Prático porque a casa fica vazia seria vender uma cobertura que pode não pagar.
 
 **"Isso funciona de verdade no banco?"**
-Roda os 138 casos em meio segundo, tem 49 testes, os testes rodam a cada mudança no GitHub, gera as mesmas planilhas toda vez e tem uma API pronta para o app, o gerente ou um agente chamarem. As premissas estão num arquivo só (`parametros.py`), para o atuário ajustar sem mexer na lógica.
+Roda os 138 casos em menos de um segundo, tem 87 testes, os testes rodam a cada mudança no GitHub, gera as mesmas planilhas toda vez e tem uma API pronta para o app, o gerente ou um agente chamarem. As premissas estão num arquivo só (`parametros.py`), para o atuário ajustar sem mexer na lógica.
 
 **"O que fariam com mais tempo?"**
 Calibrar as proporções com dados de sinistro da Brasilseg, enriquecer com risco do território (Atlas Digital de Desastres), CUB oficial dos 6 estados que faltam e medir a conversão do 1 toque num piloto.
@@ -151,11 +151,11 @@ Calibrar as proporções com dados de sinistro da Brasilseg, enriquecer com risc
 | 0:00–0:40 | Problema: só 17% dos lares têm seguro (slide 6); o cliente não sabe quanto segurar | |
 | 0:40–1:20 | Ideia: o banco já sabe; sinais → sugestão → confiança → confirmação → recomendação | |
 | 1:20–2:30 | **Demo:** protótipo do gerente, botões A, B e C. Mostrar plano, faixas, motivo e perguntas mudando entre os 3 perfis | |
-| 2:30–3:20 | **Código:** `parametros.py` (premissas com fonte), `escolher_plano` (pontos), `confianca_geral` (regra). Rodar `python -m pytest -q` (49 passando) e `python motor/gerar.py --entrega` | |
+| 2:30–3:20 | **Código:** `parametros.py` (premissas com fonte), `escolher_plano` (pontos), `confianca_geral` (regra). Rodar `python -m pytest -q` (87 passando) e `python motor/gerar.py --entrega` | |
 | 3:20–4:10 | Evidências: tabela de métricas do README (justiça 0, estabilidade, confiança, regra dos 80%) | |
 | 4:10–5:00 | Limitações e próximos passos; responsabilidade (idade fora, renda só como reforço e avisada ao cliente, controle humano, IA declarada) | |
 
-**Dica:** gravem a tela rodando os testes ao vivo. "49 passed" na tela vale mais que um slide.
+**Dica:** gravem a tela rodando os testes ao vivo. "87 passed" na tela vale mais que um slide.
 
 ---
 

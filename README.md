@@ -79,7 +79,7 @@ dados/teste_comum ──► processar_caso() para cada cliente-imóvel
 ## Limitações
 - Não há sinistros nem rótulos na base, então não há acurácia a medir. A qualidade é mostrada por testes de coerência, estabilidade, justiça e sensibilidade.
 - Favela/comunidade, atividade rural e MEI não aparecem nos dados. Precisam de declaração do cliente na contratação.
-- O CUB de RJ, MG, PR, RS, PE e CE não foi conferido em fonte oficial. Nessas UFs o máximo é SINAPI × razão CUB/SINAPI das UFs oficiais.
+- O CUB de RJ, PE e CE não foi conferido em fonte oficial. Nessas UFs o máximo é SINAPI × razão CUB/SINAPI das 7 UFs oficiais (≈ 1,14).
 - Custos e aluguel são médias do estado ou da capital, não do bairro.
 - O catálogo do datathon não tem "instalações e pequenos reparos", que o guia lista no Essencial. Seguimos o catálogo, que é a nomenclatura de conferência.
 - Os valores de vendaval, danos por água, RC e despesas emergenciais são proporções premissa do time (em `parametros.py` e `motor.dimensionar()`), sem dado de sinistro para calibrar.
