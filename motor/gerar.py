@@ -40,6 +40,23 @@ def resumo(fichas, segundos):
     }
 
 
+def escrever_fichas_demo(teste, fichas, casos):
+    """prototipos/fichas_demo.js: as fichas dos casos contrastantes para o protótipo com gerente.
+    É um .js (e não .json) para o protótipo funcionar aberto com dois cliques, sem servidor."""
+    m = teste["enderecos_imoveis"].merge(teste["sinais_imobiliarios"], on=["imovel_id", "cliente_id"])
+    sinais = m.set_index("imovel_id")
+    por_id = {f["imovel_id"]: f for f in fichas}
+    demo = {"casos": casos, "fichas": {}}
+    for imovel_id in casos.values():
+        s = sinais.loc[imovel_id]
+        demo["fichas"][imovel_id] = {**por_id[imovel_id], "sinais": {
+            "parcela": float(s.parcela_financiamento_imobiliario), "aluguel": float(s.valor_aluguel_recorrente),
+            "vidracaria": float(s.gastos_vidracaria_24m), "obra": float(s.gastos_material_construcao_24m)}}
+    texto = ("// Gerado por motor/gerar.py. Não edite à mão.\n"
+             "window.FICHAS_DEMO = " + json.dumps(demo, ensure_ascii=False, indent=1) + ";\n")
+    (RAIZ / "prototipos" / "fichas_demo.js").write_text(texto, encoding="utf-8")
+
+
 def gerar(saida, entrega=False):
     inicio = time.time()
     cal = motor.calibrar(motor.carregar(DADOS / "desenvolvimento"))
@@ -60,6 +77,7 @@ def gerar(saida, entrega=False):
     info = {**resumo(fichas, time.time() - inicio), "erros_validacao": len(erros), "erros": erros,
             "teste_justica_casos_alterados": met["teste_justica_casos_alterados"], "casos_contrastantes": casos}
     if entrega and not erros:
+        escrever_fichas_demo(teste, fichas, casos)
         destino = RAIZ / "entrega"
         destino.mkdir(exist_ok=True)
         for nome in PLANILHAS + ["metricas.json", "casos_contrastantes.json"]:

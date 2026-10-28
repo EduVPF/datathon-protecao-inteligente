@@ -16,7 +16,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | 12 | T3 · Elegibilidade, plano e coberturas | [12-t3-plano-e-coberturas.md](12-t3-plano-e-coberturas.md) | ✅ |
 | 13 | T4 · Validação e planilhas v1 | [13-t4-planilhas-v1.md](13-t4-planilhas-v1.md) | ✅ |
 | 14 | T5 e T6 · Confiança, testes, métricas e casos | [14-t5-t6-provas.md](14-t5-t6-provas.md) | ✅ |
-| 15 | T7 · Demo lendo o motor | [15-t7-demo.md](15-t7-demo.md) | ⏳ |
+| 15 | T7 · Demo lendo o motor | [15-t7-demo.md](15-t7-demo.md) | ✅ |
 | 90 | Revisão do time | [90-revisao.md](90-revisao.md) | ⏳ |
 
 ## Onde está cada coisa

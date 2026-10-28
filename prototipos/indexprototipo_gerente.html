@@ -187,6 +187,7 @@ textarea{width:100%;font-family:Inter;font-size:13px;border:1.5px solid var(--bo
   <aside class="notas" id="notas"></aside>
 </div>
 
+<script src="fichas_demo.js"></script>
 <script>
 // ---------- dados do caso (CASO_00005 / IMO_CASO_00005_01 da base de teste) ----------
 const CLIENTE = {
@@ -229,6 +230,42 @@ const st = {
 Object.keys(COB).forEach(k=>{st.valores[k]=COB[k].padrao; st.ligadas[k]=true});
 st.valores.incendio = 260000; // ajuste pela calculadora de reconstrução (110 m² x custo de obra no PR)
 st.valores.agua = 18000;      // ajuste pelo prejuízo típico de alagamento num apto de 110 m²
+
+// ---------- dados do motor (prototipos/fichas_demo.js, gerado por motor/gerar.py) ----------
+// Se o arquivo existir, a demo usa a ficha real do motor; senão, fica o caso escrito acima.
+let FICHA = null;
+const MAPA_COB = {INCENDIO_RAIO_EXPLOSAO_FUMACA:"incendio", DANOS_ELETRICOS:"eletricos", DANOS_POR_AGUA:"agua",
+  VENDAVAL_GRANIZO:"vendaval", IMPACTO_VEICULOS_TERRESTRES:"impacto", ROUBO_FURTO_ARROMBAMENTO:"roubo",
+  QUEBRA_DE_VIDROS:"vidros", RESPONSABILIDADE_CIVIL_FAMILIAR:"rc", PERDA_PAGAMENTO_ALUGUEL:"aluguel", DESPESAS_EMERGENCIAIS:"despesas"};
+const NOME_TIPO = {APARTAMENTO:"Apartamento", CASA:"Casa", CASA_EM_CONDOMINIO:"Casa em condomínio"};
+const NOME_VINCULO = {INQUILINO:"Alugado: você é inquilino", FINANCIADO:"Seu, financiado", PROPRIETARIO:"Seu, quitado", PROPRIETARIO_LOCADOR:"Seu, alugado para outra pessoa"};
+const NOME_USO = {RESIDENCIAL_HABITUAL:"Moradia", LAZER_VERANEIO:"Veraneio", RESIDENCIAL_LOCADO_A_TERCEIROS:"Alugado para outra pessoa"};
+const SELO = {OBSERVADO:["obs","✓ observado"], CONFIRMADO:["conf","✓ confirmado"], ESTIMADO:["est","≈ estimado"], INFERIDO:["est","≈ inferido"]};
+const ROTULO_CASO = {one_click_limpo:"1 toque", inquilino_total:"Inquilino · Total", elegibilidade_a_confirmar:"A confirmar"};
+const titulo = s => String(s||"").toLowerCase().replace(/(^|\s)\S/g, c=>c.toUpperCase());
+const frase = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+function aplicarFicha(id){
+  const f = window.FICHAS_DEMO && window.FICHAS_DEMO.fichas[id];
+  if(!f) return;
+  FICHA = f;
+  CLIENTE.cidade = f.local.split("/")[0].replace("Sao Paulo","São Paulo").replace("Brasilia","Brasília").replace("Goiania","Goiânia");
+  CLIENTE.complemento = titulo(f.complemento);
+  CLIENTE.area = f.campos.area.valor;
+  CLIENTE.origemArea = f.campos.area.natureza === "OBSERVADO" ? "cadastro" : "estimada";
+  CLIENTE.parcela = f.sinais.parcela; CLIENTE.vidracaria24m = f.sinais.vidracaria;
+  st.plano = st.recomendado = f.plano;
+  Object.keys(COB).forEach(k=>{ st.valores[k] = COB[k].padrao; st.ligadas[k] = true; });
+  f.coberturas.forEach(c=>{
+    const k = MAPA_COB[c.cobertura]; if(!k) return;
+    const meio = Math.round((c.min + c.max) / 2 / COB[k].passo) * COB[k].passo;
+    st.valores[k] = Math.min(COB[k].max, Math.max(COB[k].min, meio));
+  });
+  const vid = f.coberturas.find(c=>c.cobertura==="QUEBRA_DE_VIDROS"), rob = f.coberturas.find(c=>c.cobertura==="ROUBO_FURTO_ARROMBAMENTO");
+  if(vid) SUGESTAO.vidros = Math.min(COB.vidros.max, Math.round(vid.max / COB.vidros.passo) * COB.vidros.passo);
+  if(rob) SUGESTAO.roubo = Math.min(COB.roubo.max, Math.round(rob.max / COB.roubo.passo) * COB.roubo.passo);
+  st.resp.mora = null; st.ger = null; st.motivo = ""; st.antes = null;
+}
+function trocarCaso(id){ aplicarFicha(id); ir(Math.min(st.tela, 3)); }
 
 const brl = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
 const brl2 = v => "R$ " + v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -381,7 +418,37 @@ function telaEsse(){
    rodape:`<button class="btn btn-amarelo" onclick="ir(2)">Montar minha proteção</button>`};
 }
 
+function telaCasaMotor(){
+  const f = FICHA, c = f.campos, q = f.perguntas[0];
+  const linha = (nome, d, valor) => { const [cls, txt] = SELO[d.natureza] || SELO.ESTIMADO;
+    return `<div class="dado"><span>${nome}<br><b>${valor}</b><br><span class="suave" style="font-size:12px">${frase(d.fonte)}</span></span><span class="chip ${cls}">${txt}</span></div>`; };
+  const antes = f.confianca_score, depois = Math.round(antes + (100 - antes) * 0.5);
+  const conf = st.resp.mora===null ? antes : depois;
+  return {html:`
+    <h2>Já sabemos bastante da <em>sua casa</em></h2>
+    <p class="suave">Cada dado mostra de onde veio. Se algo estiver errado, toque para corrigir.</p>
+    <div class="folha">
+      ${linha("Tipo", c.tipo, NOME_TIPO[c.tipo.valor])}
+      ${linha("Relação com o imóvel", c.vinculo, NOME_VINCULO[c.vinculo.valor])}
+      ${linha("Uso", c.uso, NOME_USO[c.uso.valor])}
+      ${linha("Tamanho", c.area, c.area.valor + " m²")}
+      ${linha("Bens dentro de casa", c.bens, `entre ${brl(c.bens.min)} e ${brl(c.bens.max)}`)}
+    </div>
+    ${f.pendencias.length ? `<div class="aviso">Antes de contratar, vamos confirmar: ${f.pendencias.map(p=>p.texto).join("; ")}.</div>` : ""}
+    <div class="folha"><h3 data-say>${q ? q.texto : "Está tudo certo?"}</h3>
+      <div class="opcoes">
+        <div class="opcao ${st.resp.mora===true?'sel':''}" onclick="st.resp.mora=true;render()">Sim, confere</div>
+        <div class="opcao ${st.resp.mora===false?'sel':''}" onclick="st.resp.mora=false;render()">Não, ajustar</div>
+      </div>
+      <p class="suave" style="margin:0">Confiança da proposta (fonte × frescor de cada dado)</p>
+      <div class="conf-barra"><div style="width:${conf}%"></div></div>
+      <p class="suave">${conf}% ${st.resp.mora===null?"· confirmar sobe a confiança":"· dado confirmado vale o máximo"}${f.perguntas.length>1?` · mais ${f.perguntas.length-1} pergunta(s) com o gerente, se preciso`:""}</p>
+    </div>`,
+   rodape:`<button class="btn btn-amarelo" onclick="${st.resp.mora===null?"alert('Responda a pergunta para continuar')":(st.resp.mora===false||f.canal==="GERENTE"?"falarGerente()":"ir(3)")}">${st.resp.mora===false||f.canal==="GERENTE"?"Falar com meu gerente":"Ver meu plano"}</button>`};
+}
+
 function telaCasa(){
+  if(FICHA) return telaCasaMotor();
   const conf = st.resp.mora===null ? 72 : 94;
   return {html:`
     <h2>Já sabemos bastante da <em>sua casa</em></h2>
@@ -412,9 +479,14 @@ function telaPlano(){
   };
   const muda = {ESSENCIAL:"Protege a estrutura e o essencial. Não cobre roubo nem o vizinho.", PRATICO:"Soma roubo com arrombamento e quebra de vidros.", TOTAL:"Soma responsabilidade civil, aluguel e despesas emergenciais."};
   const ord = ["TOTAL","PRATICO","ESSENCIAL"];
+  const rec = FICHA ? FICHA.plano : "TOTAL";
+  const porque = FICHA ? frase(FICHA.motivos_plano.map(m=>m.texto).join("; ")) + "." : motivo.TOTAL;
+  const alternativas = FICHA ? [FICHA.por_que_nao_abaixo && `Mais barato? ${frase(FICHA.por_que_nao_abaixo)}.`,
+                                FICHA.por_que_nao_acima && `Mais caro? ${frase(FICHA.por_que_nao_acima)}.`].filter(Boolean) : [];
   return {html:`
-    <h2>Recomendamos o <em>Total</em></h2>
-    <div class="aviso azul" data-say><b>Por quê?</b> ${motivo.TOTAL}</div>
+    <h2>Recomendamos o <em>${PLANOS[rec].nome}</em></h2>
+    <div class="aviso azul" data-say><b>Por quê?</b> ${porque}</div>
+    ${alternativas.map(a=>`<p class="suave" style="margin:0 0 8px">${a}</p>`).join("")}
     ${ord.map(k=>{const p=PLANOS[k]; const n=5+p.extras.length;
       return `<div class="plano ${k===st.recomendado?'rec':''} ${k===st.plano?'sel':''}" onclick="st.plano='${k}';render()">
         ${k===st.recomendado?'<span class="selo">Recomendado para você</span>':''}
@@ -469,7 +541,8 @@ function telaAjuste(){
     return `<div class="cob"><div class="l1"><span>${c.nome}</span>${fixa?'<span class="chip conf">fixa</span>':`<label class="sw"><input type="checkbox" ${lig?'checked':''} onchange="st.ligadas['${k}']=this.checked;render()"><span></span></label>`}</div>
       ${lig && c.min!==c.max?`<div class="suave" style="display:flex;justify-content:space-between"><span>${brl(c.min)}</span><b style="color:var(--texto)">${brl(st.valores[k])}</b><span>${brl(c.max)}</span></div>
       <input type="range" min="${c.min}" max="${c.max}" step="${c.passo}" value="${st.valores[k]}" oninput="st.valores['${k}']=+this.value;atualizaPreco()" onchange="render()">`:''}
-      ${k==='incendio'?`<p class="suave" style="margin:2px 0 0">Reconstruir ${CLIENTE.area} m² no PR custa entre ${brl(231000)} e ${brl(290000)}. Mais que isso você paga sem precisar.</p>`:''}
+      ${k==='incendio' && FICHA ? `<p class="suave" style="margin:2px 0 0">Faixa do motor: ${brl(FICHA.coberturas[0].min)} a ${brl(FICHA.coberturas[0].max)}. ${FICHA.valor_imovel.segundo_risco ? "A estrutura tem seguro do condomínio ou do financiamento; aqui entram acabamentos e bens." : "Reconstrução + bens, pelo custo de obra do IBGE e do Sinduscon."}</p>`
+        : k==='incendio' ? `<p class="suave" style="margin:2px 0 0">Reconstruir ${CLIENTE.area} m² no PR custa entre ${brl(231000)} e ${brl(290000)}. Mais que isso você paga sem precisar.</p>`:''}
       ${k==='agua'?`<p class="suave" style="margin:2px 0 0">Um alagamento como o da primeira tela custa cerca de ${brl(17800)}.</p>`:''}
     </div>`};
   return {html:`
@@ -607,7 +680,9 @@ function gerPreco(){
 
 function painelGerente(){
   if(!st.ger) st.ger = {plano:st.plano, roubo:st.valores.roubo, vidros:st.valores.vidros};
-  if(!st.motivo) st.motivo = `Vi que você trocou vidros recentemente e comprou móveis e eletrônicos nos últimos anos. Ajustei quebra de vidros e roubo para cobrir o que você tem hoje.`;
+  if(!st.motivo) st.motivo = (!FICHA || CLIENTE.vidracaria24m > 0)
+    ? `Vi que você trocou vidros recentemente e comprou móveis e eletrônicos nos últimos anos. Ajustei quebra de vidros e roubo para cobrir o que você tem hoje.`
+    : `Conferimos juntos os seus bens. Ajustei roubo e quebra de vidros para cobrir o que você tem hoje.`;
   const g = st.ger, temExtras = g.plano!=="ESSENCIAL";
   const duvida = st.duvida!==null ? DUVIDAS[st.duvida].toLowerCase() : "o valor do plano";
   const canal = {app:"conversa no app", ligar:"pediu ligação", wpp:"aviso no WhatsApp"}[st.canal] || "conversa no app";
@@ -620,11 +695,22 @@ function painelGerente(){
   <div class="pcab">
     <span class="palerta">🔔 Pedido de ajuda · há 2 min · ${GERENTE.protocolo} · ${canal}</span>
     <h2 style="margin-top:10px">Cliente com dúvida sobre <em>${duvida}</em></h2>
-    <p>Apartamento financiado em ${CLIENTE.cidade} (${CLIENTE.area} m²), mora com ${CLIENTE.dependentes} dependente. Viu o plano <b>${PLANOS[st.plano].nome}</b> (recomendado: ${PLANOS[st.recomendado].nome}) e parou na tela <b>${TELAS[st.origem].titulo}</b>. Compartilhamento autorizado pelo cliente por 48 h.</p>
+    <p>${FICHA ? `${NOME_TIPO[FICHA.campos.tipo.valor]} (${NOME_VINCULO[FICHA.campos.vinculo.valor].toLowerCase()}) em ${CLIENTE.cidade}, ${CLIENTE.area} m². Motor: plano <b>${PLANOS[FICHA.plano].nome}</b>, confiança ${FICHA.confianca.toLowerCase()} (${FICHA.confianca_score}), canal sugerido ${FICHA.canal==="ONE_CLICK"?"1 toque":"gerente"}.`
+      : `Apartamento financiado em ${CLIENTE.cidade} (${CLIENTE.area} m²), mora com ${CLIENTE.dependentes} dependente.`} Viu o plano <b>${PLANOS[st.plano].nome}</b> (recomendado: ${PLANOS[st.recomendado].nome}) e parou na tela <b>${TELAS[st.origem].titulo}</b>. Compartilhamento autorizado pelo cliente por 48 h.</p>
   </div>
   <div class="pgrid">
     <div>
-      <div class="pcard"><h5>O que sabemos e de onde veio</h5><table class="pt">
+      ${FICHA ? `<div class="pcard"><h5>O que o motor sabe e de onde veio</h5><table class="pt">
+        ${[["Tipo","tipo",NOME_TIPO[FICHA.campos.tipo.valor]],["Relação","vinculo",NOME_VINCULO[FICHA.campos.vinculo.valor]],["Uso","uso",NOME_USO[FICHA.campos.uso.valor]],
+           ["Área","area",FICHA.campos.area.valor+" m²"],["Bens","bens",brl(FICHA.campos.bens.min)+" a "+brl(FICHA.campos.bens.max)]].map(([n,k,v])=>{
+            const d = FICHA.campos[k], [cls,txt] = SELO[d.natureza] || SELO.ESTIMADO;
+            return `<tr><td>${n}</td><td><b>${v}</b><br><span class="suave" style="font-size:12px">${frase(d.fonte)}</span></td><td><span class="chip ${cls}">${txt} · peso ${d.peso}</span></td></tr>`}).join("")}
+        </table>
+        ${FICHA.pendencias.length?`<p style="margin:10px 0 4px"><b>A confirmar antes de contratar</b></p><ul style="margin:0;padding-left:18px">${FICHA.pendencias.map(p=>`<li>${frase(p.texto)}</li>`).join("")}</ul>`:""}
+        <p style="margin:10px 0 4px"><b>Perguntas do motor</b> (${FICHA.perguntas.length} de ${FICHA.perguntas_candidatas})</p><ol style="margin:0;padding-left:18px">${FICHA.perguntas.map(p=>`<li>${p.texto}</li>`).join("")}</ol>
+        <p class="suave" style="margin:10px 0 0">Fontes: ${FICHA.fontes.join(" · ")}</p>
+      </div>` : ""}
+      <div class="pcard" style="${FICHA?'display:none':''}"><h5>O que sabemos e de onde veio</h5><table class="pt">
         ${dado("Tipo","Apartamento","obs","observado · endereço")}
         ${dado("Área",CLIENTE.area+" m²","obs","observado · IPTU")}
         ${dado("Relação","Seu, financiado","obs","observado · parcela "+brl(CLIENTE.parcela))}
@@ -648,15 +734,22 @@ function painelGerente(){
     </div>
     <div>
       <div class="pcard sug"><h5>O motor sugere revisar</h5><ol style="margin:0;padding-left:18px">
+        ${FICHA ? [
+          CLIENTE.vidracaria24m > 0 ? `<li><b>Quebra de vidros</b> está em ${brl(st.valores.vidros)}; houve ${brl(CLIENTE.vidracaria24m)} em vidraçaria nos últimos 24 meses. Teto do motor: ${brl(SUGESTAO.vidros)} <span class="suave">(+${brl2(impacto("vidros"))}/mês)</span>.</li>` : "",
+          st.ger.plano !== "ESSENCIAL" ? `<li><b>Roubo</b> está em ${brl(st.valores.roubo)} (meio da faixa do motor). Se o cliente confirmar mais eletrônicos, suba até ${brl(SUGESTAO.roubo)} <span class="suave">(+${brl2(impacto("roubo"))}/mês)</span>.</li>` : "",
+          FICHA.pendencias.length ? `<li><b>Elegibilidade:</b> confirme ${FICHA.pendencias.map(p=>p.codigo==="POSSIVEL_REFORMA"?"se há obra ou reforma":p.codigo==="SEGURO_EXISTENTE"?"se já há seguro BB no endereço":p.texto).join(" e ")} antes de enviar a proposta.</li>` : "",
+          FICHA.avisos.length ? `<li>${frase(FICHA.avisos[0])}.</li>` : ""
+        ].join("") : `
         <li><b>Quebra de vidros</b> está em ${brl(st.valores.vidros)}, mas houve ${brl(CLIENTE.vidracaria24m)} em vidraçaria nos últimos 24 meses. Sugestão: ${brl(SUGESTAO.vidros)} <span class="suave">(+${brl2(impacto("vidros"))}/mês)</span>.</li>
         <li><b>Roubo</b> está em ${brl(st.valores.roubo)} (padrão do app), e os bens são estimados em ≈ ${brl(SUGESTAO.roubo)}. Sugestão: ${brl(SUGESTAO.roubo)} <span class="suave">(+${brl2(impacto("roubo"))}/mês)</span>.</li>
-        <li>O cliente tem <b>outro imóvel</b> cadastrado. Pergunte se quer proteger também.</li></ol>
+        <li>O cliente tem <b>outro imóvel</b> cadastrado. Pergunte se quer proteger também.</li>`}</ol>
         <button class="btn btn-claro" style="margin-top:10px;min-height:40px" onclick="st.ger.roubo=SUGESTAO.roubo;st.ger.vidros=SUGESTAO.vidros;if(st.ger.plano==='ESSENCIAL')st.ger.plano='PRATICO';render()">Aplicar sugestões</button></div>
       <div class="pcard"><h5>Roteiro da conversa</h5><ol style="margin:0;padding-left:18px">
         <li>Confirme a dúvida: <i>${duvida}</i>.</li>
+        ${FICHA ? FICHA.perguntas.map(p=>`<li>"${p.texto}"</li>`).join("") : `
         <li>"Os vidros que você trocou (box, janelas, sacada) ficam neste apartamento?"</li>
-        <li>"Seus móveis e eletrônicos somam por volta de ${brl(SUGESTAO.roubo)}?"</li>
-        <li>Se o preço pesar, mostre a alternativa abaixo.</li></ol></div>
+        <li>"Seus móveis e eletrônicos somam por volta de ${brl(SUGESTAO.roubo)}?"</li>`}
+        <li>Se o preço pesar, mostre a alternativa: ${FICHA ? FICHA.alternativa.texto : "o Prático"}.</li></ol></div>
       <div class="pcard"><h5>Objeções prováveis</h5>
         <div class="objecao"><b>"Está caro."</b>O Prático com roubo e vidros ajustados sai por ${brl2(precoAjustado("PRATICO"))}/mês, sem responsabilidade civil nem aluguel. Proteger os bens de verdade custa mais que o padrão do app: mostre o porquê, não esconda.</div>
         <div class="objecao"><b>"O condomínio já tem seguro."</b>Cobre o prédio, não os bens de dentro nem o dano ao vizinho.</div>
@@ -723,9 +816,15 @@ function renderNotas(){
     <h4>${st.tela+1}. ${t.titulo}</h4>
     <div class="prob"><b>App atual:</b> ${t.prob}</div>
     <div class="sol"><b>Nossa proposta:</b> ${t.sol}</div>
-    <p style="font-size:12px;color:var(--suave);margin:8px 0 0">Caso real da base de teste: CASO_00005 (apartamento financiado em Curitiba). Preços e prejuízos são ilustrativos. Use <b>Aa</b> para o modo simples e <b>Ouvir</b> para a leitura em voz alta. O botão <b>Ajuda</b> está em todas as telas.</p>
+    ${window.FICHAS_DEMO ? `<div style="background:var(--azul-claro);border-radius:10px;padding:8px 10px;margin:8px 0">
+      <b style="font-size:13px">Caso real do motor:</b>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${Object.entries(window.FICHAS_DEMO.casos).map(([k,id])=>
+        `<button onclick="trocarCaso('${id}')" style="border:1px solid var(--azul);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;background:${FICHA&&FICHA.imovel_id===id?'var(--azul)':'#fff'};color:${FICHA&&FICHA.imovel_id===id?'#fff':'var(--azul-escuro)'}">${ROTULO_CASO[k]||k}</button>`).join("")}</div>
+      ${FICHA?`<p style="font-size:12px;margin:6px 0 0">${FICHA.imovel_id} · ${FICHA.local} · plano ${PLANOS[FICHA.plano].nome} · ${FICHA.canal==="ONE_CLICK"?"1 toque":"gerente"}</p>`:""}</div>` : ""}
+    <p style="font-size:12px;color:var(--suave);margin:8px 0 0">${FICHA ? "Dados, plano, faixas e motivo vêm do motor (motor/gerar.py → prototipos/fichas_demo.js)." : "Caso real da base de teste: CASO_00005 (apartamento financiado em Curitiba)."} Preços e prejuízos são ilustrativos. Use <b>Aa</b> para o modo simples e <b>Ouvir</b> para a leitura em voz alta. O botão <b>Ajuda</b> está em todas as telas.</p>
     <nav>${TELAS.map((x,i)=>`<button class="${i===st.tela?'on':''}" onclick="ir(${i})">${i+1}. ${x.titulo}</button>`).join("")}</nav>`;
 }
+if(window.FICHAS_DEMO) aplicarFicha(window.FICHAS_DEMO.casos.one_click_limpo);
 render();
 </script>
 </body>
