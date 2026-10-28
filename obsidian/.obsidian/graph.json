@@ -1,0 +1,128 @@
+{
+  "collapse-filter": true,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": true,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "path:\"BB Datathon/00 - Painel\" OR path:\"BB Datathon/HANDOFF_CONTEXTO\" OR path:\"BB Datathon/Regras e contexto\" OR path:\"BB Datathon/Regras de negócio\"",
+      "color": {
+        "a": 1,
+        "rgb": 16766474
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/14 - App v2\"",
+      "color": {
+        "a": 1,
+        "rgb": 16731549
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/01 - Briefing\"",
+      "color": {
+        "a": 1,
+        "rgb": 5032432
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/02 - Dados\"",
+      "color": {
+        "a": 1,
+        "rgb": 4756975
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/03 - Solução\"",
+      "color": {
+        "a": 1,
+        "rgb": 8086015
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/04 - Tecnologia\"",
+      "color": {
+        "a": 1,
+        "rgb": 3804323
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/05 - Pesquisa\"",
+      "color": {
+        "a": 1,
+        "rgb": 5639085
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/06 - Git e Entregas\"",
+      "color": {
+        "a": 1,
+        "rgb": 11868062
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/07 - Equipe e Tarefas\"",
+      "color": {
+        "a": 1,
+        "rgb": 16196997
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/08 - Pitch\"",
+      "color": {
+        "a": 1,
+        "rgb": 16748459
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/09 - Conceitos\"",
+      "color": {
+        "a": 1,
+        "rgb": 8454107
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/10 - Coberturas\"",
+      "color": {
+        "a": 1,
+        "rgb": 5689313
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/11 - Fontes externas\"",
+      "color": {
+        "a": 1,
+        "rgb": 4767715
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/12 - Inovação\"",
+      "color": {
+        "a": 1,
+        "rgb": 13073919
+      }
+    },
+    {
+      "query": "path:\"BB Datathon/13 - Design\"",
+      "color": {
+        "a": 1,
+        "rgb": 14723839
+      }
+    }
+  ],
+  "collapse-display": true,
+  "showArrow": false,
+  "textFadeMultiplier": -1.5,
+  "nodeSizeMultiplier": 1.35,
+  "lineSizeMultiplier": 0.45,
+  "collapse-forces": true,
+  "centerStrength": 0.62,
+  "repelStrength": 13,
+  "linkStrength": 0.85,
+  "linkDistance": 110,
+  "scale": 0.9999999999999992,
+  "close": false
+}

@@ -1,0 +1,15 @@
+/* Grafo com cara de cérebro: fundo escuro com brilho no centro, sinapses suaves. */
+.workspace-leaf-content[data-type="graph"] .view-content,
+.workspace-leaf-content[data-type="localgraph"] .view-content {
+  background: radial-gradient(circle at 50% 45%, #1b1440 0%, #0d0b1f 45%, #050510 100%);
+}
+.graph-view.color-fill { color: #9d8cff; }
+.graph-view.color-fill-focused { color: #ffd60a; }
+.graph-view.color-fill-highlight { color: #ff4d9d; }
+.graph-view.color-circle { color: #ffffff; }
+.graph-view.color-line { color: rgba(140, 160, 255, 0.28); }
+.graph-view.color-line-highlight { color: #ffd60a; }
+.graph-view.color-text { color: #e8e6ff; }
+.workspace-leaf-content[data-type="graph"] canvas {
+  filter: drop-shadow(0 0 3px rgba(130, 120, 255, 0.55)) drop-shadow(0 0 10px rgba(255, 77, 157, 0.18));
+}
