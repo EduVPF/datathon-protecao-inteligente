@@ -18,7 +18,7 @@ O índice e a linha do tempo. Comece por aqui. Cada etapa tem um documento curto
 | 14 | T5 e T6 · Confiança, testes, métricas e casos | [14-t5-t6-provas.md](14-t5-t6-provas.md) | ✅ |
 | 15 | T7 · Demo lendo o motor | [15-t7-demo.md](15-t7-demo.md) | ✅ |
 | 16 | T9 · API para agentes | [16-t9-api.md](16-t9-api.md) | ✅ |
-| 90 | Revisão do time | [90-revisao.md](90-revisao.md) | ⏳ |
+| 90 | Revisão do time (comece por aqui amanhã) | [90-revisao.md](90-revisao.md) | 📋 para revisar |
 
 ## Onde está cada coisa
 | Pasta | O que tem |

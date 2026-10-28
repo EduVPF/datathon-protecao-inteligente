@@ -2,6 +2,8 @@
 
 > **Este é o plano a seguir.** Ele junta o `prototipos/PLANO_PREENCHIMENTO_PLANILHAS.md` (do time) com o `documentos/PLANO_MOTOR.md`. Os dois continuam na pasta como referência. Para executar tarefa por tarefa, use a sub-skill `superpowers:executing-plans`; os passos usam caixas `- [ ]`.
 >
+> **Status (28/10/2026):** Fase 1 e Fase 2 concluídas (T1 a T7) e T9 feita. T8 e T10 ficaram de fora. Acompanhe por [`contexto/00-mapa.md`](contexto/00-mapa.md) e pelo guia de revisão [`contexto/90-revisao.md`](contexto/90-revisao.md).
+>
 > **Versão 2 (28/10/2026, madrugada):**
 > - as 4 decisões estão fechadas (seção 10);
 > - o FipeZAP oficial de set/2026 foi encontrado;

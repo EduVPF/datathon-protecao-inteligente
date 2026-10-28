@@ -14,11 +14,15 @@ Requer Python 3.11.
 
 ```bash
 pip install -r requirements.txt
-python motor/gerar.py
-pytest
+python -m pytest -q                 # 35 testes
+python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 
-O motor lê `dados/desenvolvimento` (calibração) e `dados/teste_comum` (os 138 casos da entrega) e grava em `motor/saida/`. As premissas de negócio ficam em `motor/parametros.py`; as fontes externas, em `motor/externos/`.
+O motor lê `dados/desenvolvimento` (calibração) e `dados/teste_comum` (os 138 casos da entrega), valida as 2 planilhas contra as regras do guia e grava em `motor/saida/`. Com `--entrega`, copia as planilhas, as métricas e os casos contrastantes para `entrega/` e atualiza a demo (`prototipos/fichas_demo.js`).
+
+- **Demo das jornadas:** abra `prototipos/indexprototipo_gerente.html` com dois cliques.
+- **API (opcional):** `pip install -r requirements-api.txt` e depois `uvicorn api:app --app-dir motor --port 8000`. A documentação fica em `/docs`.
+- **Premissas:** `motor/parametros.py`. **Fontes externas:** `motor/externos/` (ver `FONTES.md`).
 
 ## Pastas
 
@@ -27,7 +31,7 @@ O motor lê `dados/desenvolvimento` (calibração) e `dados/teste_comum` (os 138
 │   ├── externos/           Fontes externas salvas + FONTES.md
 │   └── saida/              Gerado: planilhas, fichas.json, métricas (fora do git)
 ├── tests/                  Testes automáticos
-├── entrega/                Planilhas finais versionadas
+├── entrega/                Planilhas finais, métricas e casos contrastantes (versionados)
 ├── prototipos/             Protótipos das jornadas (base: indexprototipo_gerente.html)
 ├── documentos/
 │   ├── contexto/           Um documento por etapa (comece pelo 00-mapa.md)
