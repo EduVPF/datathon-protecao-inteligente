@@ -6,7 +6,7 @@
 
 ## O que fizemos
 - **Seguro BB já existente:** cliente com seguro residencial e **um imóvel só** sai `NAO` (o endereço já está segurado; o guia proíbe duas propostas). Com dois imóveis fica `SIM` e o motor pergunta qual já tem seguro. Na base de teste: 24 casos `NAO`.
-- **Perfis do slide 14** em `entrega/casos_contrastantes.json`: A apartamento urbano (`IMO_CASO_00005_01`, Prático), B casa familiar (`IMO_CASO_00031_01`, Total), C casa de lazer (`IMO_CASO_00010_01`) e um não elegível (`IMO_CASO_00001_01`).
+- **Perfis do slide 14** em `entrega/casos_contrastantes.json`: A apartamento urbano (`IMO_CASO_00005_01`, Prático), B casa familiar (`IMO_CASO_00031_01`, Total), C imóvel de lazer (`IMO_CASO_00010_01`, apartamento de veraneio, Essencial + RC) e um não elegível (`IMO_CASO_00001_01`).
 - **Crianças e pets:** só como necessidade que o cliente informou. Crianças e pet juntos somam 1 ponto ao Total. Só um dos dois vira pergunta. Nunca mudam faixa, elegibilidade, canal ou confiança.
 - **Confiança por regra, sem nota de corte** (detalhe abaixo).
 - **CUB só oficial** (SP, DF, GO, BA). Nas outras UFs o máximo é SINAPI × mediana da razão CUB/SINAPI das UFs oficiais (≈ 1,09).
@@ -58,6 +58,14 @@ A que mais aperta a faixa vem primeiro. Elegibilidade e uso do imóvel continuam
 
 O Prático cresce com a renda porque os bens crescem junto: é o que o cliente tem para proteger. O Total não segue a renda (vem de aluguel, vizinhos e família). A regra dos 80% que bancos usam em crédito vale para a decisão que nega algo, aqui a elegibilidade: 78,6% ÷ 85,7% = **0,91**, acima de 0,8.
 
+## Auditoria contra o guia (última rodada)
+Conferimos cada item do guia (seções 4 a 9 e 11). O que mudou:
+- **Veraneio não puxa mais o Prático.** Antes o imóvel de lazer ganhava 1 ponto de Prático "porque fica vazio", mas o roubo do Prático não cobre residência desocupada (CG, Roubo 2.1 c). Agora o motivo do Essencial explica isso.
+- **Cobertura adicional.** O guia 9.2 permite incluir coberturas do Prático e do Total. Crianças ou pets informados + prédio ou condomínio → RC familiar como adicional (41 casos), sem levar o cliente ao Total inteiro. Em casa, vira pergunta.
+- **Métricas que o guia lista e faltavam:** estabilidade do plano (valores ±5%: 1 caso muda), taxa de falhas (0), cumprimento da elegibilidade por regra.
+- **`FONTES.md` com licença e redistribuição** de cada fonte, como o guia pede.
+- **README final** com as seções exigidas no guia §6.
+
 ## Decisões e o que descartamos
 | Decidimos | Em vez de | Porque |
 |---|---|---|
@@ -67,13 +75,15 @@ O Prático cresce com a renda porque os bens crescem junto: é o que o cliente t
 | CUB só oficial | CUB de agregador | Guia pede fonte pública ou autorizada |
 | Padrão vazio = faixa 0,85 a 1,30 | Supor "normal" | 40 casos com padrão cadastrado: 16 são superior; supor normal subestimaria |
 | Regra dos 80% na elegibilidade | Regra dos 80% no plano Total | Plano não é negativa; elegibilidade é |
+| RC adicional em prédio com crianças ou pets | Levar ao Total | Paga só o que precisa (slide 13: personalização dentro das regras) |
+| Veraneio sem ponto de Prático | Veraneio +1 Prático | Roubo não cobre residência desocupada |
 
 ## Como conferir
 ```bash
 python -m pytest -q
 python motor/gerar.py --entrega
 ```
-Resultado esperado: 47 testes passando; Prático 60 · Total 49 · Essencial 29; elegível 114 · não elegível 24; confiança ALTA 17 · MÉDIA 101 · BAIXA 20; teste de justiça 0; estabilidade da confiança 0; regra dos 80% na elegibilidade 0,91.
+Resultado esperado: 49 testes passando; Prático 59 · Total 49 · Essencial 30; 41 RC adicionais; elegível 114 · não elegível 24; confiança ALTA 17 · MÉDIA 101 · BAIXA 20; teste de justiça 0; estabilidade da confiança 0; regra dos 80% na elegibilidade 0,91.
 
 ## Pendências e riscos
 - O CUB de RJ, MG, PR, RS, PE e CE pode ser buscado no site de cada Sinduscon e marcado `oficial`.

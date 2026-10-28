@@ -150,7 +150,13 @@ window.FICHAS_DEMO = {
     "texto": "Total: acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"
    },
    "por_que_nao_abaixo": "o Essencial não cobre roubo com arrombamento e quebra de vidros",
-   "por_que_nao_acima": "o Total acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais, mas os sinais ainda são fracos para isso",
+   "por_que_nao_acima": "o Total acrescenta a perda de aluguel e as despesas emergenciais (a RC familiar já entra como adicional), mas os sinais ainda são fracos para isso",
+   "adicionais": [
+    {
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
+    }
+   ],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
@@ -247,6 +253,18 @@ window.FICHAS_DEMO = {
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
      "observacao": ""
+    },
+    {
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "tipo": "ADICIONAL",
+     "min": 41000,
+     "max": 137000,
+     "confianca": "MEDIA",
+     "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.944–R$ 3.253/m² (SINAPI PR até SINAPI PR × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "confirmar": "",
+     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
     }
    ],
    "perguntas": [
@@ -261,14 +279,9 @@ window.FICHAS_DEMO = {
      "texto": "Seus móveis, eletrodomésticos e eletrônicos ficam entre R$ 22.000 e R$ 60.000?",
      "codigo": "BENS",
      "reduz_faixa_ate": 38000
-    },
-    {
-     "prioridade": 45,
-     "texto": "Você informou crianças ou pets em casa. Quer proteção para danos que eles causem a terceiros? Ela vem no plano Total.",
-     "codigo": "RC_FAMILIA"
     }
    ],
-   "perguntas_candidatas": 3,
+   "perguntas_candidatas": 2,
    "confianca": "ALTA",
    "confianca_score": 76,
    "confianca_motivo": "todos os dados críticos observados",
@@ -452,6 +465,7 @@ window.FICHAS_DEMO = {
    },
    "por_que_nao_abaixo": "o Prático não cobre o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais",
    "por_que_nao_acima": "",
+   "adicionais": [],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
@@ -740,42 +754,40 @@ window.FICHAS_DEMO = {
    },
    "elegibilidade": "SIM",
    "pendencias": [],
-   "avisos": [
-    "imóvel de veraneio: roubo não cobre residência desocupada (CG, Roubo 2.1 c)"
-   ],
-   "plano": "PRATICO",
+   "avisos": [],
+   "plano": "ESSENCIAL",
    "motivos": [
     {
      "plano": "TOTAL",
      "peso": 1,
      "codigo": "VIZINHOS",
      "texto": "em prédio ou condomínio, um vazamento ou incêndio pode atingir o vizinho"
-    },
-    {
-     "plano": "PRATICO",
-     "peso": 1,
-     "codigo": "VERANEIO",
-     "texto": "o imóvel é de veraneio e fica vazio parte do tempo"
     }
    ],
    "motivos_plano": [
     {
-     "plano": "PRATICO",
-     "peso": 1,
+     "plano": "ESSENCIAL",
+     "peso": 0,
      "codigo": "VERANEIO",
-     "texto": "o imóvel é de veraneio e fica vazio parte do tempo"
+     "texto": "o imóvel é de lazer e fica vazio parte do tempo: fogo, vento, água e danos elétricos continuam cobertos, mas o roubo do Prático não cobre residência desocupada (CG, Roubo 2.1 c)"
     }
    ],
    "pontos": {
-    "pratico": 1,
+    "pratico": 0,
     "total": 1
    },
    "alternativa": {
-    "plano": "TOTAL",
-    "texto": "Total: acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"
+    "plano": "PRATICO",
+    "texto": "Prático: acrescenta roubo com arrombamento e quebra de vidros"
    },
-   "por_que_nao_abaixo": "o Essencial não cobre roubo com arrombamento e quebra de vidros",
-   "por_que_nao_acima": "o Total acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais, mas os sinais ainda são fracos para isso",
+   "por_que_nao_abaixo": "",
+   "por_que_nao_acima": "o Prático acrescenta roubo com arrombamento e quebra de vidros, mas não há sinais que peçam isso",
+   "adicionais": [
+    {
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
+    }
+   ],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
@@ -850,28 +862,16 @@ window.FICHAS_DEMO = {
      "observacao": ""
     },
     {
-     "cobertura": "ROUBO_FURTO_ARROMBAMENTO",
-     "tipo": "FIXA",
-     "min": 4500,
-     "max": 12500,
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "tipo": "ADICIONAL",
+     "min": 35000,
+     "max": 122000,
      "confianca": "MEDIA",
-     "dados_utilizados": "compras de eletrônicos (36m), bens vinculados; IPCA",
-     "regra": "eletrônicos e portáteis: comprovado → estoque, a preço de hoje",
-     "justificativa": "Repor o que costuma ser levado num arrombamento, a valor de reposição.",
-     "confirmar": "Bens portáteis de maior valor",
-     "observacao": "Não cobre joias, relógios, dinheiro, drones nem bicicleta fora de casa (CG cl. 6; Roubo 2.1). Residência desocupada não é coberta."
-    },
-    {
-     "cobertura": "QUEBRA_DE_VIDROS",
-     "tipo": "FIXA",
-     "min": 2000,
-     "max": 5000,
-     "confianca": "BAIXA",
-     "dados_utilizados": "tipo do imóvel, gastos com vidraçaria 24m",
-     "regra": "faixa por tipo, ampliada para 1,2 × o gasto com vidraçaria",
-     "justificativa": "Janelas, box e tampos de vidro.",
-     "confirmar": "Há vidros grandes (sacada, box, fachada)?",
-     "observacao": ""
+     "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.674–R$ 2.916/m² (SINAPI BA até CUB BA oficial, padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "confirmar": "",
+     "observacao": "Cobertura adicional ao plano Essencial (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
     }
    ],
    "perguntas": [
@@ -893,7 +893,7 @@ window.FICHAS_DEMO = {
      "reduz_faixa_ate": 54000
     }
    ],
-   "perguntas_candidatas": 6,
+   "perguntas_candidatas": 5,
    "confianca": "BAIXA",
    "confianca_score": 52,
    "confianca_motivo": "presumido: uso do imóvel; estimado: área, vínculo",
@@ -1078,7 +1078,13 @@ window.FICHAS_DEMO = {
     "texto": "Total: acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais"
    },
    "por_que_nao_abaixo": "o Essencial não cobre roubo com arrombamento e quebra de vidros",
-   "por_que_nao_acima": "o Total acrescenta o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais, mas os sinais ainda são fracos para isso",
+   "por_que_nao_acima": "o Total acrescenta a perda de aluguel e as despesas emergenciais (a RC familiar já entra como adicional), mas os sinais ainda são fracos para isso",
+   "adicionais": [
+    {
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "motivo": "você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros"
+    }
+   ],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
@@ -1175,6 +1181,18 @@ window.FICHAS_DEMO = {
      "justificativa": "Janelas, box e tampos de vidro.",
      "confirmar": "Há vidros grandes (sacada, box, fachada)?",
      "observacao": ""
+    },
+    {
+     "cobertura": "RESPONSABILIDADE_CIVIL_FAMILIAR",
+     "tipo": "ADICIONAL",
+     "min": 34000,
+     "max": 112000,
+     "confianca": "MEDIA",
+     "dados_utilizados": "tipo do imóvel; SINAPI, CUB",
+     "regra": "reparo de uma unidade vizinha: 70 m² × R$ 1.599–R$ 2.676/m² (SINAPI PE até SINAPI PE × 1.094 (razão CUB/SINAPI das UFs com CUB oficial), padrão não cadastrado: fator 0,85 a 1,30) × 30%–60%",
+     "justificativa": "Paga danos que você ou sua família cause a terceiros, como água descendo para o vizinho. Crianças e pets informados só pesam na escolha do plano, não no valor.",
+     "confirmar": "",
+     "observacao": "Cobertura adicional ao plano Prático (guia 9.2): você informou crianças ou pets e mora perto de vizinhos; a RC familiar paga danos que eles causem a terceiros."
     }
    ],
    "perguntas": [
@@ -1197,7 +1215,7 @@ window.FICHAS_DEMO = {
      "reduz_faixa_ate": 83000
     }
    ],
-   "perguntas_candidatas": 5,
+   "perguntas_candidatas": 4,
    "confianca": "MEDIA",
    "confianca_score": 57,
    "confianca_motivo": "estimado: área, vínculo",
@@ -1376,6 +1394,7 @@ window.FICHAS_DEMO = {
    },
    "por_que_nao_abaixo": "o Prático não cobre o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais",
    "por_que_nao_acima": "",
+   "adicionais": [],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",
@@ -1708,6 +1727,7 @@ window.FICHAS_DEMO = {
    },
    "por_que_nao_abaixo": "o Prático não cobre o conserto de danos a terceiros, a perda de aluguel e as despesas emergenciais",
    "por_que_nao_acima": "",
+   "adicionais": [],
    "coberturas": [
     {
      "cobertura": "INCENDIO_RAIO_EXPLOSAO_FUMACA",

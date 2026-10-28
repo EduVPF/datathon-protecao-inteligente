@@ -3,12 +3,12 @@
  "processados_pct": 100.0,
  "com_justificativa_pct": 100.0,
  "completude_coberturas_fixas_pct": 100.0,
- "linhas_de_cobertura": 1193,
+ "linhas_de_cobertura": 1232,
  "faixas_vazias": 0,
  "faixas_invertidas": 0,
  "planos": {
-  "PRATICO": 60,
-  "ESSENCIAL": 29,
+  "PRATICO": 59,
+  "ESSENCIAL": 30,
   "TOTAL": 49
  },
  "elegibilidade": {
@@ -16,6 +16,19 @@
   "SIM": 114
  },
  "casos_com_confirmacao_de_elegibilidade": 37,
+ "elegibilidade_por_regra": {
+  "SEGURO_EXISTENTE": 30,
+  "POSSIVEL_REFORMA": 7,
+  "NAO_ELEGIVEL": 24
+ },
+ "coberturas_adicionais": {
+  "RESPONSABILIDADE_CIVIL_FAMILIAR": 41
+ },
+ "estabilidade_plano_casos_que_mudam_com_valores_5pct": 1,
+ "estabilidade_plano_casos_instaveis": [
+  "IMO_CASO_00013_01"
+ ],
+ "casos_com_falha": 0,
  "confianca": {
   "MEDIA": 101,
   "BAIXA": 20,
@@ -32,8 +45,8 @@
   "GERENTE": 71,
   "ONE_CLICK": 67
  },
- "perguntas_media": 2.78,
- "perguntas_candidatas_media": 3.73,
+ "perguntas_media": 2.72,
+ "perguntas_candidatas_media": 3.43,
  "teste_justica_casos_alterados": 0,
  "justica_por_quinto_de_renda": {
   "quintos": {
@@ -48,8 +61,8 @@
    },
    "Q2": {
     "casos": 27,
-    "essencial_pct": 40.7,
-    "pratico_pct": 33.3,
+    "essencial_pct": 44.4,
+    "pratico_pct": 29.6,
     "total_pct": 25.9,
     "elegivel_pct": 85.2,
     "inquilino_pct": 22.2,
@@ -89,5 +102,5 @@
  "familia_declarada_muda_valor_ou_confianca": 0,
  "sensibilidade_area_10pct_incendio_media_pct": 4.78,
  "sensibilidade_area_casos_com_queda": 0,
- "tempo_segundos": 0.5
+ "tempo_segundos": 0.51
 }
