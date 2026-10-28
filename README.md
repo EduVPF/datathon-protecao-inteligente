@@ -18,7 +18,7 @@ Python 3.11 (registrado em `.python-version`).
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 87 testes
+python -m pytest -q                 # 91 testes
 python motor/gerar.py --entrega     # gera, valida e copia as planilhas para entrega/
 ```
 

@@ -59,7 +59,9 @@ def motivos_de_patrimonio(vinculo, bens):
     elif vinculo == "FINANCIADO":
         motivos.append(("PATRIMONIO", "o seguro do financiamento protege a estrutura para o banco, não o que está dentro da casa"))
     e = bens["eletricos"]
-    texto = f"seus eletrônicos e eletrodomésticos valem hoje {faixa_reais(e['min'], e['max'])}"
+    valem = "estimamos que seus eletrônicos e eletrodomésticos valem" if bens.get("regional") else \
+        "seus eletrônicos e eletrodomésticos valem hoje"
+    texto = f"{valem} {faixa_reais(e['min'], e['max'])}"
     pct = P.sinistros_pct("DANOS_ELETRICOS")
     if pct is not None:
         texto += f", e danos elétricos são {str(pct).replace('.', ',')}% dos acionamentos do residencial da BB"

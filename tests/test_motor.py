@@ -40,6 +40,7 @@ def test_renda_so_tem_um_parametro():
 
 
 # --- T2: tipo, área e bens -------------------------------------------------------
+import json  # noqa: E402
 from types import SimpleNamespace  # noqa: E402
 
 import pandas as pd  # noqa: E402
@@ -97,6 +98,42 @@ def test_motivo_avisa_quando_usou_a_renda(teste, cal, caso, vazio):
     r = SimpleNamespace(**{**vars(r), **SEM_COMPRAS})
     f = motor.processar_caso(r, vazio, cal, catalogo)
     assert f["campos"]["bens"]["usou_renda"] and "sua renda" in motor.justificativa(f)
+
+
+def test_sem_compras_renda_nao_muda_plano_nem_jornada(teste, cal, caso, vazio):
+    # Revisão: a renda chegava ao plano pelos limiares de bens. Bens presumidos não somam pontos.
+    catalogo = teste["catalogo"].groupby("plano").cobertura_fixa.apply(list).to_dict()
+    for imovel_id in ("IMO_CASO_00001_01", "IMO_CASO_00005_01", "IMO_CASO_00031_01"):
+        r, _ = caso(imovel_id)
+        fs = [motor.processar_caso(SimpleNamespace(**{**vars(r), **SEM_COMPRAS, "renda_mensal": renda}), vazio, cal, catalogo)
+              for renda in (0, 1500, 8000, 40000, 150000)]
+        for k in ("plano", "elegibilidade", "jornada", "confianca", "adicionais"):
+            assert len({json.dumps(f[k], sort_keys=True) for f in fs}) == 1, (imovel_id, k)
+        for f in fs:   # sem compras, o texto não pode dizer que ele comprou nem dar a estimativa como fato
+            textos = [motor.justificativa(f)] + [c["justificativa"] for c in f["coberturas"]]
+            assert not any("suas compras" in t or "você comprou" in t for t in textos), imovel_id
+            assert "média de casas parecidas na sua região" in motor.justificativa(f), imovel_id
+
+
+def test_renda_em_texto_ou_invalida_nao_quebra(linha, vazio, cal):
+    texto = motor.estimar_bens(linha(renda_mensal="5000", **SEM_COMPRAS), vazio, cal)
+    ruim = motor.estimar_bens(linha(renda_mensal="abc", **SEM_COMPRAS), vazio, cal)
+    assert texto["usou_renda"] and not ruim["usou_renda"]
+
+
+def test_renda_nao_passa_de_2x_a_regiao(linha, vazio, cal, monkeypatch):
+    rica = motor.estimar_bens(linha(renda_mensal=500000, **SEM_COMPRAS), vazio, cal)
+    monkeypatch.setattr(P, "RENDA_NOS_BENS_SEM_COMPRAS", False)
+    so_regiao = motor.estimar_bens(linha(renda_mensal=500000, **SEM_COMPRAS), vazio, cal)
+    assert rica["max"] <= 2 * so_regiao["max"] + 1
+
+
+def test_razao_compras_renda_exige_amostra_minima():
+    df = pd.DataFrame({"codigo_ibge_municipio": [1] * 3 + [2] * P.REGIONAL_MIN_IMOVEIS,
+                       "compras": [100.0] * (3 + P.REGIONAL_MIN_IMOVEIS),
+                       "renda_mensal": [10.0] * (3 + P.REGIONAL_MIN_IMOVEIS)})
+    t = motor._compras_por_renda(df)
+    assert "1" not in t["municipio"] and "2" in t["municipio"]
 
 
 def test_backtest_regiao_com_renda_erra_menos(cal):

@@ -138,7 +138,7 @@ A base não tem esses dados. Viram declaração na contratação. Está nas limi
 O roubo do Prático não cobre residência desocupada (cláusula de roubo 2.1 c). Recomendar o Prático porque a casa fica vazia seria vender uma cobertura que pode não pagar.
 
 **"Isso funciona de verdade no banco?"**
-Roda os 138 casos em menos de um segundo, tem 87 testes, os testes rodam a cada mudança no GitHub, gera as mesmas planilhas toda vez e tem uma API pronta para o app, o gerente ou um agente chamarem. As premissas estão num arquivo só (`parametros.py`), para o atuário ajustar sem mexer na lógica.
+Roda os 138 casos em menos de um segundo, tem 91 testes, os testes rodam a cada mudança no GitHub, gera as mesmas planilhas toda vez e tem uma API pronta para o app, o gerente ou um agente chamarem. As premissas estão num arquivo só (`parametros.py`), para o atuário ajustar sem mexer na lógica.
 
 **"O que fariam com mais tempo?"**
 Calibrar as proporções com dados de sinistro da Brasilseg, enriquecer com risco do território (Atlas Digital de Desastres), CUB oficial dos 6 estados que faltam e medir a conversão do 1 toque num piloto.
@@ -151,11 +151,11 @@ Calibrar as proporções com dados de sinistro da Brasilseg, enriquecer com risc
 | 0:00–0:40 | Problema: só 17% dos lares têm seguro (slide 6); o cliente não sabe quanto segurar | |
 | 0:40–1:20 | Ideia: o banco já sabe; sinais → sugestão → confiança → confirmação → recomendação | |
 | 1:20–2:30 | **Demo:** protótipo do gerente, botões A, B e C. Mostrar plano, faixas, motivo e perguntas mudando entre os 3 perfis | |
-| 2:30–3:20 | **Código:** `parametros.py` (premissas com fonte), `escolher_plano` (pontos), `confianca_geral` (regra). Rodar `python -m pytest -q` (87 passando) e `python motor/gerar.py --entrega` | |
+| 2:30–3:20 | **Código:** `parametros.py` (premissas com fonte), `escolher_plano` (pontos), `confianca_geral` (regra). Rodar `python -m pytest -q` (91 passando) e `python motor/gerar.py --entrega` | |
 | 3:20–4:10 | Evidências: tabela de métricas do README (justiça 0, estabilidade, confiança, regra dos 80%) | |
 | 4:10–5:00 | Limitações e próximos passos; responsabilidade (idade fora, renda só como reforço e avisada ao cliente, controle humano, IA declarada) | |
 
-**Dica:** gravem a tela rodando os testes ao vivo. "87 passed" na tela vale mais que um slide.
+**Dica:** gravem a tela rodando os testes ao vivo. "91 passed" na tela vale mais que um slide.
 
 ---
 

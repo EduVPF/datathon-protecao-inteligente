@@ -32,12 +32,14 @@
 
 ## Como conferir
 ```bash
-python -m pytest -q          # 87 testes
+python -m pytest -q          # 91 testes
 python motor/gerar.py --entrega
 ```
-Resultado esperado: 87 passando, 0 erros de validação, planilhas iguais às de antes e, em `entrega/metricas.json`, `dados_faltantes.backtest_bens_sem_compras` com 40,5 e 22,7.
+Resultado esperado: 91 passando, 0 erros de validação, planilhas iguais às de antes e, em `entrega/metricas.json`, `dados_faltantes.backtest_bens_sem_compras` com 40,5 e 22,7.
 
 ## Pendências e riscos
+- Revisão de código (28/10): a renda chegava ao plano pelos limiares de bens no caminho sem compras. Corrigido: bens presumidos não somam pontos ao plano, o texto diz "estimamos" e o resultado fica entre 0,5 × e 2 × a região (detalhes na seção 11 do relatório).
+- O backtest só mede em quem tem compras (fingindo que não tem). Para quem realmente não compra pelo BB, 22,7% é otimista.
 - O guia ainda diz "atributos pessoais". Na banca, dizer que a liberação veio da mentoria do BB e mostrar que a renda nunca decide sozinha.
 - Próximo uso proposto (não implementado): em 29 dos 138 casos, a renda indica compras pelo menos 1,5 × maiores que as vistas no BB (8 casos acima de 2 ×). Isso pode virar a pergunta "comprou coisas para a casa em outros bancos?", sem mudar o valor sozinho.
 

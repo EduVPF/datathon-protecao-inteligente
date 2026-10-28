@@ -6,11 +6,11 @@ Branch: `validacao/renda-liberada-e-relatorio` (a partir de `main` em `c9b1c2f`)
 
 ## 0. Resumo em 1 minuto
 
-**Veredito:** o projeto está maduro e defensável. O motor roda os 138 casos sem falha, as duas planilhas passam no validador com 0 erros, a geração é reprodutível (duas rodadas geram arquivos iguais) e há **87 testes passando**. O que mais diferencia o time é o **motivo**: todo cliente lê um porquê com um fato dele, quanto está em jogo e o que fica descoberto se escolher menos.
+**Veredito:** o projeto está maduro e defensável. O motor roda os 138 casos sem falha, as duas planilhas passam no validador com 0 erros, a geração é reprodutível (duas rodadas geram arquivos iguais) e há **91 testes passando**. O que mais diferencia o time é o **motivo**: todo cliente lê um porquê com um fato dele, quanto está em jogo e o que fica descoberto se escolher menos.
 
 **O que mudou nesta branch:**
 1. **Regra da renda retirada.** Na mentoria, o Banco do Brasil confirmou que renda não é dado sensível. A RN-07 foi revisada (decisão D-08) e a renda passou a reforçar a estimativa dos bens de quem não tem compras, junto com a média da região. Fora da amostra, o erro cai de **40,5% para 22,7%**. As planilhas da entrega não mudaram (todo caso da base comum tem compras).
-2. **Números desatualizados corrigidos** no guia de pitch (16 não elegíveis, e não 24; 87 testes, e não 49; CUB oficial em 7 UFs) e no README (limitação do CUB).
+2. **Números desatualizados corrigidos** no guia de pitch (16 não elegíveis, e não 24; 91 testes, e não 49; CUB oficial em 7 UFs) e no README (limitação do CUB).
 
 **O que precisa de atenção antes das 10h de 29/10 (P0):**
 - README sem **nome da equipe e integrantes** (`_(preencher)_`). O guia exige.
@@ -145,9 +145,10 @@ A banca disse que o **motivo** é o ponto principal (RN-49). O módulo `motor/mo
 **Agora:** na mentoria, o pessoal do BB confirmou que renda não é dado sensível. A LGPD (art. 5º, II) também não a lista. A **idade** continua proibida.
 
 **O que o motor faz com a renda (`motor/motor.py`):**
-- Só em `estimar_bens`, quando **não há compras nem bens ligados ao imóvel**: compras estimadas = √(média da região × renda × razão compras/renda do município).
+- Só em `estimar_bens`, quando **não há compras nem bens ligados ao imóvel**: compras estimadas = √(média da região × renda × razão compras/renda do município), **presa entre 0,5 × e 2 × a média da região**.
 - Quem tem compras segue pelas compras (a prova vence a estimativa).
-- Não entra em plano, elegibilidade, jornada nem confiança.
+- Não entra em plano, elegibilidade, jornada nem confiança, **nem por tabela**: bens presumidos não somam os pontos de "bens altos" e "eletrônicos" do plano (achado da revisão de código, seção 11).
+- A razão compras/renda de um município só vale com 20 imóveis ou mais; senão, usa a razão geral.
 - O cliente lê: "usamos a média de casas parecidas na sua região **e a sua renda**".
 - Desligável: `parametros.RENDA_NOS_BENS_SEM_COMPRAS = False`.
 
@@ -157,6 +158,8 @@ A banca disse que o **motivo** é o ponto principal (RN-49). O módulo `motor/mo
 | Só a média da região | 40,5% |
 | Região + renda (média geométrica) | **22,7%** |
 | Só a renda (análise à parte, não usada) | ~37% |
+
+**Ressalva honesta:** o backtest só pode medir em quem **tem** compras (fingindo que não tem). O público real desse caminho (quem compra com cartão de outro banco ou tem poucos bens) pode ser diferente, então 22,7% é um número otimista para ele. As metades também são divididas por linha, não por cliente; um cliente com dois imóveis pode cair nas duas (vazamento pequeno).
 
 **Por que não usar a renda em mais coisas (ainda):** na base, a renda tem correlação **0,88** com os bens, mas **0,01** com a área. Na base comum, 0 casos estão sem compras, então hoje a mudança não altera nenhuma planilha. Ela protege o cliente real que compra com cartão de outro banco.
 
@@ -173,7 +176,7 @@ A banca disse que o **motivo** é o ponto principal (RN-49). O módulo `motor/mo
 | Executa sem falha | 138 de 138 casos, 0 falhas, ~0,7 s |
 | Planilhas no padrão do guia | Validador (`templates.py`): colunas, ordem, nomes do catálogo, valores só com números, fixas completas, RN-33 (lista = linhas). **0 erros** |
 | Reprodutível | Regenerei a entrega da `main`: só o tempo de execução mudou |
-| Testes | 82 na `main` → **87** nesta branch, todos passando; CI no GitHub roda a cada envio |
+| Testes | 82 na `main` → **91** nesta branch, todos passando; CI no GitHub roda a cada envio |
 | Elegibilidade antes do plano | NÃO só com prova (16); sinal fraco vira pergunta (21 elegíveis com confirmação) |
 | Faixas coerentes | Menor confiança → faixa mais larga; área maior nunca reduz incêndio |
 | Esforço | 2,7 perguntas por caso contra ~19,9 campos de uma cotação tradicional (**86,4% menos**); nenhuma pergunta que mude menos de R$ 5 mil |
@@ -212,12 +215,12 @@ A banca disse que o **motivo** é o ponto principal (RN-49). O módulo `motor/mo
 
 ```bash
 pip install -r requirements.txt
-python -m pytest -q                 # 87 passed
+python -m pytest -q                 # 91 passed
 python motor/gerar.py --entrega     # erros_validacao: 0
 ```
 
 O que rodei nesta revisão (Python 3.11.9, pandas 2.2.3, pytest 8.3.3):
-- `pytest` na `main`: 82 passed · nesta branch: **87 passed**.
+- `pytest` na `main`: 82 passed · nesta branch: **91 passed**.
 - `gerar.py --entrega` na `main` e nesta branch: 0 erros; as duas planilhas ficaram **idênticas byte a byte**; `metricas.json` ganhou `bens_pela_regiao_e_renda` (0) e `backtest_bens_sem_compras` (40,5 → 22,7).
 - Análises de lacunas, correlações e backtests nas duas bases (seções 3 e 6).
 
@@ -229,7 +232,24 @@ O que rodei nesta revisão (Python 3.11.9, pandas 2.2.3, pytest 8.3.3):
 | `motor/motor.py` | `calibrar` lê a renda dos clientes; `_compras_por_renda`, `compras_pela_renda`, `_compras_sem_prova`, `backtest_bens_sem_compras`; `estimar_bens` usa região + renda quando não há compras |
 | `motor/motivo.py` | Texto da confiança avisa quando a renda entrou |
 | `motor/metricas.py` | `dados_faltantes` com a contagem e o backtest |
-| `tests/test_motor.py` | 5 testes novos e 2 reescritos (82 → 87) |
+| `tests/test_motor.py` | 9 testes novos e 2 reescritos (82 → 91) |
 | `entrega/metricas.json` | Novas métricas (as planilhas não mudaram) |
 | README, vault, guia de pitch, especificações, protótipos | Regra da renda retirada (idade segue proibida), D-08, números atualizados |
 | `documentos/contexto/22-renda-liberada.md` | Documento da etapa |
+
+## 11. Revisão de código da mudança da renda
+
+Um revisor independente leu o diff, rodou os testes, regenerou as saídas numa pasta temporária (planilhas com o mesmo hash) e simulou os 138 casos sem compras, com rendas de 0 a R$ 150 mil. Veredito inicial: **pronto com correções**. Tudo abaixo foi corrigido com teste escrito antes (falhou, depois passou):
+
+| Achado | Gravidade | Correção | Teste |
+|---|---|---|---|
+| No caminho sem compras, a renda mudava o **plano** pelos limiares de bens (83 de 138 casos simulados) | Importante | Bens presumidos não somam pontos de "bens altos" e "eletrônicos" | `test_sem_compras_renda_nao_muda_plano_nem_jornada` |
+| O cliente sem compras lia "suas compras ... valem pelo menos R$ X" e "repor o que você comprou" | Importante | Textos dizem "estimamos" e "os seus bens, que estimamos" quando não há compras | mesmo teste |
+| Renda em texto ("5000") quebrava o `brl()` | Menor | `_renda()` converte com segurança; inválida → só região | `test_renda_em_texto_ou_invalida_nao_quebra` |
+| Razão compras/renda sem amostra mínima por município | Menor | Exige 20 imóveis (`REGIONAL_MIN_IMOVEIS`) | `test_razao_compras_renda_exige_amostra_minima` |
+| Influência da renda sem limite (renda de R$ 150 mil → ~4 × a região) | Menor | Resultado preso entre 0,5 × e 2 × a região | `test_renda_nao_passa_de_2x_a_regiao` |
+| Merge com clientes poderia derrubar imóveis da calibração | Menor | `how="left", validate="many_to_one"` | suíte inteira |
+| Métrica de bens pela região contava os casos com renda; teste de justiça contaria como "mudou" um caso sem compras | Menor | Contagens separadas; sem compras, o teste de justiça confere só plano, elegibilidade, jornada e confiança (`teste_justica_casos_sem_compras_so_decisoes`) | `test_metricas_e_casos` |
+| Comentários antigos ("a renda não entra no motor") | Menor | Atualizados | — |
+
+Resultado depois das correções: **91 testes passando**, backtest ainda 40,5% → 22,7%, planilhas da entrega **idênticas** às da `main`.
