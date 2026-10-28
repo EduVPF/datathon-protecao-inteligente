@@ -160,4 +160,4 @@ python -m pytest -q
 python motor/gerar.py --entrega
 ```
 
-Ligações: [[Auditoria do código - 28-10]] · [[Métricas do mercado x as nossas]] · [[Log de alterações do código]] · [[Regras de negócio]]
+Ligações: [[Plano - motivo, dados faltantes e gerente]] · [[Auditoria do código - 28-10]] · [[Métricas do mercado x as nossas]] · [[Log de alterações do código]] · [[Regras de negócio]]

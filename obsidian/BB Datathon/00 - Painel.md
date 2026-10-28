@@ -14,6 +14,9 @@ tags: [painel, datathon-bb]
 > [!fonte] Dados externos em uso
 > SINAPI · CUB oficial (7 UFs) · IPCA · FipeZAP · sinistros BB · [[Atlas Digital de Desastres]] (S2iD) · [[ANEEL continuidade]]. Tudo salvo no projeto: o motor roda sem internet.
 
+> [!decisao] Plano novo (aguardando aprovação)
+> Depois da mentoria: [[Plano - motivo, dados faltantes e gerente]] (motivo 2.0, média regional, gerente como último recurso, APIs ao vivo).
+
 > [!warning] Para o time decidir
 > Família mudando o plano em 18 casos (RN-07) · limites de danos elétricos e água que são premissa · "valor sugerido" no meio da faixa. Detalhes na [[Auditoria do código - 28-10]].
 
